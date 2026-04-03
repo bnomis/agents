@@ -1,0 +1,42 @@
+{
+  "effortLevel": "high",
+  "enabledPlugins": {
+    "agents-quality-security@buildwithclaude": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "pubmed@life-sciences": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "subframe@subframe": true,
+    "wiley-scholar-gateway@life-sciences": true
+  },
+  "env": {
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_TELEMETRY": "1"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "command": "alerter --title 'Claude Code' --message 'Claude needs some input' --sound Funky",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
+  },
+  "model": "opus",
+  "showThinkingSummaries": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.py"
+  }
+}

@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+"""
+install-claude: symlinks files in to ~/.claude/
+"""
+
+import argparse
+import os
+import os.path
+import pathlib
+import sys
+from typing import NoReturn
+
+
+def symlink_file(options, src: pathlib.Path, dst: pathlib.Path) -> None:
+    """link a file from source to target, renaming existing file if necessary"""
+    if os.path.lexists(dst):
+        if os.path.islink(dst):
+            os.remove(dst)
+        else:
+            rn = dst.with_suffix(dst.suffix + '.orig')
+            i = 2
+            while rn.exists():
+                rn = rn.with_name(rn.stem + f'.{i}' + rn.suffix)
+                i += 1
+            os.rename(dst, rn)
+    os.symlink(src, dst)
+
+
+def symlink_dir(options, src: pathlib.Path, dst: pathlib.Path) -> None:
+    """links files in a directory from src to dst"""
+    dst.mkdir(parents=True, exist_ok=True)
+    for f in os.listdir(src):
+        srcf = src / f
+        dstf = dst / f
+        symlink_file(options, srcf, dstf)
+
+
+def this_dir() -> pathlib.Path:
+    """returns the directory of this script"""
+    return pathlib.Path(__file__).parent.resolve()
+
+
+def src_claude_dir() -> pathlib.Path:
+    """returns the directory of the claude files"""
+    return this_dir().parent / 'claude'
+
+
+def dest_claude_dir() -> pathlib.Path:
+    """returns the directory of the claude files"""
+    return pathlib.Path.home() / '.claude'
+
+
+def install_claude(options) -> None:
+    """link files from source to target"""
+    fdir = src_claude_dir()
+    tdir = dest_claude_dir()
+
+    for f in os.listdir(fdir):
+        if f[0] == '.':
+            continue
+
+        src = fdir / f
+        dest = tdir / f
+        if src.is_dir():
+            symlink_dir(options, src, dest)
+        else:
+            symlink_file(options, src, dest)
+
+
+def parse_args(argv) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog='install-claude',
+        description='symlinks files into ~/.claude',
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv) -> NoReturn:
+    options = parse_args(argv)
+    m = 0
+    try:
+        install_claude(options)
+    except Exception as e:
+        m = f'Exception: {e}'
+        options.logger.exception(m)
+    sys.exit(m)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
