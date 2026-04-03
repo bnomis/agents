@@ -1,6 +1,9 @@
 ---
 paths:
   - "**/*.py"
+  - "**/pyproject.toml"
+  - "**/uv.lock"
+  - "**/requirements.txt"
 ---
 
 # Python Development tools and libraries

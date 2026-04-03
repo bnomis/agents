@@ -1,5 +1,13 @@
 # Git conventions
 
+## pre-commit
+
+Ensure pre-commit hooks are installed after cloning the repository:
+
+```shell
+pre-commit install
+```
+
 ## Branching strategy
 
 Use feature branches unless instructed to use worktrees.
