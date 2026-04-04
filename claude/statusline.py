@@ -23,6 +23,8 @@ def git_status() -> str:
             git_status += f'{YELLOW}~{modified}{RESET}'
     except:
         git_status = ''
+    if git_status:
+        git_status = f'git: {git_status}'
     return git_status
 
 
@@ -34,7 +36,9 @@ def get_model(data: dict) -> str:
 
 def get_directory(data: dict) -> str:
     if 'workspace' in data and 'current_dir' in data['workspace']:
-        return data['workspace']['current_dir']
+        cwd = data['workspace']['current_dir']
+        if cwd:
+            return f'cwd: {cwd}'
     return ''
 
 
@@ -42,7 +46,7 @@ def get_context_window(data: dict) -> str:
     if 'context_window' in data and 'used_percentage' in data['context_window']:
         ctx = data['context_window']['used_percentage']
         if ctx:
-            return f'ctx: {ctx}%'
+            return f'ctx: {int(ctx)}%'
     return ''
 
 
@@ -50,7 +54,7 @@ def get_rate_percentage(data: dict) -> str:
     if 'rate_limits' in data and 'five_hour' in data['rate_limits'] and 'used_percentage' in data['rate_limits']['five_hour']:
         rate = data['rate_limits']['five_hour']['used_percentage']
         if rate:
-            return f'5h: {rate}%'
+            return f'5h: {int(rate)}%'
     return ''
 
 
