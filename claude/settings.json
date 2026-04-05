@@ -17,6 +17,7 @@
     "wiley-scholar-gateway@life-sciences": true
   },
   "env": {
+    "CLAUDE_CODE_NO_FLICKER": "1",
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_TELEMETRY": "1"
   },
@@ -36,7 +37,7 @@
   "model": "opus",
   "showThinkingSummaries": true,
   "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.py"
+    "command": "~/.claude/statusline.py",
+    "type": "command"
   }
 }
