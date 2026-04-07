@@ -5,26 +5,31 @@ paths:
 
 # Python Testing
 
-Below `<project>` is the current project's top level module name.
+In the text below:
 
-## Test layout
+- `<project>` is the current project's top level module name
+- `<pkg>` is a package or module in the project
+- `<file>` is a file in the project
+
+## Test layout and naming
 
 - Test files live in `src/tests/` and mirror the source layout:
   - `src/<project>/<name>.py` -> `src/tests/test_<name>.py`
   - `src/<project>/<pkg>/<file>.py` -> `src/tests/<pkg>/test_<file>.py`
 - Test functions are prefixed with `test_`
-- Make and use re-usable pytest fixtures
-- Place fixtures files in `src/tests/fixtures/` with names that mirror the source module names
-- Load fixtures in the `src/tests/conftest.py` file
-- Use hypothesis for functions with well-defined input domains
-- Use `pytest.raises` for expected exceptions
 
 ## Test data and fixtures
 
-- Place reusable sample texts and expected outputs in `src/tests/fixtures/`
-- Name fixture files to mirror the source module they test (e.g., `fixtures/lexical.py` for `extractors/lexical.py`)
-- For feature extraction tests, include at least one known-good input/output pair per language so regressions are caught
-- Keep fixture texts short but representative  - avoid large corpora in the test suite
+- Make and use re-usable pytest fixtures
+- Place fixtures files in `src/tests/fixtures/` with names that mirror the source module names (e.g., `fixtures/<pkg>.py` for `<project>/<pkg>.py`)
+- Load fixtures in the `src/tests/conftest.py` file
+- Include at least one known-good input/output pair so regressions are caught
+- Keep fixture texts short but representative - avoid large corpora in the test suite
+- Use hypothesis for functions with well-defined input domains
+
+## Test exceptions
+
+- Use `pytest.raises` for expected exceptions
 
 ## Test coverage
 
@@ -33,8 +38,12 @@ Below `<project>` is the current project's top level module name.
 
 ## Running tests
 
+After [activating the python environment](environment.md) run `pytest`. For example:
+
 ```bash
 source bin/activate.sh
+pytest
+# or for a specific file
 pytest path/to/test_file.py
 ```
 
@@ -74,7 +83,7 @@ pytest $(git diff --name-only --diff-filter=d origin/main...HEAD | sed -n \
 
 - Mark tests that load large models or process real datasets with `@pytest.mark.slow`
 - Skip slow tests during development with `pytest -m "not slow"`
-- The `slow` marker is registered in `pyproject.toml`  - no warning will be raised
+- The `slow` marker is registered in `pyproject.toml` - no warning will be raised
 - Hypothesis tests must always use `@settings(max_examples=20, deadline=10000)` to keep run times predictable
-- Do not increase `max_examples` without good reason  - the default of 20 balances coverage and speed
+- Do not increase `max_examples` without good reason - the default of 20 balances coverage and speed
 - If a single test takes more than 10 seconds, it should be marked `@pytest.mark.slow`
