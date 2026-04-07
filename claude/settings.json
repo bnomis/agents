@@ -1,5 +1,5 @@
 {
-  "effortLevel": "high",
+  "effortLevel": "max",
   "enabledPlugins": {
     "agents-quality-security@buildwithclaude": true,
     "claude-code-setup@claude-plugins-official": true,
