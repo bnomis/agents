@@ -88,6 +88,10 @@ A spec must contain at minimum the following sections. Copy this skeleton when c
 ~~~markdown
 # <Title>
 
+**Version:** 1.0
+**Status:** proposed
+**Date:** <YYYY-MM-DD>
+
 <Introduction: what the component does and why it exists.>
 
 ## Module location
