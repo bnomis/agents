@@ -1,22 +1,17 @@
----
-paths:
-  - "**/*.sh"
----
-
 # Bash guidelines
 
-## Avoid pipes and output buffering
+Claude runs commands in a non-TTY subprocess. Pagers hang, interactive
+prompts have no one to answer them, and some pipes buffer indefinitely.
 
-Do not pipe output through `head`, `tail`, `less` or `more` when monitoring or checking command output.
+## Output handling
 
-Do not use `| head -n X` or `| tail -n X` to truncate output, these cause buffering problems.
+- Use command flags to limit output: `git log -n 10`, not `git log | head`.
+- Prefer `grep -m N` (or `rg -m N`) over `grep | head`.
+- Read log files directly instead of piping through filters.
+- Avoid `watch` and `tail -f` without a timeout.
 
-Avoid chained pipes, these can cause output to buffer indefinitely.
+## No interactive tools
 
-Let commands complete fully or use command-specific flags to limit output. For example, use `git log -n 10` instead of `git log | head -n 10`.
-
-For log monitoring, prefer reading files directly rather than piping through filters.
-
-## Avoid interactive commands
-
-Do not use interactive flags such as `-i` or commands that require user input (e.g., `less`, `vim`, `nano`).
+- No pagers: `less`, `more`, `fzf` (they expect a TTY and hang).
+- No editors: `vim`, `nano`.
+- No `-i` flags or anything that prompts for input.

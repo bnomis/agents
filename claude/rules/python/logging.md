@@ -1,0 +1,28 @@
+---
+paths:
+  - "**/*.py"
+---
+
+# Logging conventions
+
+General logging rules (use `loguru`, log levels, exception logging) are
+in [coding-standards.md](coding-standards.md#logging). PII rules are in
+[security.md](../security.md). This file covers project-specific log
+conventions.
+
+## ETA log lines
+
+ETA (estimated time of arrival) log lines report how long a long-running
+operation has left to run. They are parsed by downstream tooling, so the
+format is load-bearing:
+
+- Level: `info`.
+- Prefix: `ETA: ` (with the trailing space).
+
+Example:
+
+```python
+loguru.logger.info(f'ETA: training will finish in {duration}')
+```
+
+ETA is currently the only structured log-line prefix in this project.

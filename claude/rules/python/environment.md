@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/*.py"
+  - "**/bin/*"
+---
+
 # Python environment and scripts
 
 ## Python environment activation
