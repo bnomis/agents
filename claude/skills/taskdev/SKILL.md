@@ -60,7 +60,7 @@ All tasks should following the standards in AGENTS.md established for source cod
 
 1. Read the spec at the resolved path
 2. Read related `.md` documents in the same directory
-3. If the spec is ambiguous or incomplete, ask the user whether to invoke the specdev skill (via the Skill tool) to improve it before proceeding. If the user declines, continue but add a warning to the task file header noting which spec sections were ambiguous, and mark affected tasks with `**Caveat:** spec unclear` in their Notes
+3. If the spec is ambiguous or incomplete or will lead to a "decide with the user" task, tell the user what the issue is and ask the user whether to invoke the specdev skill (via the Skill tool) to improve it before proceeding. If the user declines, continue but add a warning to the task file header noting which spec sections were ambiguous, and mark affected tasks with `**Caveat:** spec unclear` in their Notes
 4. Read any existing `tasks-*.md` files in `agents/tasks/<SLUG>/` to understand prior work
 5. Analyse the spec and produce an implementation plan
 6. Check if implementation code already exists:
