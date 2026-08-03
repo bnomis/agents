@@ -60,7 +60,7 @@ All tasks should following the standards in AGENTS.md established for source cod
 
 1. Read the spec at the resolved path
 2. Read related `.md` documents in the same directory
-3. If the spec is ambiguous or incomplete or will lead to a "decide with the user" task, tell the user what the issue is and ask the user whether to invoke the specdev skill (via the Skill tool) to improve it before proceeding. If the user declines, continue but add a warning to the task file header noting which spec sections were ambiguous, and mark affected tasks with `**Caveat:** spec unclear` in their Notes
+3. If the spec is ambiguous or incomplete or will lead to a "decide with the user" task or subtask, tell the user what the issue is and ask the user whether to invoke the specdev skill (via the Skill tool) to improve it before proceeding. If the user declines, continue but add a warning to the task file header noting which spec sections were ambiguous, and mark affected tasks with `**Caveat:** spec unclear` in their Notes
 4. Read any existing `tasks-*.md` files in `agents/tasks/<SLUG>/` to understand prior work
 5. Analyse the spec and produce an implementation plan
 6. Check if implementation code already exists:
@@ -72,7 +72,8 @@ All tasks should following the standards in AGENTS.md established for source cod
 7. Write the task list file
 8. Update `agents/tasks/index.md` with the new task file entry (create the index if it doesn't exist)
 9. Verify coverage: confirm every spec section is addressed by at least one task
-10. Present the task list summary to the user for review
+10. If there are any tasks or subtasks in the new task list file which require a user decision (i.e. human intervention or decisions) such as "decide with the user" tasks or subtasks, flags these tasks to the user and suggest they update the spec to make the tasks unambiguous so a new task list can be written which does not require human intervention.
+11. Present the task list summary to the user for review
 
 ## Task sizing
 
