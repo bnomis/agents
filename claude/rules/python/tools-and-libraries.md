@@ -17,3 +17,4 @@ paths:
 - Testing: `pytest` <https://docs.pytest.org/en/stable/>
 - Property based testing: hypothesis <https://hypothesis.works/>
 - Network http[s] requests: `aiohttp` <https://docs.aiohttp.org/en/stable/>
+- Type checking: `mypy` <https://github.com/python/mypy>
