@@ -111,6 +111,32 @@ Tasks should be in implementation order. Take into account:
 
 If the spec references other specs, check whether tasks from those specs have already been created and note dependencies.
 
+## Components modelled on an existing sibling
+
+When the spec describes a component that parallels one already built - a second
+stage in the same pipeline, another provider behind the same interface, a new
+package that reads the same artefacts - say so in the task list, and give the
+component's last task an explicit deduplication subtask:
+
+```markdown
+- [ ] Hoist anything this component duplicates from <sibling> to a single
+      owner: grep the tree for each literal collection, constant and one-line
+      helper the new modules define, and import rather than copy. Choose the
+      owner from the existing import graph; prefer a package the consumer
+      already imports over adding a new edge
+```
+
+Adapting a sibling is usually the right design - it is how conventions stay
+consistent - but it reliably leaves duplicated constants and helpers behind, and
+those are invisible from inside the file that creates them. The second copy is
+what creates the problem, and by the time it is written the first is an earlier
+task nobody is still holding in their head. A whole-tree duplication check will
+find them eventually; a subtask finds them while the author still knows why both
+copies exist.
+
+Make it the component's last task, not its first: the duplicates do not exist
+until the modules that carry them are written.
+
 ## File output
 
 Write the implementation plan to `agents/tasks/<SLUG>/tasks-N.md`, where N is an index starting from 1.
