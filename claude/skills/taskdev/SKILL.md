@@ -97,6 +97,7 @@ Each task should include:
 - **Spec Reference**: which section(s) of the spec this task fulfils
 - **Subtasks**: atomic actions that are not further decomposable
 - **Acceptance Criteria**: testable conditions
+- **Definition of Done**: the project's own checks, named literally
 - **Notes**: dependencies, relevant file paths, implementation hints
 
 ## Task ordering
@@ -110,6 +111,35 @@ Tasks should be in implementation order. Take into account:
 ## Cross referencing
 
 If the spec references other specs, check whether tasks from those specs have already been created and note dependencies.
+
+## Definition of done
+
+Every task carries a **Definition of Done** listing the checks that must pass
+before it is marked complete. Acceptance criteria say what the task must
+achieve; the definition of done says what must be *run* to believe it.
+
+Discover the commands from the repository - never copy them from another
+project's task list. A gate naming a command the project does not have reads
+as satisfied while silently never running, which is worse than no gate. Look
+at `.pre-commit-config.yaml` (noting any hook with `stages: [pre-push]`, which
+does not run on a commit), `Makefile` targets, `package.json` scripts,
+`pyproject.toml`, and any verification script under `bin/`, `scripts/` or
+`tools/` - a whole-tree audit or duplication check especially, since that is
+the kind of check that gets run once and ignored when it is not part of "done".
+
+Name each command literally, so the task can be verified without inferring
+anything:
+
+```markdown
+**Definition of Done:**
+
+- [ ] `pre-commit run --all-files` passes
+- [ ] `pytest src/tests/<touched package>` passes
+- [ ] `bin/audit-changed.sh` exits 0
+```
+
+Put the same list on every task. Repetition is the point: a check listed once
+in the file header is a check that stops binding by task three.
 
 ## Components modelled on an existing sibling
 
@@ -205,6 +235,13 @@ Use User Story for user-facing tasks or Technical Goal for infrastructure tasks.
 
 - [ ] <testable condition>
 ...
+
+**Definition of Done:**
+
+- [ ] <the project's lint/format command> passes
+- [ ] <the project's typecheck command> passes
+- [ ] <the project's test command, scoped to the touched module> passes
+- [ ] <each repo-local verification script> exits 0
 
 **Notes:**
 
