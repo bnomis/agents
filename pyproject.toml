@@ -41,5 +41,12 @@ select = [
 # S311 random
 ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S311']
 
+[tool.ruff.lint.per-file-ignores]
+# S101 assert: pytest reports failures through bare asserts.
+# S603/S607 subprocess: the driver test runs the shipped entry point as a
+# subprocess and the hygiene test probes for `ruff` on PATH exactly as the
+# checker does. Both are the behaviour under test.
+"claude/skills/auditme/tests/*" = ["S101", "S603", "S607"]
+
 [tool.ruff.lint.isort]
 combine-as-imports = true
