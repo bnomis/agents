@@ -2,6 +2,7 @@
 name = "agents"
 description = "agent files"
 version = "0.1.0"
+requires-python = ">=3.14.7,<3.15"
 
 [tool.ruff]
 line-length = 160
@@ -50,3 +51,7 @@ ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S311']
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
+
+[tool.uv]
+exclude-newer = "14 days"
+prerelease = "disallow"
