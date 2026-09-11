@@ -33,10 +33,11 @@ def symlink_file(options, src: pathlib.Path, dst: pathlib.Path) -> None:
 
 def symlink_dir(options, src: pathlib.Path, dst: pathlib.Path) -> None:
     """links files in a directory from src to dst"""
+    print(f'Linking directory {src} to {dst}')
     dst.mkdir(parents=True, exist_ok=True)
     for f in src.iterdir():
-        srcf = src / f
-        dstf = dst / f
+        srcf = f
+        dstf = dst / f.name
         symlink_file(options, srcf, dstf)
 
 
