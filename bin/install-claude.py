@@ -4,8 +4,7 @@ install-claude: symlinks files in to ~/.claude/
 """
 
 import argparse
-import os
-import os.path
+import logging
 import pathlib
 import sys
 from typing import NoReturn
@@ -13,23 +12,29 @@ from typing import NoReturn
 
 def symlink_file(options, src: pathlib.Path, dst: pathlib.Path) -> None:
     """link a file from source to target, renaming existing file if necessary"""
-    if os.path.lexists(dst):
-        if os.path.islink(dst):
-            os.remove(dst)
+    if dst.exists() or dst.is_symlink():
+        if dst.is_symlink():
+            dst.unlink()
         else:
-            rn = dst.with_suffix(dst.suffix + '.orig')
+            existing = dst
+            rn = existing.with_suffix(dst.suffix + '.orig')
             i = 2
             while rn.exists():
                 rn = rn.with_name(rn.stem + f'.{i}' + rn.suffix)
                 i += 1
-            os.rename(dst, rn)
-    os.symlink(src, dst)
+            existing.rename(rn)
+
+    dst_parent = dst.parent
+    src_parent = src.parent
+    relative_parent = src_parent.relative_to(dst_parent, walk_up=True)
+    print(f'Linking {src} to {dst} via {relative_parent / src.name}')
+    dst.symlink_to(relative_parent / src.name)
 
 
 def symlink_dir(options, src: pathlib.Path, dst: pathlib.Path) -> None:
     """links files in a directory from src to dst"""
     dst.mkdir(parents=True, exist_ok=True)
-    for f in os.listdir(src):
+    for f in src.iterdir():
         srcf = src / f
         dstf = dst / f
         symlink_file(options, srcf, dstf)
@@ -55,12 +60,12 @@ def install_claude(options) -> None:
     fdir = src_claude_dir()
     tdir = dest_claude_dir()
 
-    for f in os.listdir(fdir):
-        if f[0] == '.':
+    for f in fdir.iterdir():
+        if f.name[0] == '.':
             continue
 
-        src = fdir / f
-        dest = tdir / f
+        src = f
+        dest = tdir / f.name
         if src.is_dir():
             symlink_dir(options, src, dest)
         else:
@@ -77,6 +82,8 @@ def parse_args(argv) -> argparse.Namespace:
 
 def main(argv) -> NoReturn:
     options = parse_args(argv)
+    logging.basicConfig(level=logging.DEBUG)
+    options.logger = logging.getLogger('install-claude')
     m = 0
     try:
         install_claude(options)
