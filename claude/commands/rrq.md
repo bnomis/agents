@@ -2,7 +2,7 @@ Run a ralpher queue in the background and report only when it has finished.
 
 Run this command with `run_in_background` set to true:
 
-    ~/src/ralpher/bin/rrq.sh $ARGUMENTS
+    $RALPHER_PATH/bin/rrq.sh $ARGUMENTS
 
 Then stop. Do not read, tail, grep or otherwise consume the output file
 while the command runs - none of its content should enter the conversation,
