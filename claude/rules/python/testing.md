@@ -54,7 +54,17 @@ pytest path/to/test_file.py
 - Use `pytest path/to/test_file.py` for individual files.
 - Use `pytest path/to/test_file.py::TestClassName::test_method` to run a single test.
 - After fixing a failing test, re-run only that test first before broadening scope.
-- If you need broader validation, run one directory at a time, e.g. `pytest src/tests/data/` then `pytest src/tests/integration/` separately.
+- To check a change - a task's done-check, or before merging - run every test
+  the change can affect by following imports, not only the tests beside the
+  changed file: a change to shared code breaks tests that import it
+  indirectly. Use the project's affected-tests tool where it has one; in the
+  feat projects that is `../featlib/bin/affected-tests.sh --run` from the
+  repository root (`--why` lists the reasons, `--upstream ../featlib` counts
+  featlib's changes too).
+- Run every test directory, one at a time, only when the user asks for a full
+  run (for example before a release). It is not a routine check.
+- `pytest --testmon` (pytest-testmon, where installed) may speed up reruns
+  while iterating; it is not a done-check.
 
 ## Finding tests
 
@@ -64,20 +74,15 @@ You can list all available tests with the command:
 pytest --co -q
 ```
 
-To run only tests for files you changed:
+To list the tests your changes can affect, with the reason for each (feat
+projects):
 
 ```shell
-pytest $(git diff --name-only --diff-filter=d origin/main...HEAD | grep 'test_.*\.py$')
+../featlib/bin/affected-tests.sh --why
 ```
 
-To also find tests related to changed source files:
-
-```shell
-pytest $(git diff --name-only --diff-filter=d origin/main...HEAD | sed -n \
-  -e 's|^src/<project>/\([^/]*\)\.py$|src/tests/test_\1.py|p' \
-  -e 's|^src/<project>/\([^/]*\)/\([^/]*\)\.py$|src/tests/\1/test_\2.py|p' \
-  -e 's|^src/<project>/\([^/]*\)/\([^/]*\)/\([^/]*\)\.py$|src/tests/\1/\2/test_\3.py|p')
-```
+Mapping a changed `src/<project>/a/b.py` to `src/tests/a/test_b.py` is not
+enough: it misses every test that reaches the module through another one.
 
 ## Performance guardrails
 
