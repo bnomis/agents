@@ -57,10 +57,10 @@ pytest path/to/test_file.py
 - To check a change - a task's done-check, or before merging - run every test
   the change can affect by following imports, not only the tests beside the
   changed file: a change to shared code breaks tests that import it
-  indirectly. Use the project's affected-tests tool where it has one; in the
-  feat projects that is `../featlib/bin/affected-tests.sh --run` from the
-  repository root (`--why` lists the reasons, `--upstream ../featlib` counts
-  featlib's changes too).
+  indirectly. Use the project's affected-tests tool where it has one (the
+  project's own rules or `AGENTS.md` name its command). Where it has none, run
+  the changed modules' own tests and every test file that imports a changed
+  module, directly or through other modules.
 - Run every test directory, one at a time, only when the user asks for a full
   run (for example before a release). It is not a routine check.
 - `pytest --testmon` (pytest-testmon, where installed) may speed up reruns
@@ -74,12 +74,8 @@ You can list all available tests with the command:
 pytest --co -q
 ```
 
-To list the tests your changes can affect, with the reason for each (feat
-projects):
-
-```shell
-../featlib/bin/affected-tests.sh --why
-```
+To list the tests your changes can affect, use the project's affected-tests
+tool where it has one.
 
 Mapping a changed `src/<project>/a/b.py` to `src/tests/a/test_b.py` is not
 enough: it misses every test that reaches the module through another one.

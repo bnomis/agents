@@ -134,7 +134,7 @@ anything:
 **Definition of Done:**
 
 - [ ] `pre-commit run --all-files` passes
-- [ ] `../featlib/bin/affected-tests.sh --run` exits 0
+- [ ] `bin/affected-tests.sh --run` exits 0
 - [ ] `bin/audit-changed.sh` exits 0
 ```
 
@@ -142,9 +142,8 @@ Put the same list on every task. Repetition is the point: a check listed once
 in the file header is a check that stops binding by task three.
 
 For the test check, use the project's affected-tests tool where it has one
-(in the feat projects, `../featlib/bin/affected-tests.sh --run`, with
-`--upstream ../featlib` when featlib changes too) rather than naming test
-directories: it runs every test the change can reach through imports,
+(the project's own rules or `AGENTS.md` name its command) rather than naming
+test directories: it runs every test the change can reach through imports,
 including tests far from a change to shared code, and nothing else. Where a
 project has no such tool, name the touched package's test directory and every
 directory whose tests import the changed modules. Never make "run every test
