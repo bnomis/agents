@@ -1,1 +1,0 @@
-look for incomplete tasks in agents/tasks/ verify against the implementation if they are implemented or not , if not implemented check if they should be implemented , if there is no need for an implementation mark the task as done and record the update , finally present a list of not done tasks that should be done
