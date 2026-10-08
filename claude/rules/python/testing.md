@@ -54,13 +54,16 @@ pytest path/to/test_file.py
 - Use `pytest path/to/test_file.py` for individual files.
 - Use `pytest path/to/test_file.py::TestClassName::test_method` to run a single test.
 - After fixing a failing test, re-run only that test first before broadening scope.
-- To check a change - a task's done-check, or before merging - run every test
-  the change can affect by following imports, not only the tests beside the
-  changed file: a change to shared code breaks tests that import it
-  indirectly. Use the project's affected-tests tool where it has one (the
-  project's own rules or `AGENTS.md` name its command). Where it has none, run
-  the changed modules' own tests and every test file that imports a changed
-  module, directly or through other modules.
+- A task's done-check runs the tests whose own code imports a changed module
+  directly, skipping `slow` tests: the project's affected-tests tool in its
+  direct mode where it has one (the project's own rules or `AGENTS.md` name
+  its command), else the changed modules' own tests and every test file that
+  imports a changed module.
+- Before merging a branch - the last task of a task list - run every test the
+  change can affect by following imports transitively, not only the direct
+  importers: a change to shared code breaks tests that reach it indirectly.
+  Use the affected-tests tool's full form where there is one; else every test
+  file that imports a changed module directly or through other modules.
 - Run every test directory, one at a time, only when the user asks for a full
   run (for example before a release). It is not a routine check.
 - `pytest --testmon` (pytest-testmon, where installed) may speed up reruns
