@@ -13,14 +13,29 @@ for the review), so it stays as the record. In this order:
    what the user does with each item.
 2. **Automatic checks**: every check a script can make, run before the user
    sees anything, each shown as pass or fail with the offending items.
-3. **The items**: each change with a short commentary on its cause. Changes
-   with no explanation go in their own list, marked as needing attention.
+3. **The items**: each change with a short commentary on its cause, and what
+   it is in plain words, not only its identifier. Changes with no explanation
+   go in their own list, marked as needing attention.
 4. **Decisions**: each decision needed, with concrete options and a
-   recommendation where there is one.
+   recommendation where there is one, explained as below.
 5. **Answers**: left empty for the user's verdict, filled in afterwards with
    the date.
 
 Raw diffs are for seeing a change in context, not the way in.
+
+## Explain every decision
+
+A decision must stand on its own for a reader who has not followed the work
+that led to it. Give each one:
+
+- **What is being decided**, in one sentence.
+- **Background**: the behaviour or history it depends on, in plain words,
+  with dates.
+- **What it affects**: files, run time, coverage, follow-on work.
+- **Each option**: what happens next if it is chosen, not only its label.
+
+A decision that names an option without its consequences cannot be answered
+without asking.
 
 ## Make it interactive
 
