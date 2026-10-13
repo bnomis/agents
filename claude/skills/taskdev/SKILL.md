@@ -183,6 +183,22 @@ copies exist.
 Make it the component's last task, not its first: the duplicates do not exist
 until the modules that carry them are written.
 
+## Closing the spec
+
+When the input is a spec, give the task list's last task a subtask that marks
+the spec finished once the work it describes has shipped:
+
+```markdown
+- [ ] Set the spec's `**Status:**` to `implemented`
+```
+
+A spec starts as `proposed` (see the [specdev skill](../specdev/SKILL.md)), and
+nothing else moves it on. Without this subtask a finished spec keeps saying
+`proposed`, and the next reader cannot tell built work from planned work
+without reading the task lists. When a task list covers only part of a spec -
+a reconciliation after the spec changed, say - set the status only on the list
+that completes it. Skip the subtask for non-spec input.
+
 ## File output
 
 Write the implementation plan to `agents/tasks/<SLUG>/tasks-N.md`, where N is an index starting from 1.
@@ -279,6 +295,7 @@ Before finalising the task list, verify:
 - [ ] Existing completed work is marked as done
 - [ ] Task order respects dependency chains
 - [ ] Prior task files were reviewed to avoid duplicating already-planned work
+- [ ] For spec input, the last task sets the spec's status to `implemented`
 
 ## Version control
 
