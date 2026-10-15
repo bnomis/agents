@@ -40,9 +40,18 @@ without asking.
 ## Make it interactive
 
 Where possible, also publish the review as an interactive web page (an
-Artifact) on which the user approves or flags each item, comments, and picks
-an option for each decision, and read their answers back from it. Copy the
-answers into the document's Answers section.
+Artifact), and read the user's answers back from it. Copy the answers into the
+document's Answers section.
+
+- **Each decision stands on the page**: its background, what it affects, why
+  the recommended option is recommended, and each option's consequence, as
+  above - not a link back to the document.
+- **Answers are clicks**: approve or flag each item, pick an option for each
+  decision, with a comment box beside each.
+- **Every answer saves as it is made**, to storage Claude can read back (the
+  artifact's shared database, not the browser's). No save button and no
+  final submit: the user should never have to click save, let alone more
+  than once.
 
 ## When planning work
 
