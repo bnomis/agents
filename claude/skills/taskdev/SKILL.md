@@ -85,6 +85,22 @@ The plan should consist of small, self-contained tasks. A self-contained task:
 
 Aim for less than 15 tasks per spec. If more are needed, suggest splitting the spec.
 
+## One repository per task list
+
+Every task edits and commits only the repository its task list lives in. A task
+list is often run unattended, one task at a time in a worktree of that
+repository, where nothing outside it can be changed - a task that reaches into
+another repository stops at once and waits for the operator.
+
+When the spec needs work in another repository (a shared library, a checker, a
+tool the project calls), do not write a task for it here:
+
+- tell the user, and have that work done before the list runs - by hand, or
+  through a task list in that repository;
+- give the task that depends on it a Notes line naming the change it waits
+  for, and an acceptance criterion this repository can check once the change
+  is in.
+
 ## Task format
 
 Use user stories for user-facing tasks. For infrastructure or technical tasks where "As a user" doesn't fit naturally, use the technical goal format instead.
@@ -296,6 +312,7 @@ Before finalising the task list, verify:
 - [ ] Dependencies between tasks are explicitly stated
 - [ ] Existing completed work is marked as done
 - [ ] Task order respects dependency chains
+- [ ] No task edits or commits outside this repository
 - [ ] Prior task files were reviewed to avoid duplicating already-planned work
 - [ ] For spec input, the last task sets the spec's status to `implemented`
 
