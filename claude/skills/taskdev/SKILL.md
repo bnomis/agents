@@ -145,15 +145,17 @@ For the test check, use the project's affected-tests tool where it has one
 (the project's own rules or `AGENTS.md` name its commands) rather than naming
 test directories, in two tiers:
 
-- **Every task:** the quick form - tests whose own code imports a changed
-  module, `slow` tests skipped - so a one-line fix is checked in minutes.
-- **The task list's last task, also:** the full form, which follows imports
+- **Every task but the last:** the quick form - tests whose own code imports
+  a changed module, `slow` tests skipped - so a one-line fix is checked in
+  minutes.
+- **The task list's last task, instead:** the full form, which follows imports
   transitively and catches tests far from a change to shared code. It runs
-  once per task list, before the branch merges.
+  once per task list, before the branch merges. It selects every test the
+  quick form does, so the last task does not run the quick form as well.
 
 Where a project has no such tool, name the changed modules' own test files and
-every test file that imports a changed module directly on every task, and the
-directories whose tests reach them through other modules on the last task.
+every test file that imports a changed module directly on every task, and add
+the directories whose tests reach them through other modules on the last task.
 Never make "run every test directory" a done-check; a full run is the user's
 call.
 
