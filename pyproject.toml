@@ -55,3 +55,8 @@ combine-as-imports = true
 [tool.uv]
 exclude-newer = "14 days"
 prerelease = "disallow"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.10",
+]
