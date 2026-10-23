@@ -16,10 +16,11 @@
 
 ## 3. Self-Improvement Loop
 
-- After ANY correction from the user: update `agents/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+- After ANY correction from the user: write the pattern into the rule or skill
+  it belongs to, so it is loaded in every later session - generic ones in the
+  shared rules, a project's own in its `claude/` directory (see `rule-scope.md`)
+- Edit an existing rule where the lesson fits one; one lesson, one place
+- Ruthlessly iterate on these rules until mistake rate drops
 
 ## 4. Verification Before Done
 
@@ -47,7 +48,7 @@
 1. **Plan First**: Use the `specdev` skill
 2. **Verify Plan**: Ask the user to check the spec before starting implementation
 3. **Write tasks**: Ask the user if they want to use the `taskdev` skill to make a list of tasks to implement the new or changed spec.
-4. **Capture Lessons**: Update `agents/lessons.md` after corrections
+4. **Capture Lessons**: Turn corrections into rule or skill edits (see Self-Improvement Loop)
 
 ## Core Principles
 

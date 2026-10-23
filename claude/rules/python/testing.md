@@ -69,6 +69,14 @@ pytest path/to/test_file.py
 - `pytest --testmon` (pytest-testmon, where installed) may speed up reruns
   while iterating; it is not a done-check.
 
+## Tests that target a defect
+
+- Before trusting a test written to catch a defect, run its check against an
+  implementation that has the defect and confirm it fails.
+- An oracle for a model-based method (a score, a ranking, an importance)
+  rests on a margin measured for that method, not on a guarantee made for a
+  different statistic.
+
 ## Finding tests
 
 You can list all available tests with the command:

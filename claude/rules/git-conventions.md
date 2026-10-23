@@ -72,6 +72,12 @@ Use when the change isn't self-evident from the diff: non-obvious
 rationale, breaking changes, issue references. Wrap at 72 characters.
 Explain *why*, not *what*.
 
+A consequence someone must act on later (refit, migrate, re-run, a missing
+guard) does not live only in a commit body, which is read once. If the code
+does not already guard it, file it in the project's `TODO.md` (`/todo-add`)
+before committing, and ask whether the same hazard applies beyond this
+change.
+
 ### Granularity
 
 One logical change per commit. Don't bundle refactors with feature work.

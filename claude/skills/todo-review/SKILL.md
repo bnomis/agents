@@ -26,8 +26,7 @@ section in `AGENTS.md` or `CLAUDE.md` wins where it differs.
 
 1. Read the project's `AGENTS.md` / `CLAUDE.md` section on `TODO.md`, if any.
 2. Read `TODO.md` in full, and the last few entries of `DONE.md`.
-3. Read `agents/lessons.md` (or the project's equivalent), if present.
-4. Save the starting text: `git show HEAD:TODO.md > <scratchpad>/todo-before.md`.
+3. Save the starting text: `git show HEAD:TODO.md > <scratchpad>/todo-before.md`.
    If `TODO.md` has uncommitted changes, ask whether to commit them first.
 
 ## Workflow

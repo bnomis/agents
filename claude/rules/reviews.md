@@ -37,6 +37,15 @@ that led to it. Give each one:
 A decision that names an option without its consequences cannot be answered
 without asking.
 
+- **Find why a setting has its value before recommending a change to it.**
+  Search the project's specs, measurements, reviews and `TODO.md` for the
+  setting's name, and put the reason it was chosen, with its date, in the
+  background. Where a measurement tool and gold data exist, measure; a
+  handful of probe examples is not a basis for a recommendation.
+- **Only call something a decision when the user has something to choose.**
+  A choice already made is reported as one ("I chose X because Y; it is
+  reversible"), not presented as a decision.
+
 ## Make it interactive
 
 Where possible, also publish the review as an interactive web page (an
@@ -52,6 +61,23 @@ document's Answers section.
   artifact's shared database, not the browser's). No save button and no
   final submit: the user should never have to click save, let alone more
   than once.
+
+Before publishing a review page:
+
+- check that no button exists only to save: a click on an option writes at
+  once, and a comment writes after a pause in typing and when its box loses
+  focus;
+- if its script was copied from another page, copy it by a marker, not by
+  line number, run `node --check` on it, and render it once against a stub
+  DOM to confirm every item and decision appears.
+
+## Handing it over
+
+- Give the page's URL in the message and open it, and name the same URL in
+  the review document's header, so either leads to the other.
+- When the user has documents to read or approve - specs, reviews, amended
+  specs - list each one with its full absolute path, one per line, amended
+  ones included, and offer to publish them as a page.
 
 ## When planning work
 

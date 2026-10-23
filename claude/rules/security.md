@@ -10,6 +10,14 @@
   in error messages, stack traces, or telemetry.
 - If you see a secret committed to the repo, flag it to the user. Do
   not quote it back in your response.
+- Never list environment variables (`env`, `printenv`, `set`) or print an
+  env file. To test that a variable is set, use `[ -n "${VAR:-}" ]` and
+  print only yes or no. To read one from an env file, search for its exact
+  name (`grep -n '^export NAME='`), or list names without values
+  (`sed -n 's/^export \([A-Z_]*\)=.*/\1/p'`). Never match a generic token
+  (`export`, `=`, `KEY`) in a file that may hold secrets.
+- Every brief to a subagent repeats the rule above: subagents have printed
+  tokens while looking for a path variable.
 
 ## PII
 

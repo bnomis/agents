@@ -26,8 +26,7 @@ own rules on branches, tests, docs and commits apply throughout.
 
 ## 1. Re-check the item before touching code
 
-1. Read the project's `TODO.md` convention section, `TODO.md` in full, and
-   `agents/lessons.md` or its equivalent if present.
+1. Read the project's `TODO.md` convention section and `TODO.md` in full.
 2. **Is it still open and still true?** Check the code it names, `DONE.md`,
    and any task list's `**Status:**` headers. If it is done, propose moving
    it; if its premise is stale, say what changed and propose a correction.
@@ -71,8 +70,14 @@ Say which it is and why, in a sentence, before going on.
    the end, then a line
    `Done: YYYY-MM-DD - <what fixed it: commit, test, spec section>.`
    and remove it from `TODO.md`.
-5. Report, and ask whether to commit. The item move goes in the same
-   commit as the fix.
+5. **Keep the other items' references current.** Grep the remaining
+   `TODO.md` items for `path:line` references into every file the fix
+   changed and check each against the code. For each one that moved, add a
+   line after the item's Fix direction:
+   `Note YYYY-MM-DD: since <commit>, ... is at <line>.`
+   Never rewrite the dated finding.
+6. Report, listing those notes, and ask whether to commit. The item move and
+   the notes go in the same commit as the fix.
 
 ## 3b. Large: start a spec
 

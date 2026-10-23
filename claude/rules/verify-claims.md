@@ -1,0 +1,46 @@
+# Check a claim before stating it
+
+A statement to the user about the present - a repository's status, whether a
+file exists, what a commit holds, whether a feature is missing, what a change
+breaks downstream - comes from a check made for it, not from memory. Each
+rule below was broken more than once, and each time the user acted on, or had
+to correct, a claim that a command would have disproved in seconds.
+
+## State someone else can change
+
+The user and other sessions work alongside the agent: they commit, push,
+merge, edit and delete while a session runs.
+
+- Just before stating the state of a repository, file, branch or running
+  process, run the command that shows it (`git status -sb`, `git log`,
+  `ls`), and report what it printed.
+- A recap is a statement. The closing report of a ship, merge or queue run
+  re-checks every repository it mentions (`git fetch`, then
+  `git branch -a --contains <hash>` or `git status -sb`) in the same turn.
+- A status from earlier in the session, a context summary or another session
+  is a lead, not a fact. Check it in the repository that actually holds the
+  file (`git rev-parse --show-toplevel`); if it cannot be checked, say when it
+  was observed, and never base a design choice on it.
+- A queue or agent log records what was tried, not what was committed.
+  Confirm a defect seen in a log in the committed state (`git show <commit>`
+  or the file) before reporting it.
+
+## Absence
+
+- Before saying a capability does not exist, search by the likely function
+  name, not a substring (`link_latest`, not `latest`), and search the
+  project's sibling libraries as well as the project itself.
+- Unless the search was exhaustive, say "I did not find X" and how you
+  looked, not "X does not exist".
+
+## Impact on another project
+
+- When a finding's impact depends on a consumer in a sibling project, read
+  the consumer's code and, where cheap, run it on the case in question before
+  describing the impact.
+- Never present "could matter, unchecked" as a conclusion: check it, or say
+  it is the next step and do it.
+
+## Related
+
+- [reviews.md](reviews.md) - how findings reach the user

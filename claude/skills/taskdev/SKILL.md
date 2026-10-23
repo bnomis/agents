@@ -75,6 +75,16 @@ All tasks should following the standards in AGENTS.md established for source cod
 10. If there are any tasks or subtasks in the new task list file which require a user decision (i.e. human intervention or decisions) such as "decide with the user" tasks or subtasks, flags these tasks to the user and suggest they update the spec to make the tasks unambiguous so a new task list can be written which does not require human intervention.
 11. Present the task list summary to the user for review
 
+A decision carried into a task list covers only what it names. When a task
+will meet work outside it, the task stops for the user; never write a
+"decide X" subtask for the agent running the list to close, and never let a
+task extend a decision to cases it did not name.
+
+A closing subtask that moves an item from `TODO.md` to `DONE.md` says to
+append its heading and body unchanged, then the `Done:` line, and the last
+task's Definition of Done runs the todo-review skill's `verify_bodies.py`
+against the `TODO.md` from before the list started.
+
 ## Task sizing
 
 The plan should consist of small, self-contained tasks. A self-contained task:

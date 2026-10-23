@@ -43,6 +43,23 @@ Specs must be detailed enough that the [taskdev](../taskdev/SKILL.md) skill can 
 
 A single spec should cover one module or one cohesive feature. If a spec exceeds ~200 lines or has more than 8 top-level sections, it is likely too broad — split into separate specs and link them.
 
+## One repository per spec
+
+A spec is turned into a task list that runs inside one repository and cannot
+read or change anything outside it.
+
+- A spec covers changes to one repository only, and lives in it. Work that
+  touches several repositories becomes one spec, or one amendment of an
+  existing spec, per repository.
+- A spec is self-contained: it restates every fact it needs from another
+  repository (an API signature, a key table, a decision and its date)
+  instead of linking to it. A link to another repository is background for
+  the user, never something the implementer must read.
+- A spec that depends on another repository's change names it as a
+  prerequisite, with how to check that it is in place.
+- The order of work across repositories goes in one coordinating note
+  outside the per-repository specs.
+
 ## Gather context
 
 1. Read `AGENTS.md` and `README.md`
