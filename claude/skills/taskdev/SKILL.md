@@ -101,6 +101,24 @@ tool the project calls), do not write a task for it here:
   for, and an acceptance criterion this repository can check once the change
   is in.
 
+## Human review stops
+
+When a task stops the list for the operator to review something on an
+interactive page (see the shared `reviews.md` rule), the unattended session
+that resumes the list may have no tool to read the page's stored answers. It
+then sees an empty Answers section and stops again, waiting for answers that
+were already given.
+
+So the hand-back from the operator happens outside the unattended run:
+
+- The stopping task's last subtask says: once every item has an answer, an
+  operator session reads the page's answers, copies each into the review
+  document's Answers section with the date, commits that, and only then
+  restarts the list.
+- The task that applies the answers reads them from the review document's
+  Answers section, never from the page. Its first subtask stops the task as
+  `blocked`, naming what is missing, if that section is empty or incomplete.
+
 ## Task format
 
 Use user stories for user-facing tasks. For infrastructure or technical tasks where "As a user" doesn't fit naturally, use the technical goal format instead.
@@ -313,6 +331,7 @@ Before finalising the task list, verify:
 - [ ] Existing completed work is marked as done
 - [ ] Task order respects dependency chains
 - [ ] No task edits or commits outside this repository
+- [ ] A task that applies review answers reads them from the review document, and the stopping task says an operator session copies them there first
 - [ ] Prior task files were reviewed to avoid duplicating already-planned work
 - [ ] For spec input, the last task sets the spec's status to `implemented`
 
