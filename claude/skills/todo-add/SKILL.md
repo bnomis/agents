@@ -75,3 +75,8 @@ section in `AGENTS.md` or `CLAUDE.md` wins where it differs.
 - Add a second item for a cause an existing item already names.
 - Write an undated number, or a cause stated as fact that was not checked.
 - File anything in `DONE.md`.
+- File a fix that lies in another repository only in the repository that
+  found it. File it where the fix is made, creating that repository's
+  `TODO.md` if it has none, and point the finding repository's item at it.
+  "It has no `TODO.md`" is never a reason to scatter one fix across its
+  consumers.
