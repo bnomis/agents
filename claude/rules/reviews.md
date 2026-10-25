@@ -69,6 +69,9 @@ document's Answers section.
 
 Before publishing a review page:
 
+- read this rule from disk again, not from a copy loaded earlier in the
+  session: it changes while sessions run, and a page built from an older
+  copy misses what was added since;
 - check that no button exists only to save: a click on an option writes at
   once, and a comment writes after a pause in typing and when its box loses
   focus;
