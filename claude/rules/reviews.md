@@ -57,6 +57,11 @@ document's Answers section.
   above - not a link back to the document.
 - **Answers are clicks**: approve or flag each item, pick an option for each
   decision, with a comment box beside each.
+- **One click accepts the recommendations**: a button at the top picks the
+  recommended option for every decision and approves every item, saving
+  each answer as if clicked by hand. It fills only what is still
+  unanswered, so a flag or a different option already chosen stays, and
+  every answer can still be changed afterwards.
 - **Every answer saves as it is made**, to storage Claude can read back (the
   artifact's shared database, not the browser's). No save button and no
   final submit: the user should never have to click save, let alone more
@@ -67,6 +72,8 @@ Before publishing a review page:
 - check that no button exists only to save: a click on an option writes at
   once, and a comment writes after a pause in typing and when its box loses
   focus;
+- check that the accept-all button saves an answer for every unanswered
+  item and decision, and leaves answers already given unchanged;
 - if its script was copied from another page, copy it by a marker, not by
   line number, run `node --check` on it, and render it once against a stub
   DOM to confirm every item and decision appears.
