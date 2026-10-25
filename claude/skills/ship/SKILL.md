@@ -43,10 +43,12 @@ for commit messages and hooks.
 3. **Merge** into `main`.
    - Already on `main`: skip to step 4.
    - On a feature branch: `git fetch origin`, rebase the branch onto
-     `origin/main`, then fast-forward `main` to it
-     (`git merge --ff-only <branch>` from `main`). If `main` is checked out
-     in another worktree, run the merge there with `git -C <that path>`;
-     do not check out `main` in this one.
+     `origin/main`, then `git switch main` and fast-forward it
+     (`git merge --ff-only <branch>`). This leaves the working tree on
+     `main` after the merge. If `main` is checked out in another worktree,
+     git will not check it out here: run the merge there with
+     `git -C <that path>` and stay on the branch in this one, saying so in
+     the report.
    - On a rebase conflict, resolve it only when the right answer is
      obvious from both sides; otherwise abort the rebase and ask.
 
@@ -55,8 +57,10 @@ for commit messages and hooks.
      `git push origin main`.
    - Never force-push `main`. If the push is rejected, stop and report.
 
-5. **Tidy**: leave the feature branch and any worktree in place unless the
-   user asked to delete them.
+5. **Tidy**: check with `git branch --show-current` that this worktree is
+   on `main` (unless `main` lives in another worktree, as above). Leave the
+   feature branch and any worktree in place unless the user asked to delete
+   them.
 
 6. **Report** in a few lines: the commits made (hash and subject), the
    branch merged, and the push result. If any step was skipped or failed,
