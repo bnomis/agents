@@ -61,7 +61,10 @@ document's Answers section.
   recommended option for every decision and approves every item, saving
   each answer as if clicked by hand. It fills only what is still
   unanswered, so a flag or a different option already chosen stays, and
-  every answer can still be changed afterwards.
+  every answer can still be changed afterwards. Make it the page's primary
+  action, in its own panel above the first section with a line saying what
+  it does; a button tucked into a toolbar and styled like an answer button
+  goes unseen.
 - **Every answer saves as it is made**, to storage Claude can read back (the
   artifact's shared database, not the browser's). No save button and no
   final submit: the user should never have to click save, let alone more

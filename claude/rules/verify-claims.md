@@ -17,6 +17,9 @@ merge, edit and delete while a session runs.
 - A recap is a statement. The closing report of a ship, merge or queue run
   re-checks every repository it mentions (`git fetch`, then
   `git branch -a --contains <hash>` or `git status -sb`) in the same turn.
+- An offer or question is a statement too: "X is still stopped; shall I
+  restart it?" claims X's state. Check the process or repository in the same
+  turn before offering to act on it, however recently it was last seen.
 - A status from earlier in the session, a context summary or another session
   is a lead, not a fact. Check it in the repository that actually holds the
   file (`git rev-parse --show-toplevel`); if it cannot be checked, say when it
