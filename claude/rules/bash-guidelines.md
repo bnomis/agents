@@ -9,6 +9,10 @@ prompts have no one to answer them, and some pipes buffer indefinitely.
 - Prefer `grep -m N` (or `rg -m N`) over `grep | head`.
 - Read log files directly instead of piping through filters.
 - Avoid `watch` and `tail -f` without a timeout.
+- Judge a command that runs several checks (`pre-commit`, a test runner over
+  many directories) by its exit status, or by grepping its whole output for
+  `Failed`, never by a `tail` of it: the failing check can sit above the
+  lines kept, and the report then claims a pass that the next push refutes.
 
 ## No interactive tools
 
