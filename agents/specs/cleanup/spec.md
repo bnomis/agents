@@ -1,7 +1,7 @@
 # Cleanup skill
 
 **Version:** 1.0
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-10-27
 
 `/cleanup` deletes local branches and worktrees that no longer hold anything
