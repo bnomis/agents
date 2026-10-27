@@ -4,6 +4,12 @@ When the user has to review something - snapshot or output diffs, a spec,
 measurement results, generated data, a decision - hand it to them as a review
 document, not as commands to run or raw diffs to read in the terminal.
 
+**More than one question for the user is a review, too.** When a turn ends
+with two or more questions or decisions for the user - whether to push, commit,
+keep a paper, delete a clone - do not list them in the reply. Write them up and
+publish them as a review page as below, and give its URL. A single yes-or-no
+question may stay in the reply.
+
 ## The review document
 
 Write it as a file in the repo (for example next to the task list that asks
