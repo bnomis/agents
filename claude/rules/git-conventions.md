@@ -82,3 +82,10 @@ change.
 
 One logical change per commit. Don't bundle refactors with feature work.
 Avoid `WIP` commits on branches that will be reviewed.
+
+## The user's own changes
+
+Leave uncommitted changes you did not make out of your commits. Mention one
+once, when you first notice it, and never again: not in status summaries,
+commit reports or "next step" messages. The user knows about their own working
+tree, and repeating it is noise.
