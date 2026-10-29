@@ -177,13 +177,30 @@ anything:
 ```markdown
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` passes
+- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
 - [ ] `bin/affected-tests.sh --run` exits 0
 - [ ] `bin/audit-changed.sh` exits 0
 ```
 
 Put the same list on every task. Repetition is the point: a check listed once
 in the file header is a check that stops binding by task three.
+
+For the lint and hook check, in two tiers:
+
+- **Every task but the last:** the hooks on the files the task changed. A
+  commit already runs every pre-commit hook on its staged files, and every
+  `always_run` hook as well, so "the task's commit passes its hooks" is the
+  check; name no separate run. Where the project has no pre-commit hooks,
+  name the linter on the changed files (`ruff check <files>`).
+- **The task list's last task:** `pre-commit run --all-files` (or the
+  project's whole-tree lint), once, before the branch merges. It catches what
+  a per-file hook cannot see: a change in one file that breaks a check on
+  another.
+
+A whole-tree run on every task repeats the slow hooks (a type checker over
+the whole tree, an audit sweep) on code the task never touched, and a task
+re-runs it after every fix, so most of a task's time goes on checks rather
+than on the work.
 
 For the test check, use the project's affected-tests tool where it has one
 (the project's own rules or `AGENTS.md` name its commands) rather than naming
@@ -201,9 +218,8 @@ test directories, in three tiers:
 The tool compares the branch with its base, so the last task's run covers
 every task's changes; nothing has to remember which files changed. Running
 the quick form on every task only moves detection earlier, and where it
-selects tests that load large models it can cost a quarter of an hour a
-task (on 2026-10-29, four tasks that each added a few test files took 9 to
-34 minutes each, every one ending with that run). A breakage a task causes
+selects tests that load large models it can cost a long run on every task,
+however small the task. A breakage a task causes
 then surfaces in the last task's run instead, still before the merge.
 
 Where a project has no such tool, name the touched test files and the changed
