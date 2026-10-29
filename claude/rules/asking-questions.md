@@ -21,11 +21,11 @@ message.
 - **What comes next is a statement, not a question.** Say the next step in
   the message ("the next item is X"); ask about it only if the user has a
   choice to make.
-- **A next step with no choice in it is done, not announced.** When the next
-  step continues what the user asked for (restarting a queue once its blocking
-  task is unblocked, rerunning a check after a fix), take it in the same turn
-  and report it. Ending a turn on "next, I'll do X" leaves the user to notice
-  that X never ran and ask for it.
+- **Never say you will do something and then do nothing.** A message that
+  says "next, I'll do X" is followed by doing X in the same turn, then
+  reporting it. If X waits on the user, ask for it instead of announcing it.
+  Ending a turn on "I'll do X" leaves the user to notice that X never ran and
+  ask for it.
 
 ## Related
 
