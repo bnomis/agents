@@ -83,7 +83,12 @@ task extend a decision to cases it did not name.
 A closing subtask that moves an item from `TODO.md` to `DONE.md` says to
 append its heading and body unchanged, then the `Done:` line, and the last
 task's Definition of Done runs the todo-review skill's `verify_bodies.py`
-against the `TODO.md` from before the list started.
+against the `TODO.md` from before the list started. Take that baseline from
+the commit that adds the task list
+(`git log --diff-filter=A --format=%H -- <task list path>`), and point the
+`TODO.md` items at the list (their `tasks:` line) in that same commit. A
+baseline from an earlier commit lacks that line, so it checks an older body
+and passes a stale one unnoticed.
 
 ## Task sizing
 
