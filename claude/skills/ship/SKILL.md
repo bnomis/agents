@@ -65,3 +65,10 @@ for commit messages and hooks.
 6. **Report** in a few lines: the commits made (hash and subject), the
    branch merged, and the push result. If any step was skipped or failed,
    say so plainly.
+   - Name a repository's state (pushed, ahead, clean, on which branch) only
+     if this turn ran `git fetch` and `git status -sb` in it, less than a
+     minute before the report, and state it "as of" that check's time. That
+     includes an aside about a repository the ship did not touch: a status
+     seen earlier in the session is left out, not restated, since the user
+     or another session may have changed it since
+     ([verify-claims.md](../../rules/verify-claims.md)).

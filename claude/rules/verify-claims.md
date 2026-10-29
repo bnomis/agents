@@ -14,6 +14,11 @@ merge, edit and delete while a session runs.
 - Just before stating the state of a repository, file, branch or running
   process, run the command that shows it (`git status -sb`, `git log`,
   `ls`), and report what it printed.
+- Note the time of every such check: run `date -u +%H:%M:%S` in the same
+  command. If more than a minute has passed since the last check, check
+  again before stating the state, and give the time with the claim: "as of
+  14:05 UTC, `main` matches `origin/main`". A state without a time cannot be
+  told apart from one remembered from hours earlier.
 - A recap is a statement. The closing report of a ship, merge or queue run
   re-checks every repository it mentions (`git fetch`, then
   `git branch -a --contains <hash>` or `git status -sb`) in the same turn.
