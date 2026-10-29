@@ -51,7 +51,7 @@ that is the one thing this skill insists on.
    is. Never invent a fact.
 4. **Ask only about the rest**, with `AskUserQuestion`, plainly and briefly:
    one question per gap, each with concrete options where there are any
-   ("the 2026-10-29 big-five run", "the next audit cycle") so the user can
+   ("the last full run", "the next release") so the user can
    click rather than type. Skip this step entirely when the note already
    stands on its own. Do not turn a note into an interview: two or three
    questions at most, and accept "leave it as is".

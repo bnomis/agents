@@ -2,7 +2,10 @@
 
 The rules and skills in this repository are shared by every project, so
 they stay project-agnostic: no project's paths, commands, tools, package
-names or conventions.
+names or conventions, and no dates, timings or measurements from one
+project's runs. Give the reason for a rule in general terms ("a whole-tree
+check on every task costs most of each task's time"), not as the incident
+that prompted it; the incident belongs in that project's own records.
 
 ## Project-specific rules and skills
 
