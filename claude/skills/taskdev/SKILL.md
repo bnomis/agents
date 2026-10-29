@@ -187,19 +187,30 @@ in the file header is a check that stops binding by task three.
 
 For the test check, use the project's affected-tests tool where it has one
 (the project's own rules or `AGENTS.md` name its commands) rather than naming
-test directories, in two tiers:
+test directories, in three tiers:
 
-- **Every task but the last:** the quick form - tests whose own code imports
-  a changed module, `slow` tests skipped - so a one-line fix is checked in
-  minutes.
-- **The task list's last task, instead:** the full form, which follows imports
+- **Every task:** only the test files the task writes or edits, and the own
+  tests of each source module it changes, named literally in the task.
+- **A task that stops for a human review:** the quick form as well - tests
+  whose own code imports a changed module, `slow` tests skipped - so the
+  reviewer never reviews work on a broken branch.
+- **The task list's last task:** the full form, which follows imports
   transitively and catches tests far from a change to shared code. It runs
-  once per task list, before the branch merges. It selects every test the
-  quick form does, so the last task does not run the quick form as well.
+  once per task list, before the branch merges.
 
-Where a project has no such tool, name the changed modules' own test files and
-every test file that imports a changed module directly on every task, and add
-the directories whose tests reach them through other modules on the last task.
+The tool compares the branch with its base, so the last task's run covers
+every task's changes; nothing has to remember which files changed. Running
+the quick form on every task only moves detection earlier, and where it
+selects tests that load large models it can cost a quarter of an hour a
+task (on 2026-10-29, four tasks that each added a few test files took 9 to
+34 minutes each, every one ending with that run). A breakage a task causes
+then surfaces in the last task's run instead, still before the merge.
+
+Where a project has no such tool, name the touched test files and the changed
+modules' own test files on every task; add every test file that imports a
+changed module directly on a task that stops for review; and on the last task
+run, for every module the list changed, its importers and the directories
+whose tests reach it through other modules.
 Never make "run every test directory" a done-check; a full run is the user's
 call.
 
