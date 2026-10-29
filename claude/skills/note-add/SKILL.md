@@ -41,6 +41,11 @@ that is the one thing this skill insists on.
    - **When**: a relative date ("next week", "after the run") that needs an
      absolute one;
    - **Who**: a person named only by pronoun or first name, when it matters.
+   Keep the note at the project's own level of generality. Read what the
+   project is (its `AGENTS.md` or `README.md`): for a general-purpose tool,
+   an idea is about the tool, and the data the session happens to be using
+   is at most a labelled example ("for instance, the X review does ..."),
+   never the note's scope.
    Fill what you can from the conversation and the repository yourself.
    Search for a referenced file, spec or commit rather than asking where it
    is. Never invent a fact.
@@ -66,9 +71,12 @@ that is the one thing this skill insists on.
    - A number in the note follows the project's counts-in-prose rule. Date
      a measurement, or wrap it in the project's accept markers if a count
      checker reads `NOTES.md`.
-6. **Preview** the exact markdown in a code block, then ask with
+6. **Preview** the exact markdown **inside the question**, then ask with
    `AskUserQuestion`: `Add it (Recommended)`, `Change it` (then ask what to
-   change and preview again), or `Cancel`.
+   change and preview again), or `Cancel`. Put the full note in the
+   recommended option's `preview` field. The question dialog can hide the
+   text written before it, so a preview only in the message body is often
+   never seen.
 7. **Append** the note at the end of `NOTES.md`, separated from the previous
    note by one blank line. Insert it elsewhere only if the file says it is
    ordered or grouped.
