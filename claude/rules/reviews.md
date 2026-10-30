@@ -86,6 +86,10 @@ Before publishing a review page:
   focus;
 - check that the accept-all button saves an answer for every unanswered
   item and decision, and leaves answers already given unchanged;
+- check that every key the page saves under is a valid document id for the
+  store (for the artifact database, letters, digits and `_-.~:@+` only: no
+  spaces), and make the stub store refuse an invalid one as the real store
+  does; a stub that accepts any key passes a page whose answers never save;
 - if its script was copied from another page, copy it by a marker, not by
   line number, run `node --check` on it, and render it once against a stub
   DOM to confirm every item and decision appears.
