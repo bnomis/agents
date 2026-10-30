@@ -87,6 +87,13 @@ A consolidated item:
 
 - opens with a title naming the **cause**, a paragraph stating it, and one
   **Fix direction** covering every finding;
+- never moves a heading that code or tests read to another level or text:
+  before consolidating, grep the repository (source and tests) for each
+  heading that would change. A known-bug register whose constants must
+  equal a `##` or `###` heading fails when a finding becomes `####`; group
+  such items with plain bold lines, not deeper headings. On one project, a
+  consolidation that nested findings under `###` group headings stopped the
+  correctness suite's known-bug check from starting (2026-10-30);
 - carries each original finding **verbatim** under its own `###` heading -
   the old `##` title becomes the `###` title, and the body moves unchanged;
 - says which decision it reverses, if any, and why that decision's reason no
