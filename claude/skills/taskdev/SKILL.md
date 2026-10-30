@@ -73,7 +73,8 @@ All tasks should following the standards in AGENTS.md established for source cod
 8. Update `agents/tasks/index.md` with the new task file entry (create the index if it doesn't exist)
 9. Verify coverage: confirm every spec section is addressed by at least one task
 10. If there are any tasks or subtasks in the new task list file which require a user decision (i.e. human intervention or decisions) such as "decide with the user" tasks or subtasks, flags these tasks to the user and suggest they update the spec to make the tasks unambiguous so a new task list can be written which does not require human intervention.
-11. Present the task list summary to the user for review
+11. If the list was written against a review that settles the spec's gaps (choices made and decisions, as a `review-N.md` beside the spec), hand that review over as the shared `reviews.md` rule says before presenting: publish its interactive page, add `**Review page:** <URL>` to its header, and lead step 12's summary with the URL
+12. Present the task list summary to the user for review
 
 A decision carried into a task list covers only what it names. When a task
 will meet work outside it, the task stops for the user; never write a
@@ -376,6 +377,7 @@ Before finalising the task list, verify:
 - [ ] A task that applies review answers reads them from the review document, and the stopping task says an operator session copies them there first
 - [ ] Prior task files were reviewed to avoid duplicating already-planned work
 - [ ] For spec input, the last task sets the spec's status to `implemented`
+- [ ] A review written for this list has its interactive page published, and its header names the page's URL
 
 ## Version control
 
