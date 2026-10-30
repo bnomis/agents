@@ -10,6 +10,22 @@ keep a paper, delete a clone - do not list them in the reply. Write them up and
 publish them as a review page as below, and give its URL. A single yes-or-no
 question may stay in the reply.
 
+## Writing a review document means publishing its page
+
+Writing or updating a review document is what triggers the page, wherever the
+document comes from: a skill (specdev, taskdev, an audit), a planning step, or
+a one-off. In the same turn, before the message that hands the document over:
+
+1. publish the interactive page (see Make it interactive);
+2. put the page's URL in the document's header as `**Review page:** <URL>`;
+3. give the URL in the hand-over message, and in the PR description when the
+   document travels in a PR.
+
+A hand-over that names a review document without its page URL is incomplete;
+check the header line before sending it. A decision asked separately (a
+question tool or a decision card) does not replace the page: the choices
+beside it still need their approve-or-flag answers.
+
 ## The review document
 
 Write it as a file in the repo (for example next to the task list that asks

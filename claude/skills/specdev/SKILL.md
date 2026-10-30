@@ -188,7 +188,7 @@ When a spec has a corresponding implementation, compare them to find inconsisten
 
 **What to do with findings:**
 
-1. Present a report listing each inconsistency with the spec line and the code location
+1. Present a report listing each inconsistency with the spec line and the code location; with two or more items, the report is a review document with its interactive page, as the shared `reviews.md` rule says
 2. Ask the user whether to update the spec to match the code, update the code to match the spec, or skip each item
 3. Do not assume a direction -- the user decides
 

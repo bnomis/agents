@@ -73,7 +73,8 @@ All tasks should following the standards in AGENTS.md established for source cod
 8. Update `agents/tasks/index.md` with the new task file entry (create the index if it doesn't exist)
 9. Verify coverage: confirm every spec section is addressed by at least one task
 10. If there are any tasks or subtasks in the new task list file which require a user decision (i.e. human intervention or decisions) such as "decide with the user" tasks or subtasks, flags these tasks to the user and suggest they update the spec to make the tasks unambiguous so a new task list can be written which does not require human intervention.
-11. Present the task list summary to the user for review
+11. If the list was written against a review that settles the spec's gaps (choices made and decisions, as a `review-N.md` beside the spec), hand that review over as the shared `reviews.md` rule says before presenting: publish its interactive page, add `**Review page:** <URL>` to its header, and lead step 12's summary with the URL
+12. Present the task list summary to the user for review
 
 A decision carried into a task list covers only what it names. When a task
 will meet work outside it, the task stops for the user; never write a
@@ -83,7 +84,12 @@ task extend a decision to cases it did not name.
 A closing subtask that moves an item from `TODO.md` to `DONE.md` says to
 append its heading and body unchanged, then the `Done:` line, and the last
 task's Definition of Done runs the todo-review skill's `verify_bodies.py`
-against the `TODO.md` from before the list started.
+against the `TODO.md` from before the list started. Take that baseline from
+the commit that adds the task list
+(`git log --diff-filter=A --format=%H -- <task list path>`), and point the
+`TODO.md` items at the list (their `tasks:` line) in that same commit. A
+baseline from an earlier commit lacks that line, so it checks an older body
+and passes a stale one unnoticed.
 
 ## Task sizing
 
@@ -177,13 +183,30 @@ anything:
 ```markdown
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` passes
+- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
 - [ ] `bin/affected-tests.sh --run` exits 0
 - [ ] `bin/audit-changed.sh` exits 0
 ```
 
 Put the same list on every task. Repetition is the point: a check listed once
 in the file header is a check that stops binding by task three.
+
+For the lint and hook check, in two tiers:
+
+- **Every task but the last:** the hooks on the files the task changed. A
+  commit already runs every pre-commit hook on its staged files, and every
+  `always_run` hook as well, so "the task's commit passes its hooks" is the
+  check; name no separate run. Where the project has no pre-commit hooks,
+  name the linter on the changed files (`ruff check <files>`).
+- **The task list's last task:** `pre-commit run --all-files` (or the
+  project's whole-tree lint), once, before the branch merges. It catches what
+  a per-file hook cannot see: a change in one file that breaks a check on
+  another.
+
+A whole-tree run on every task repeats the slow hooks (a type checker over
+the whole tree, an audit sweep) on code the task never touched, and a task
+re-runs it after every fix, so most of a task's time goes on checks rather
+than on the work.
 
 For the test check, use the project's affected-tests tool where it has one
 (the project's own rules or `AGENTS.md` name its commands) rather than naming
@@ -201,9 +224,8 @@ test directories, in three tiers:
 The tool compares the branch with its base, so the last task's run covers
 every task's changes; nothing has to remember which files changed. Running
 the quick form on every task only moves detection earlier, and where it
-selects tests that load large models it can cost a quarter of an hour a
-task (on 2026-10-29, four tasks that each added a few test files took 9 to
-34 minutes each, every one ending with that run). A breakage a task causes
+selects tests that load large models it can cost a long run on every task,
+however small the task. A breakage a task causes
 then surfaces in the last task's run instead, still before the merge.
 
 Where a project has no such tool, name the touched test files and the changed
@@ -355,6 +377,7 @@ Before finalising the task list, verify:
 - [ ] A task that applies review answers reads them from the review document, and the stopping task says an operator session copies them there first
 - [ ] Prior task files were reviewed to avoid duplicating already-planned work
 - [ ] For spec input, the last task sets the spec's status to `implemented`
+- [ ] A review written for this list has its interactive page published, and its header names the page's URL
 
 ## Version control
 
