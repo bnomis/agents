@@ -83,6 +83,20 @@ change.
 One logical change per commit. Don't bundle refactors with feature work.
 Avoid `WIP` commits on branches that will be reviewed.
 
+## Data files stay out of git
+
+Never commit generated data: result JSON, model outputs, samples, datasets.
+They live in a data directory outside the repository; only small
+human-readable records made from them (a report, a review) are committed.
+
+- A spec or task list that writes output names where it goes. Point that
+  output outside the repository, and ignore the data's extension in the
+  directory where its records live, so a slip fails at `git add`.
+- Before a commit, `git diff --cached --stat` and check any file over 1 MB:
+  if it is data, move it out. Git hosts refuse files over their size limit
+  at push, after the file is already in history, and removing it then means
+  rewriting every unpushed commit that holds it.
+
 ## The user's own changes
 
 Leave uncommitted changes you did not make out of your commits. Mention one
