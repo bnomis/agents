@@ -60,7 +60,7 @@ mistyped scope must still be an error.
 
 ## Task 2: Report a module directly in `src/` as `src-loose-module`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API - The driver (1.2); Implementation - Projects without a `src/` package (1.2), step 3; Testing (1.2, `test_driver.py`)
@@ -71,22 +71,22 @@ than leaving it out unseen.
 
 **Subtasks:**
 
-- [ ] Tests first, in `tests/test_driver.py`: a project holding only `src/a.py` gives one hit with `rule='src-loose-module'`, `variant='module directly under src/, outside any package'`, `path='src/a.py'`, `line=1`, `evidence='a.py'`, `accepted=false`; the same with a package beside it; a line-1 `# auditme: accept[src-loose-module] <reason>` marker gives `accepted=true` with that reason; `--package <name>` emits none; two loose files come out in sorted order
-- [ ] `claude/skills/auditme/checks/auditme/core.py`: add `loose_src_modules(scope: pathlib.Path) -> list[pathlib.Path]` with the spec's signature and docstring: every `*.py` file directly in `<scope>/src/`, sorted, and `[]` when `src/` is absent
-- [ ] `audit.py` `main()`: before the first pass, and only when `--package` is not given, emit one hit per loose module through `_emit()`, reading acceptance with `_accept_reason(_source_lines(path), 1, rule='src-loose-module')`. Emit it from the driver, not as a check in `CHECKS`, so it also fires when no root exists
-- [ ] Emit loose-module hits before the no-root notice, so a project holding only `src/a.py` gives the hit, the notice and exit 0
-- [ ] Document `src-loose-module` in `claude/skills/auditme/SKILL.md` beside the description of extra roots under "Mechanical sweep": what it reports, why the driver emits it, and how to accept one
+- [x] Tests first, in `tests/test_driver.py`: a project holding only `src/a.py` gives one hit with `rule='src-loose-module'`, `variant='module directly under src/, outside any package'`, `path='src/a.py'`, `line=1`, `evidence='a.py'`, `accepted=false`; the same with a package beside it; a line-1 `# auditme: accept[src-loose-module] <reason>` marker gives `accepted=true` with that reason; `--package <name>` emits none; two loose files come out in sorted order
+- [x] `claude/skills/auditme/checks/auditme/core.py`: add `loose_src_modules(scope: pathlib.Path) -> list[pathlib.Path]` with the spec's signature and docstring: every `*.py` file directly in `<scope>/src/`, sorted, and `[]` when `src/` is absent
+- [x] `audit.py` `main()`: before the first pass, and only when `--package` is not given, emit one hit per loose module through `_emit()`, reading acceptance with `_accept_reason(_source_lines(path), 1, rule='src-loose-module')`. Emit it from the driver, not as a check in `CHECKS`, so it also fires when no root exists
+- [x] Emit loose-module hits before the no-root notice, so a project holding only `src/a.py` gives the hit, the notice and exit 0
+- [x] Document `src-loose-module` in `claude/skills/auditme/SKILL.md` beside the description of extra roots under "Mechanical sweep": what it reports, why the driver emits it, and how to accept one
 
 **Acceptance Criteria:**
 
-- [ ] Each case in the first subtask holds
-- [ ] `CHECKS` and `tests/registry-order.txt` are unchanged
-- [ ] A project with a package under `src/` and no loose module gives output byte-identical to Task 1's
+- [x] Each case in the first subtask holds
+- [x] `CHECKS` and `tests/registry-order.txt` are unchanged
+- [x] A project with a package under `src/` and no loose module gives output byte-identical to Task 1's
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_driver.py claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_driver.py claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
