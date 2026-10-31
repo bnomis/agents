@@ -34,3 +34,12 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [manual, pre-push]
+      # This repository is shared, so no file or commit message names a
+      # project (claude/rules/rule-scope.md). The names are listed outside
+      # the repository; see bin/check-foreign-names.sh.
+      - id: no-project-names
+        name: no project names in a shared repository
+        entry: bin/check-foreign-names.sh
+        language: script
+        exclude: ^uv\.lock$
+        stages: [pre-commit, commit-msg]
