@@ -1,6 +1,6 @@
 # Project setup
 
-**Version:** 1.2
+**Version:** 1.3
 **Status:** implemented
 **Date:** 2026-10-31
 
@@ -117,6 +117,18 @@ Invocation is unchanged: `audit.py <scope-root> [--package <name>]
 `auditme-changed` (commit stage) and `auditme-all` (manual stage), published in
 `.pre-commit-hooks.yaml`; see [The published hooks](#the-published-hooks).
 
+**The push gate (1.3, decided by the operator on 2026-10-31).** A project with
+no unaccepted hits also runs `auditme-all` on push, by overriding its stages in
+its own config (`stages: [manual, pre-push]` under `- id: auditme-all`). The
+manifest keeps `[manual]`, so a project adopted over a backlog is not blocked
+on every push. The push gate is switched on at the same moment as the CI gate:
+by `new` through the template, and by `adopt` only when the count is zero.
+This reconciles the spec with `claude/rules/git-conventions.md`, which runs
+whole-tree checks at `pre-push` and in CI, and gives the `pre-push` git hook
+that both `new` and the guide install a check to run. The sweep took 1-21
+seconds on the repositories measured on 2026-10-31, and each commit already
+pays one.
+
 ### The skill
 
 ```text
@@ -166,7 +178,8 @@ with the gaps closed. It is stdlib-only, like the rest of the checker.
   reportable set is read from the checker's own constants, not mirrored.
 - **Output**: each reported hit as `path:line  rule`, then its variant, then how
   to accept one (`# auditme: accept[<rule>] <reason>`) and how to skip once
-  (`SKIP=auditme-changed git commit`).
+  (`SKIP=auditme-changed git commit`; with `--all`, which runs on push and in
+  CI, `SKIP=auditme-all git push`, 1.3).
 
 **Cross-file hits carry `related`.** `_emit()` takes an optional
 `related: list[str]` of repository-relative paths, omitted when empty so a hit
@@ -312,7 +325,8 @@ committing) and never pushes.
 
 1. Write `.pre-commit-config.yaml` from `templates/pre-commit-config.yaml`: ruff
    check and format, shellcheck, and the two auditme hooks pinned to this
-   repository's `origin/main` commit.
+   repository's `origin/main` commit, with `auditme-all` at
+   `[manual, pre-push]` (1.3).
 2. Write `.github/workflows/ci.yml` from `templates/ci.yml`: checkout, the deploy
    key step, Python and uv, `uv sync`, `pre-commit run --all-files`, the
    `auditme-all` step and the project's test command (asked).
@@ -326,10 +340,11 @@ committing) and never pushes.
    any project-local hook or Stop hook that does the same job, after showing it.
 2. Run `pre-commit run auditme-all --hook-stage manual --all-files` and count the
    unaccepted hits by rule.
-3. **Zero**: add the CI step and the deploy-key steps. **More than zero**: file
+3. **Zero**: add the push stage (1.3), the CI step and the deploy-key steps.
+   **More than zero**: file
    one `TODO.md` item recording the count by rule and the date, whose Fix
-   direction is to fix or accept every hit and then add the CI step - the gate is
-   never enabled over a backlog, because a gate that fails every push is switched
+   direction is to fix or accept every hit and then add the push stage and the CI
+   step - the gate is never enabled over a backlog, because a gate that fails every push is switched
    off, and one that is not switched on cannot be.
 4. Commit the hook and `TODO.md` changes as `build(audit): adopt the shared audit
    hooks`, when the operator agrees.

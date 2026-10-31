@@ -9,9 +9,9 @@ existing one.
 - **`auditme-changed`** - a pre-commit hook. It sweeps the whole tree with the
   auditme checker, then fails the commit on any unaccepted hit in a file the
   commit changes, or in a file a cross-file hit names as related to one.
-- **`auditme-all`** - the same sweep reported over every file, run at the
-  manual stage. CI runs it, so a hit in a file nobody touched still fails the
-  push.
+- **`auditme-all`** - the same sweep reported over every file. It is published
+  at the manual stage, and a project with no unaccepted hits also runs it on
+  every push and in CI, so a hit in a file nobody touched still fails the push.
 - **A Stop hook** - a Claude Code hook that blocks the end of a turn once while
   an opted-in project's changed files carry unaccepted hits.
 - **`/project-setup`** - a skill that writes the config, CI workflow and project
@@ -105,7 +105,7 @@ In an empty repository, in Claude Code:
 It asks for the project's test command, then writes:
 
 - `.pre-commit-config.yaml` - ruff, shellcheck and both audit hooks, pinned to
-  the current `main` of this repository
+  the current `main` of this repository, with `auditme-all` also run on push
 - `.github/workflows/ci.yml` - tests, the commit-time checks over the whole
   tree, and `auditme-all`
 - `AGENTS.md`, `CLAUDE.md`, `TODO.md`, `DONE.md` and `claude/rules/README.md`
@@ -143,9 +143,10 @@ Then it counts unaccepted hits by rule over the whole tree:
 pre-commit run auditme-all --hook-stage manual --all-files
 ```
 
-- **No hits:** it adds the CI step and offers the deploy key.
+- **No hits:** it runs `auditme-all` on push as well, adds the CI step and
+  offers the deploy key.
 - **Hits:** it files one `TODO.md` item with the dated count by rule, and leaves
-  CI alone. Fix or accept every hit, then add the CI step.
+  the push stage and CI alone. Fix or accept every hit, then enable both.
 
 A hit is accepted with a comment on its line or the line above:
 
@@ -155,7 +156,8 @@ A hit is accepted with a comment on its line or the line above:
 
 Why no gate over a backlog: a gate that fails every push gets switched off.
 
-To enable the gate later, paste
+To enable the gates later, add `stages: [manual, pre-push]` under
+`- id: auditme-all` in `.pre-commit-config.yaml`, paste
 `claude/skills/project-setup/templates/ci-audit-step.yml` into the workflow
 after the project's own setup, and run the deploy-key steps.
 
@@ -193,5 +195,5 @@ See [Upgrading the checker](#upgrading-the-checker).
 SKIP=auditme-changed git commit
 ```
 
-CI still sweeps the whole tree, so the hit must be fixed or accepted before it
-passes there.
+The push and CI still sweep the whole tree, so the hit must be fixed or
+accepted before they pass. For one push, `SKIP=auditme-all git push`.

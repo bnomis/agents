@@ -4,27 +4,6 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## The setup installs a `pre-push` hook that runs no audit check
-
-Found on 2026-10-31 while walking "A new project" in `docs/setup.md`. The
-`/project-setup` skill and the guide both run `pre-commit install
---hook-type pre-commit --hook-type pre-push`. But `.pre-commit-hooks.yaml`
-publishes `auditme-changed` at `stages: [pre-commit]` and `auditme-all` at
-`stages: [manual]`, and the template `.pre-commit-config.yaml` overrides
-neither. So the `pre-push` hook git runs on each push checks nothing. The
-shared rule `claude/rules/git-conventions.md` ("A rule a script can check is
-a hook") says whole-tree checks run as a `pre-push` hook, and in CI.
-
-Cause: the project-setup spec (`agents/specs/project-setup/spec.md`, "API")
-put the whole-tree sweep at the manual stage and in CI only. The rule asks
-for a `pre-push` stage as well. Nothing reconciles the two.
-
-Fix direction: decide which one holds. Either add `pre-push` to
-`auditme-all`'s stages (in `.pre-commit-hooks.yaml`, or in the template
-config), which costs a whole-tree sweep on every push, or drop the
-`pre-push` install from the skill, the guide and the rule. Whichever is
-chosen, change the spec first.
-
 ## Adopt the shared guards in each project
 
 The shared guards exist, but no project uses them yet. Each open finding below
@@ -48,6 +27,9 @@ check" first, so no project is set up twice. Then run `/project-setup adopt`
 in this repository, fixing or accepting its hits, and enable its CI gate with
 a deploy key. That run is the real CI run and deploy key from the first
 finding. Then adopt the motivating project, then the rest.
+
+Note 2026-10-31: the `pre-push` item is settled and in `DONE.md`. `adopt` now
+turns on the push stage together with the CI gate, once a project has zero hits.
 
 ### Project-setup end-to-end checks that were never run
 
