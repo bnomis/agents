@@ -25,7 +25,7 @@ the last task runs both test trees in full.
 
 ## Task 1: Cross-file hits carry `related`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation - The changed-files runner ("Cross-file hits carry `related`"); Testing
@@ -36,22 +36,22 @@ report a hit when only its peer changed. Hits without it stay byte-identical.
 
 **Subtasks:**
 
-- [ ] `claude/skills/auditme/checks/auditme/core.py`: `_emit()` accepts an optional `related: list[str]` of repository-relative paths, sorted and de-duplicated, and omits the key when the list is empty
-- [ ] Pass `related` from each cross-file rule: `literal-duplication` and `paired-sibling-helpers`, `duplicate-call-sequence` and `recompile-duplication` (`rules/duplication.py`); `spec-api-signature-drift` (`rules/project_hygiene.py`, the source file); `asymmetric-exception-translation` (`rules/error_handling.py`, the callee's file); `mutable-module-level-exported` (`rules/state_and_effects.py`, the reading modules). A location's own path is never in its `related`
-- [ ] Extend each rule's existing test to assert the `related` of its hits (`tests/test_duplication.py`, `tests/test_project_hygiene.py`, `tests/test_nested_underscore_and_spec_signatures.py` where the spec-drift tests live, `tests/test_error_handling.py`, `tests/test_state_and_effects.py`)
-- [ ] `tests/test_registry.py`: assert that the set of rules emitting `related` across a fixture project equals the seven named above, so a cross-file rule added later without it fails
-- [ ] `tests/test_core.py`: a hit with no `related` serialises exactly as before (no key, same bytes)
+- [x] `claude/skills/auditme/checks/auditme/core.py`: `_emit()` accepts an optional `related: list[str]` of repository-relative paths, sorted and de-duplicated, and omits the key when the list is empty
+- [x] Pass `related` from each cross-file rule: `literal-duplication` and `paired-sibling-helpers`, `duplicate-call-sequence` and `recompile-duplication` (`rules/duplication.py`); `spec-api-signature-drift` (`rules/project_hygiene.py`, the source file); `asymmetric-exception-translation` (`rules/error_handling.py`, the callee's file); `mutable-module-level-exported` (`rules/state_and_effects.py`, the reading modules). A location's own path is never in its `related`
+- [x] Extend each rule's existing test to assert the `related` of its hits (`tests/test_duplication.py`, `tests/test_project_hygiene.py`, `tests/test_nested_underscore_and_spec_signatures.py` where the spec-drift tests live, `tests/test_error_handling.py`, `tests/test_state_and_effects.py`)
+- [x] `tests/test_registry.py`: assert that the set of rules emitting `related` across a fixture project equals the seven named above, so a cross-file rule added later without it fails
+- [x] `tests/test_core.py`: a hit with no `related` serialises exactly as before (no key, same bytes)
 
 **Acceptance Criteria:**
 
-- [ ] Every hit of the seven rules on a two-file fixture names the other file in `related`
-- [ ] A hit from any other rule has no `related` key, and its JSON line is byte-identical to the previous commit's for the same input
-- [ ] `registry-order.txt` and `CHECKS`' order are unchanged
+- [x] Every hit of the seven rules on a two-file fixture names the other file in `related`
+- [x] A hit from any other rule has no `related` key, and its JSON line is byte-identical to the previous commit's for the same input
+- [x] `registry-order.txt` and `CHECKS`' order are unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_duplication.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_state_and_effects.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_duplication.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_state_and_effects.py` passes
 
 **Notes:**
 
