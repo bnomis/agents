@@ -99,7 +99,7 @@ than leaving it out unseen.
 
 ## Task 3: The commit hook passes a project without `src/`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Testing (1.2, `test_changed.py`); Acceptance criteria (1.2)
@@ -110,18 +110,18 @@ script and is blocked by a hit in one or by a loose `src/` module.
 
 **Subtasks:**
 
-- [ ] `claude/skills/auditme/tests/test_changed.py`, using the git helper in `conftest.py`: in a temporary repository with no `src/`, a commit of a clean `bin/tool.py` makes `changed.py` exit 0
-- [ ] In the same setup, a `bin/tool.py` holding a leading-underscore function makes `changed.py` exit 1, naming `bin/tool.py` and `leading-underscore-def-class`
-- [ ] A commit adding a loose `src/a.py` makes `changed.py` exit 1, naming `src-loose-module`. With the line-1 accept marker added, it exits 0
+- [x] `claude/skills/auditme/tests/test_changed.py`, using the git helper in `conftest.py`: in a temporary repository with no `src/`, a commit of a clean `bin/tool.py` makes `changed.py` exit 0
+- [x] In the same setup, a `bin/tool.py` holding a leading-underscore function makes `changed.py` exit 1, naming `bin/tool.py` and `leading-underscore-def-class`
+- [x] A commit adding a loose `src/a.py` makes `changed.py` exit 1, naming `src-loose-module`. With the line-1 accept marker added, it exits 0
 
 **Acceptance Criteria:**
 
-- [ ] Each case in the subtasks holds, run through `changed.py`'s `main()` against a temporary repository, not by calling `audit.py` directly
+- [x] Each case in the subtasks holds, run through `changed.py`'s `main()` against a temporary repository, not by calling `audit.py` directly
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_changed.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_changed.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
