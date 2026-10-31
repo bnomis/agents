@@ -35,3 +35,26 @@ in `src/` as a `src-loose-module` hit. Spec:
 `agents/tasks/project-setup/tasks-2.md`.
 
 Done: 2026-10-31 - b7f0e08, 8cb8502, 81212a5 (Tasks 1-3 of tasks-2.md); spec amendment 1.2; `agents/tasks/project-setup/tasks-2.md`.
+
+## The setup installs a `pre-push` hook that runs no audit check
+
+Found on 2026-10-31 while walking "A new project" in `docs/setup.md`. The
+`/project-setup` skill and the guide both run `pre-commit install
+--hook-type pre-commit --hook-type pre-push`. But `.pre-commit-hooks.yaml`
+publishes `auditme-changed` at `stages: [pre-commit]` and `auditme-all` at
+`stages: [manual]`, and the template `.pre-commit-config.yaml` overrides
+neither. So the `pre-push` hook git runs on each push checks nothing. The
+shared rule `claude/rules/git-conventions.md` ("A rule a script can check is
+a hook") says whole-tree checks run as a `pre-push` hook, and in CI.
+
+Cause: the project-setup spec (`agents/specs/project-setup/spec.md`, "API")
+put the whole-tree sweep at the manual stage and in CI only. The rule asks
+for a `pre-push` stage as well. Nothing reconciles the two.
+
+Fix direction: decide which one holds. Either add `pre-push` to
+`auditme-all`'s stages (in `.pre-commit-hooks.yaml`, or in the template
+config), which costs a whole-tree sweep on every push, or drop the
+`pre-push` install from the skill, the guide and the rule. Whichever is
+chosen, change the spec first.
+
+Done: 2026-10-31 - the operator chose to switch the push gate on with the CI gate: the `new` template sets `stages: [manual, pre-push]` on `auditme-all`, `adopt` adds it only at zero hits, and the manifest keeps `[manual]`; `changed.py --all` names `SKIP=auditme-all git push`; spec amendment 1.3; branch `fix/audit-on-push`.
