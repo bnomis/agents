@@ -1,6 +1,6 @@
 # Project setup
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** proposed
 **Date:** 2026-10-31
 
@@ -123,9 +123,12 @@ with the gaps closed. It is stdlib-only, like the rest of the checker.
   `@{upstream}`, `origin/main`, `main` that resolves. None resolving exits 0 with
   a message (a repository with no history to compare). A `--base` starting with
   `-` is refused before git runs.
-- **The sweep** runs in-process through the same driver function `audit.py`
-  calls, over the whole tree with no `--package`, so cross-file rules see every
-  file. `audit.py`'s command line and output stay byte-identical.
+- **The sweep** runs as a subprocess, `[sys.executable, <checks>/audit.py,
+  <repo-root>]`, the `audit.py` beside `changed.py`, with no `--package`, so it
+  covers the whole tree and cross-file rules see every file. `audit.py` itself is
+  unchanged apart from `related` (amended 2026-10-31: the first draft said
+  in-process, which contradicted the timeout and non-JSON handling below and
+  named a driver function `audit.py` does not have).
 - **Skip when nothing reportable changed**: as today, a scope holding no `.py`
   file, no reportable `.md` file and no `uv.lock` exits 0 without sweeping. The
   reportable set is read from the checker's own constants, not mirrored.
