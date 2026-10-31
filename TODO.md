@@ -4,7 +4,52 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## Project-setup end-to-end checks that were never run
+## The setup installs a `pre-push` hook that runs no audit check
+
+Found on 2026-10-31 while walking "A new project" in `docs/setup.md`. The
+`/project-setup` skill and the guide both run `pre-commit install
+--hook-type pre-commit --hook-type pre-push`. But `.pre-commit-hooks.yaml`
+publishes `auditme-changed` at `stages: [pre-commit]` and `auditme-all` at
+`stages: [manual]`, and the template `.pre-commit-config.yaml` overrides
+neither. So the `pre-push` hook git runs on each push checks nothing. The
+shared rule `claude/rules/git-conventions.md` ("A rule a script can check is
+a hook") says whole-tree checks run as a `pre-push` hook, and in CI.
+
+Cause: the project-setup spec (`agents/specs/project-setup/spec.md`, "API")
+put the whole-tree sweep at the manual stage and in CI only. The rule asks
+for a `pre-push` stage as well. Nothing reconciles the two.
+
+Fix direction: decide which one holds. Either add `pre-push` to
+`auditme-all`'s stages (in `.pre-commit-hooks.yaml`, or in the template
+config), which costs a whole-tree sweep on every push, or drop the
+`pre-push` install from the skill, the guide and the rule. Whichever is
+chosen, change the spec first.
+
+## Adopt the shared guards in each project
+
+The shared guards exist, but no project uses them yet. Each open finding below
+is closed by adopting them, and adopting the first project with a CI gate is
+also the real CI run and the real deploy key that the end-to-end check never
+did.
+
+Found on 2026-10-31 by `/todo-review`. Task 9 of
+`agents/tasks/project-setup/tasks-1.md` lists, in its Notes, the operator
+steps for after the merge: run `bin/install-claude.py` on the real machine
+(done: `~/.claude/settings.json` registers `auditme-stop.sh`, linked at 14:25
+on 2026-10-31); `/project-setup adopt` in each project, the motivating one
+first; and an `AGENTS_DEPLOY_KEY` for each project that enables the CI gate.
+On 2026-10-31, none of the 7 repositories beside this one with a
+`.pre-commit-config.yaml` carried an audit hook. Nor did this repository,
+and a scratch run of the patched checker on it that day found 12 unaccepted
+hits in `bin/`.
+
+Fix direction: settle "The setup installs a `pre-push` hook that runs no audit
+check" first, so no project is set up twice. Then run `/project-setup adopt`
+in this repository, fixing or accepting its hits, and enable its CI gate with
+a deploy key. That run is the real CI run and deploy key from the first
+finding. Then adopt the motivating project, then the rest.
+
+### Project-setup end-to-end checks that were never run
 
 Found on 2026-10-31, after the project-setup queue (task list
 `agents/tasks/project-setup/tasks-1.md`, merged to `main` as `69fa821`).
@@ -64,23 +109,22 @@ branch `fix/setup-walk`:
 Still open: a real CI run and a real deploy key. Both change GitHub, so the
 operator must confirm them.
 
-## The setup installs a `pre-push` hook that runs no audit check
+Note 2026-10-31: since `3607aa2` (the installer fix) and amendment 1.2 (the
+`src/` layout, `tasks-2.md`), the installer run and the guide walk are done;
+only the real CI run and the real deploy key remain.
 
-Found on 2026-10-31 while walking "A new project" in `docs/setup.md`. The
-`/project-setup` skill and the guide both run `pre-commit install
---hook-type pre-commit --hook-type pre-push`. But `.pre-commit-hooks.yaml`
-publishes `auditme-changed` at `stages: [pre-commit]` and `auditme-all` at
-`stages: [manual]`, and the template `.pre-commit-config.yaml` overrides
-neither. So the `pre-push` hook git runs on each push checks nothing. The
-shared rule `claude/rules/git-conventions.md` ("A rule a script can check is
-a hook") says whole-tree checks run as a `pre-push` hook, and in CI.
+## A project with no audit root skips the project-level checks
 
-Cause: the project-setup spec (`agents/specs/project-setup/spec.md`, "API")
-put the whole-tree sweep at the manual stage and in CI only. The rule asks
-for a `pre-push` stage as well. Nothing reconciles the two.
+Found on 2026-10-31 in `agents/specs/project-setup/spec.md`, amendment 1.2,
+which records it as a known limit not fixed there. When a project has no
+package under `src/` and no extra root, `audit.py` runs no pass, so the
+per-root project-level checks (the lockfile, `AGENTS.md`, spec drift) never
+run, and a project with no Python passes them without being checked.
 
-Fix direction: decide which one holds. Either add `pre-push` to
-`auditme-all`'s stages (in `.pre-commit-hooks.yaml`, or in the template
-config), which costs a whole-tree sweep on every push, or drop the
-`pre-push` install from the skill, the guide and the rule. Whichever is
-chosen, change the spec first.
+Cause: the project-level checks run inside the per-root loop in `main()` of
+`claude/skills/auditme/checks/audit.py`, once per root with duplicates
+suppressed. With no root, they never run.
+
+Fix direction: deferred until a project without Python adopts the guards.
+Then run the project-level checks once when no root exists, which changes the
+driver's contract, so it goes through the spec first.

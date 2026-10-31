@@ -323,7 +323,7 @@ implemented.
 
 **Subtasks:**
 
-- [ ] In temporary directories with a temporary `HOME`, walk `docs/setup.md`'s "a new machine" and "a new project" sections as written, using a local clone of this repository in place of GitHub where a step needs the remote (`pre-commit try-repo`), and record anything the guide got wrong; fix the guide (not walked; see `TODO.md`)
+- [x] In temporary directories with a temporary `HOME`, walk `docs/setup.md`'s "a new machine" and "a new project" sections as written, using a local clone of this repository in place of GitHub where a step needs the remote (`pre-commit try-repo`), and record anything the guide got wrong; fix the guide (walked by hand on 2026-10-31, after the queue; fixed in `3607aa2` and amendment 1.2; the deploy-key steps were not walked, see `TODO.md`, "Adopt the shared guards in each project")
 - [x] Against a throwaway project: a commit adding an unaccepted hit fails `auditme-changed`; `auditme-all` fails on a hit in an untouched file; a cross-file hit whose named file is unchanged fails when its peer changed
 - [x] Hoist anything `changed.py`, the Stop hook test helpers and the installer test helpers duplicate (constants, temporary-repository builders) to a single owner: grep each literal collection and one-line helper the new modules define, and import rather than copy; prefer a module the consumer already imports
 - [x] Set the spec's `**Status:**` to `implemented`
@@ -331,7 +331,7 @@ implemented.
 **Acceptance Criteria:**
 
 - [x] Every acceptance criterion in the spec holds in the throwaway repositories, apart from the GitHub-side parts (a real CI run, a real deploy key), which are listed in the commit body as the operator's to check
-- [ ] The guide's walked sections needed no step it does not state (not walked; see `TODO.md`, "Project-setup end-to-end checks that were never run")
+- [x] The guide's walked sections needed no step it does not state (true since amendment 1.2 stated the `src/` layout, 2026-10-31)
 
 **Definition of Done:**
 
