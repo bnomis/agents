@@ -278,7 +278,7 @@ same checks without my remembering each step.
 
 ## Task 8: The user guide
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** medium
 **Spec Reference:** Documentation
@@ -289,19 +289,19 @@ can set everything up without having followed how it was built.
 
 **Subtasks:**
 
-- [ ] `docs/setup.md`, the seven sections in the spec's order, each with runnable commands and placeholders saying where values come from: what you get; a new machine (prerequisites, clone, `bin/install-claude.py`, how to check it); a new user (access, SSH key, shared versus project rules); a new project (`/project-setup new`); an existing project (`/project-setup adopt`, the backlog step, enabling the gate); upgrading the checker (`pre-commit autoupdate --repo git@github.com:bnomis/agents.git`, catch-up in the same commit); troubleshooting (clone failures and the host alias, the Stop hook not firing, hits after an upgrade, `SKIP=auditme-changed`)
-- [ ] The "why" for each behaviour a user might want to change: changed-files scope at commit versus whole tree in CI; the pinned checker; the global opt-in Stop hook running the installed checker; no gate over a backlog
-- [ ] `README.md`: a short section saying what the repository is, linking `docs/setup.md`
-- [ ] Check every command in the guide against the code it describes (flags, paths, hook ids, secret name, host alias)
+- [x] `docs/setup.md`, the seven sections in the spec's order, each with runnable commands and placeholders saying where values come from: what you get; a new machine (prerequisites, clone, `bin/install-claude.py`, how to check it); a new user (access, SSH key, shared versus project rules); a new project (`/project-setup new`); an existing project (`/project-setup adopt`, the backlog step, enabling the gate); upgrading the checker (`pre-commit autoupdate --repo git@github.com:bnomis/agents.git`, catch-up in the same commit); troubleshooting (clone failures and the host alias, the Stop hook not firing, hits after an upgrade, `SKIP=auditme-changed`)
+- [x] The "why" for each behaviour a user might want to change: changed-files scope at commit versus whole tree in CI; the pinned checker; the global opt-in Stop hook running the installed checker; no gate over a backlog
+- [x] `README.md`: a short section saying what the repository is, linking `docs/setup.md`
+- [x] Check every command in the guide against the code it describes (flags, paths, hook ids, secret name, host alias)
 
 **Acceptance Criteria:**
 
-- [ ] Every command in `docs/setup.md` names a flag, path or id that exists in this repository
-- [ ] No count in prose is undated or ungenerated (`claude/rules/counts-in-prose.md`)
+- [x] Every command in `docs/setup.md` names a flag, path or id that exists in this repository
+- [x] No count in prose is undated or ungenerated (`claude/rules/counts-in-prose.md`)
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
 
 **Notes:**
 
