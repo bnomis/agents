@@ -31,6 +31,17 @@ finding. Then adopt the motivating project, then the rest.
 Note 2026-10-31: the `pre-push` item is settled and in `DONE.md`. `adopt` now
 turns on the push stage together with the CI gate, once a project has zero hits.
 
+Note 2026-10-31: this repository is adopted, on branch `feat/adopt-audit-hooks`.
+Its 12 hits, all in `bin/install-claude.py`, were fixed, none accepted. The
+operator chose `repo: local` hooks that run the checker from the working
+tree, so no deploy key is needed here, plus a new `.github/workflows/ci.yml`.
+Writing that workflow exposed two defects in
+`claude/skills/project-setup/templates/ci.yml`: it set up Python 3.12,
+where the checker's `except A, B:` syntax does not parse, and it never
+installed `pre-commit`. Both are fixed and tested. The first real CI run is
+this repository's first push after the merge. The real deploy key is now
+first tested at the next project to adopt.
+
 ### Project-setup end-to-end checks that were never run
 
 Found on 2026-10-31, after the project-setup queue (task list
