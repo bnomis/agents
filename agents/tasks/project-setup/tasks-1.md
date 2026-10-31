@@ -137,7 +137,7 @@ project can pin `auditme-changed` and `auditme-all` by revision.
 
 ## Task 4: The Stop hook
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation - The Stop hook
@@ -148,19 +148,19 @@ hits, and does nothing anywhere else.
 
 **Subtasks:**
 
-- [ ] Write the script: read the payload from stdin; exit 0 when `stop_hook_active` is true (`jq -r '.stop_hook_active // false'`); exit 0 unless the working directory is inside a git repository whose `.pre-commit-config.yaml` contains `id: auditme-changed`; otherwise run `python3 -I "$HOME/.claude/skills/auditme/checks/changed.py"` and, on exit 1, print `{"decision": "block", "reason": ...}` built with `jq -Rs` from the runner's output; `set -uo pipefail`
-- [ ] `tests/test_stop_hook.py` at the repository root (new directory `tests/`): run the script with `bash`, a temporary `HOME` holding a stub `changed.py`, and stub payloads, in an opted-in and a not-opted-in temporary repository: blocks once with the runner's text; passes when `stop_hook_active` is true; silent when not opted in; silent when the stub exits 0. Skip when `jq` is missing
+- [x] Write the script: read the payload from stdin; exit 0 when `stop_hook_active` is true (`jq -r '.stop_hook_active // false'`); exit 0 unless the working directory is inside a git repository whose `.pre-commit-config.yaml` contains `id: auditme-changed`; otherwise run `python3 -I "$HOME/.claude/skills/auditme/checks/changed.py"` and, on exit 1, print `{"decision": "block", "reason": ...}` built with `jq -Rs` from the runner's output; `set -uo pipefail`
+- [x] `tests/test_stop_hook.py` at the repository root (new directory `tests/`): run the script with `bash`, a temporary `HOME` holding a stub `changed.py`, and stub payloads, in an opted-in and a not-opted-in temporary repository: blocks once with the runner's text; passes when `stop_hook_active` is true; silent when not opted in; silent when the stub exits 0. Skip when `jq` is missing
 
 **Acceptance Criteria:**
 
-- [ ] The script is silent and exits 0 in a repository without `auditme-changed`
-- [ ] It blocks at most once per turn
-- [ ] `shellcheck` passes on it
+- [x] The script is silent and exits 0 in a repository without `auditme-changed`
+- [x] It blocks at most once per turn
+- [x] `shellcheck` passes on it
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest tests/test_stop_hook.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest tests/test_stop_hook.py` passes
 
 **Notes:**
 
