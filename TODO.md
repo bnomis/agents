@@ -4,37 +4,6 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## A new project cannot commit Python without a `src/<package>/` layout
-
-Found on 2026-10-31 while walking "A new project" in `docs/setup.md` in a
-throwaway repository whose hooks were pinned at `3974fbb`. Committing
-`bin/tool.py` failed `auditme-changed` with `the audit sweep exited 2:
-ERROR: <repo>/src does not exist`. Committing a loose `src/a.py` failed with
-`ERROR: no package under <repo>/src`. Only a commit with
-`src/<package>/__init__.py` passed. Neither `docs/setup.md` nor the
-`/project-setup new` skill mentions this layout, and `new` is meant for an
-empty repository.
-
-Cause: `main()` in `claude/skills/auditme/checks/audit.py` returns 2 when
-`<scope>/src` is missing, or when `auditme.core._audit_roots()` finds no
-package under it. It does this before `bin/` is considered, even though
-`bin/` is one of the default extra roots (`EXTRA_ROOT_NAMES` in
-`checks/auditme/core.py`). `checks/changed.py` treats any non-zero sweep exit
-as a failure, so every commit that touches a `.py` file is blocked.
-
-Fix direction: decide between two approaches. (a) The checker audits
-whatever roots exist, so a project with no `src/` passes over `bin/` alone
-and exits 0 when no root exists. (b) `/project-setup new` creates
-`src/<project>/__init__.py`, and the guide states the layout. Option (a)
-changes the checker's contract for every project, so it goes through the
-project-setup spec first. Option (b) needs only a sentence in the spec and
-in the guide.
-
-Note 2026-10-31: the operator chose (a), and to report a `.py` file directly
-in `src/` as a `src-loose-module` hit. Spec:
-`agents/specs/project-setup/spec.md` (amendment 1.2); tasks:
-`agents/tasks/project-setup/tasks-2.md`.
-
 ## Project-setup end-to-end checks that were never run
 
 Found on 2026-10-31, after the project-setup queue (task list
