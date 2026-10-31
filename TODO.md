@@ -42,6 +42,14 @@ installed `pre-commit`. Both are fixed and tested. The first real CI run is
 this repository's first push after the merge. The real deploy key is now
 first tested at the next project to adopt.
 
+Note 2026-10-31: this repository's first real CI run (GitHub Actions
+`41217991678`, at `70a50a4`) failed the whole-tree audit. The checker runs a
+bare `ruff`, which `uv sync` installs only into `.venv`, so the run reported
+`ruff not installed`. Since `fef77ba`, the workflow and the CI template put
+`.venv/bin` on `PATH`, and the next run (`41218182723`) passed every step.
+What remains: adopting the motivating project and the rest, and the first
+real deploy key.
+
 ### Project-setup end-to-end checks that were never run
 
 Found on 2026-10-31, after the project-setup queue (task list
