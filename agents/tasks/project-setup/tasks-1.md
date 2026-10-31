@@ -171,7 +171,7 @@ hits, and does nothing anywhere else.
 
 ## Task 5: Register the Stop hook from the installer
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** medium
 **Spec Reference:** Implementation - The Stop hook (the `bin/install-claude.py` bullet); Error handling
@@ -181,20 +181,20 @@ hits, and does nothing anywhere else.
 
 **Subtasks:**
 
-- [ ] After linking, read `~/.claude/settings.json` (absent means `{}`); refuse with a message naming the file, writing nothing, when it is not valid JSON or not an object
-- [ ] Add a `hooks.Stop` entry running `bash "$HOME/.claude/hooks/auditme-stop.sh"` unless an existing `Stop` hook command already names `auditme-stop.sh`
-- [ ] The first time the file is changed, copy the original to `settings.json.orig` (never overwrite an existing `.orig`); write the new file atomically (temporary file in the same directory, then `os.replace`)
-- [ ] `tests/test_install_claude.py` with `HOME` (or the installer's destination function) pointed at a temporary directory: added once on two runs; every other key and every other hook kept; invalid JSON refused with the file unchanged; `.orig` written once
+- [x] After linking, read `~/.claude/settings.json` (absent means `{}`); refuse with a message naming the file, writing nothing, when it is not valid JSON or not an object
+- [x] Add a `hooks.Stop` entry running `bash "$HOME/.claude/hooks/auditme-stop.sh"` unless an existing `Stop` hook command already names `auditme-stop.sh`
+- [x] The first time the file is changed, copy the original to `settings.json.orig` (never overwrite an existing `.orig`); write the new file atomically (temporary file in the same directory, then `os.replace`)
+- [x] `tests/test_install_claude.py` with `HOME` (or the installer's destination function) pointed at a temporary directory: added once on two runs; every other key and every other hook kept; invalid JSON refused with the file unchanged; `.orig` written once
 
 **Acceptance Criteria:**
 
-- [ ] Running the installer twice leaves one Stop entry for the hook
-- [ ] An existing settings file's other content is unchanged byte for byte apart from the added entry's structure
+- [x] Running the installer twice leaves one Stop entry for the hook
+- [x] An existing settings file's other content is unchanged byte for byte apart from the added entry's structure
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest tests/test_install_claude.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest tests/test_install_claude.py` passes
 
 **Notes:**
 

@@ -4,9 +4,13 @@ install-claude: symlinks files in to ~/.claude/
 """
 
 import argparse
+import json
 import logging
+import os
 import pathlib
+import shutil
 import sys
+import tempfile
 from typing import NoReturn
 
 
@@ -56,6 +60,62 @@ def dest_claude_dir() -> pathlib.Path:
     return pathlib.Path.home() / '.claude'
 
 
+STOP_HOOK_SCRIPT = 'auditme-stop.sh'
+STOP_HOOK_COMMAND = f'bash "$HOME/.claude/hooks/{STOP_HOOK_SCRIPT}"'
+
+
+class SettingsError(Exception):
+    """~/.claude/settings.json cannot be merged into; nothing was written."""
+
+
+def _read_settings(path: pathlib.Path) -> dict:
+    """returns the parsed settings, {} when the file is absent"""
+    if not path.exists():
+        return {}
+    try:
+        settings = json.loads(path.read_text())
+    except ValueError as e:
+        raise SettingsError(f'{path} is not valid JSON ({e}); not changed') from e
+    if not isinstance(settings, dict):
+        raise SettingsError(f'{path} is not a JSON object; not changed')
+    return settings
+
+
+def _has_stop_hook(settings: dict) -> bool:
+    """whether any Stop hook command already names the script"""
+    entries = settings.get('hooks', {}).get('Stop', [])
+    return any(STOP_HOOK_SCRIPT in hook.get('command', '') for entry in entries for hook in entry.get('hooks', []))
+
+
+def register_stop_hook(options, settings_path: pathlib.Path) -> None:
+    """adds the Stop hook to settings.json once, keeping everything else"""
+    settings = _read_settings(settings_path)
+    if _has_stop_hook(settings):
+        print(f'Stop hook already registered in {settings_path}')
+        return
+
+    entry = {'hooks': [{'type': 'command', 'command': STOP_HOOK_COMMAND}]}
+    settings.setdefault('hooks', {}).setdefault('Stop', []).append(entry)
+
+    if settings_path.exists():
+        orig = settings_path.with_name(settings_path.name + '.orig')
+        if not orig.exists():
+            shutil.copy2(settings_path, orig)
+
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=settings_path.parent, prefix=f'{settings_path.name}.')
+    try:
+        with os.fdopen(fd, 'w') as f:
+            f.write(json.dumps(settings, indent=2) + '\n')
+        if settings_path.exists():
+            shutil.copymode(settings_path, tmp)
+        os.replace(tmp, settings_path)
+    except BaseException:
+        pathlib.Path(tmp).unlink(missing_ok=True)
+        raise
+    print(f'Registered Stop hook in {settings_path}')
+
+
 def find_dangling_symlinks(options, dir: pathlib.Path, max_depth: int = 2) -> None:
     root_depth = len(dir.parts)
     dangle = []
@@ -94,6 +154,7 @@ def install_claude(options) -> None:
             symlink_file(options, src, dest)
 
     find_dangling_symlinks(options, tdir)
+    register_stop_hook(options, tdir / 'settings.json')
 
 
 def parse_args(argv) -> argparse.Namespace:
@@ -111,6 +172,8 @@ def main(argv) -> NoReturn:
     m = 0
     try:
         install_claude(options)
+    except SettingsError as e:
+        m = f'Error: {e}'
     except Exception as e:
         m = f'Exception: {e}'
         options.logger.exception(m)
