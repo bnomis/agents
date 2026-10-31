@@ -104,7 +104,7 @@ when the sweep cannot run.
 
 ## Task 3: Publish the hooks
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation - The published hooks
@@ -114,19 +114,19 @@ project can pin `auditme-changed` and `auditme-all` by revision.
 
 **Subtasks:**
 
-- [ ] Write `.pre-commit-hooks.yaml` with the two hooks exactly as the spec gives them (`language: script`, `pass_filenames: false`, `always_run: true`, stages `pre-commit` and `manual`)
-- [ ] `claude/skills/auditme/tests/test_hooks_manifest.py`: parse the file (stdlib only - a minimal reader for this flat shape, or compare against the expected text) and assert both ids, entries, languages and stages; assert each `entry`'s script exists and is executable in the git index
-- [ ] A smoke test, skipped when `pre-commit` is not on `PATH`: in a temporary clone of this repository at `HEAD`, create a throwaway project with one unaccepted hit and run `pre-commit try-repo <clone> auditme-all --hook-stage manual --all-files`; it exits non-zero and names the hit
+- [x] Write `.pre-commit-hooks.yaml` with the two hooks exactly as the spec gives them (`language: script`, `pass_filenames: false`, `always_run: true`, stages `pre-commit` and `manual`)
+- [x] `claude/skills/auditme/tests/test_hooks_manifest.py`: parse the file (stdlib only - a minimal reader for this flat shape, or compare against the expected text) and assert both ids, entries, languages and stages; assert each `entry`'s script exists and is executable in the git index
+- [x] A smoke test, skipped when `pre-commit` is not on `PATH`: in a temporary clone of this repository at `HEAD`, create a throwaway project with one unaccepted hit and run `pre-commit try-repo <clone> auditme-all --hook-stage manual --all-files`; it exits non-zero and names the hit
 
 **Acceptance Criteria:**
 
-- [ ] `pre-commit try-repo` runs both hooks from this repository against a throwaway project
-- [ ] `auditme-all` fails on a hit in a file the throwaway project's last commit did not touch
+- [x] `pre-commit try-repo` runs both hooks from this repository against a throwaway project
+- [x] `auditme-all` fails on a hit in a file the throwaway project's last commit did not touch
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_hooks_manifest.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_hooks_manifest.py` passes
 
 **Notes:**
 
