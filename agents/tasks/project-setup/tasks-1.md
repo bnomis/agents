@@ -312,7 +312,7 @@ can set everything up without having followed how it was built.
 
 ## Task 9: End-to-end check, deduplication, close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Acceptance criteria
@@ -323,20 +323,20 @@ implemented.
 
 **Subtasks:**
 
-- [ ] In temporary directories with a temporary `HOME`, walk `docs/setup.md`'s "a new machine" and "a new project" sections as written, using a local clone of this repository in place of GitHub where a step needs the remote (`pre-commit try-repo`), and record anything the guide got wrong; fix the guide
-- [ ] Against a throwaway project: a commit adding an unaccepted hit fails `auditme-changed`; `auditme-all` fails on a hit in an untouched file; a cross-file hit whose named file is unchanged fails when its peer changed
-- [ ] Hoist anything `changed.py`, the Stop hook test helpers and the installer test helpers duplicate (constants, temporary-repository builders) to a single owner: grep each literal collection and one-line helper the new modules define, and import rather than copy; prefer a module the consumer already imports
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] In temporary directories with a temporary `HOME`, walk `docs/setup.md`'s "a new machine" and "a new project" sections as written, using a local clone of this repository in place of GitHub where a step needs the remote (`pre-commit try-repo`), and record anything the guide got wrong; fix the guide
+- [x] Against a throwaway project: a commit adding an unaccepted hit fails `auditme-changed`; `auditme-all` fails on a hit in an untouched file; a cross-file hit whose named file is unchanged fails when its peer changed
+- [x] Hoist anything `changed.py`, the Stop hook test helpers and the installer test helpers duplicate (constants, temporary-repository builders) to a single owner: grep each literal collection and one-line helper the new modules define, and import rather than copy; prefer a module the consumer already imports
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] Every acceptance criterion in the spec holds in the throwaway repositories, apart from the GitHub-side parts (a real CI run, a real deploy key), which are listed in the commit body as the operator's to check
-- [ ] The guide's walked sections needed no step it does not state
+- [x] Every acceptance criterion in the spec holds in the throwaway repositories, apart from the GitHub-side parts (a real CI run, a real deploy key), which are listed in the commit body as the operator's to check
+- [x] The guide's walked sections needed no step it does not state
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests` passes
+- [x] `pre-commit run --all-files` exits 0
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests` passes
 
 **Notes:**
 
