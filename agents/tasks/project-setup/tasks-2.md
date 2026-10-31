@@ -23,7 +23,7 @@ and the last task runs every test tree the checker's change can reach.
 
 ## Task 1: The driver audits whatever roots exist
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation - Projects without a `src/` package (1.2), steps 1, 2 and 4; Error handling (1.2 rows); Testing (1.2, `test_driver.py`)
@@ -34,22 +34,22 @@ mistyped scope must still be an error.
 
 **Subtasks:**
 
-- [ ] `tests/test_driver.py`: replace `test_a_missing_src_directory_is_an_error` and `test_an_empty_src_directory_is_an_error` with tests for: a project with only `bin/` is swept over `bin/` and `main()` returns 0; an empty project returns 0 and prints `audit.py: no package under src/ and no extra root; nothing to audit` on stderr; a scope that is not a directory returns 2. Run them and see the first two fail before changing the driver
-- [ ] `claude/skills/auditme/checks/audit.py` `main()`: replace the `src does not exist` guard with `ERROR: <scope> is not a directory` (exit 2) when the scope is not a directory
-- [ ] `main()`: when `_audit_roots()` returns no root, print the notice above on stderr and return 0, instead of `ERROR: no package under <scope>/src`
-- [ ] Leave the `--package` and `--extra-root` errors unchanged, and keep their existing tests (`test_a_named_package_that_does_not_exist_is_an_error`, `test_a_named_extra_root_that_does_not_exist_is_an_error`) passing
-- [ ] Update `audit.py`'s module docstring: `src/` is optional, and the sweep passes over the packages under it, if any, then the extra roots
+- [x] `tests/test_driver.py`: replace `test_a_missing_src_directory_is_an_error` and `test_an_empty_src_directory_is_an_error` with tests for: a project with only `bin/` is swept over `bin/` and `main()` returns 0; an empty project returns 0 and prints `audit.py: no package under src/ and no extra root; nothing to audit` on stderr; a scope that is not a directory returns 2. Run them and see the first two fail before changing the driver
+- [x] `claude/skills/auditme/checks/audit.py` `main()`: replace the `src does not exist` guard with `ERROR: <scope> is not a directory` (exit 2) when the scope is not a directory
+- [x] `main()`: when `_audit_roots()` returns no root, print the notice above on stderr and return 0, instead of `ERROR: no package under <scope>/src`
+- [x] Leave the `--package` and `--extra-root` errors unchanged, and keep their existing tests (`test_a_named_package_that_does_not_exist_is_an_error`, `test_a_named_extra_root_that_does_not_exist_is_an_error`) passing
+- [x] Update `audit.py`'s module docstring: `src/` is optional, and the sweep passes over the packages under it, if any, then the extra roots
 
 **Acceptance Criteria:**
 
-- [ ] A project holding only `bin/tool.py` with a leading-underscore function gives that hit and exit 0
-- [ ] A project with no Python gives no hits, the notice and exit 0
-- [ ] For a project with a package under `src/`, the output is byte-identical to `3d7aed9`'s on the existing driver fixtures (every other `test_driver.py` test passes unchanged)
+- [x] A project holding only `bin/tool.py` with a leading-underscore function gives that hit and exit 0
+- [x] A project with no Python gives no hits, the notice and exit 0
+- [x] For a project with a package under `src/`, the output is byte-identical to `3d7aed9`'s on the existing driver fixtures (every other `test_driver.py` test passes unchanged)
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_driver.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_driver.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
