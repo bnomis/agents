@@ -63,7 +63,7 @@ report a hit when only its peer changed. Hits without it stay byte-identical.
 
 ## Task 2: The changed-files runner
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** API - The runner; Implementation - The changed-files runner; Error handling; Testing
@@ -76,24 +76,24 @@ when the sweep cannot run.
 
 **Subtasks:**
 
-- [ ] Create `changed.py` with `#!/usr/bin/env python3`, executable (`git update-index --chmod=+x`), exposing `changed_files()`, `in_scope()`, `main()` and `ChangedError` with the spec's signatures and docstrings
-- [ ] Argument parsing: `[--all] [--base <ref>] [<repo-root>]`; `<repo-root>` defaults to `git rev-parse --show-toplevel` of the working directory; a `--base` starting with `-` exits 1 before git runs
-- [ ] Diff base: the first of `@{upstream}`, `origin/main`, `main` that resolves with `git rev-parse --verify --quiet`; none resolving exits 0 with a message
-- [ ] Reportable-path filter: `.py`, `.md` outside the checker's spec-skip directories (read `_SPEC_SKIP_PARTS` from `auditme.rules.project_hygiene`, plus any hidden directory), and `uv.lock`; a scope with none of them exits 0 without sweeping
-- [ ] Run the sweep as `[sys.executable, <dir of changed.py>/audit.py, <repo-root>]`, list form, timeout 600 seconds; a timeout, an exception, a non-zero exit, a non-JSON line or an `auditme-check-crash` hit exits 1 naming the cause
-- [ ] Report each in-scope unaccepted hit as `path:line  rule` then its variant, sorted by path and line, then the accept-marker form and `SKIP=auditme-changed git commit`
-- [ ] `claude/skills/auditme/tests/test_changed.py`, each case in a temporary git repository with a stub `audit.py` where the case is about the runner rather than the checker: scope from the diff base; `--all`; a hit reported only through `related`; `--base -x` refused; no base resolves; sweep crash, timeout (a stub that sleeps past a monkeypatched timeout) and non-JSON line each exit 1; nothing reportable changed skips the sweep; one end-to-end case against the real `audit.py` on a fixture project
+- [x] Create `changed.py` with `#!/usr/bin/env python3`, executable (`git update-index --chmod=+x`), exposing `changed_files()`, `in_scope()`, `main()` and `ChangedError` with the spec's signatures and docstrings
+- [x] Argument parsing: `[--all] [--base <ref>] [<repo-root>]`; `<repo-root>` defaults to `git rev-parse --show-toplevel` of the working directory; a `--base` starting with `-` exits 1 before git runs
+- [x] Diff base: the first of `@{upstream}`, `origin/main`, `main` that resolves with `git rev-parse --verify --quiet`; none resolving exits 0 with a message
+- [x] Reportable-path filter: `.py`, `.md` outside the checker's spec-skip directories (read `_SPEC_SKIP_PARTS` from `auditme.rules.project_hygiene`, plus any hidden directory), and `uv.lock`; a scope with none of them exits 0 without sweeping
+- [x] Run the sweep as `[sys.executable, <dir of changed.py>/audit.py, <repo-root>]`, list form, timeout 600 seconds; a timeout, an exception, a non-zero exit, a non-JSON line or an `auditme-check-crash` hit exits 1 naming the cause
+- [x] Report each in-scope unaccepted hit as `path:line  rule` then its variant, sorted by path and line, then the accept-marker form and `SKIP=auditme-changed git commit`
+- [x] `claude/skills/auditme/tests/test_changed.py`, each case in a temporary git repository with a stub `audit.py` where the case is about the runner rather than the checker: scope from the diff base; `--all`; a hit reported only through `related`; `--base -x` refused; no base resolves; sweep crash, timeout (a stub that sleeps past a monkeypatched timeout) and non-JSON line each exit 1; nothing reportable changed skips the sweep; one end-to-end case against the real `audit.py` on a fixture project
 
 **Acceptance Criteria:**
 
-- [ ] A changed file with an unaccepted hit exits 1; an unchanged file's hit exits 0 without `--all` and 1 with it
-- [ ] A cross-file hit naming an unchanged file exits 1 when its `related` file changed
-- [ ] No failure path exits 0 except "no base resolves" and "nothing reportable changed"
+- [x] A changed file with an unaccepted hit exits 1; an unchanged file's hit exits 0 without `--all` and 1 with it
+- [x] A cross-file hit naming an unchanged file exits 1 when its `related` file changed
+- [x] No failure path exits 0 except "no base resolves" and "nothing reportable changed"
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_changed.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_changed.py` passes
 
 **Notes:**
 
