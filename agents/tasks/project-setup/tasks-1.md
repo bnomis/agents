@@ -242,7 +242,7 @@ the skill fills.
 
 ## Task 7: The `/project-setup` skill
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** medium
 **Spec Reference:** API - The skill; Implementation - The `/project-setup` skill
@@ -253,21 +253,21 @@ same checks without my remembering each step.
 
 **Subtasks:**
 
-- [ ] `claude/skills/project-setup/SKILL.md` with frontmatter matching the other skills (`name`, `description`, `when_to_use`, `allowed_tools: [Read, Write, Edit, Bash, AskUserQuestion]`)
-- [ ] `new`: the four steps in the spec, filling `{{AGENTS_REV}}` from `git ls-remote git@github.com:bnomis/agents.git refs/heads/main`, `{{PROJECT_NAME}}` from the directory name (confirmed) and `{{TEST_COMMAND}}` (asked)
-- [ ] `adopt`: the four steps in the spec - show and remove a project-local runner or Stop hook doing the same job; count unaccepted hits by rule with `pre-commit run auditme-all --hook-stage manual --all-files`; at zero add `ci-audit-step.yml` and the deploy-key steps, above zero file one `TODO.md` item by the todo-add conventions (dated count by rule; Fix direction: fix or accept every hit, then add the CI step)
-- [ ] Deploy-key steps exactly as the spec gives them, each confirmed before it runs, the key in the session's scratch directory, both files deleted after, the private key never printed
-- [ ] A "Do not" list: push; enable the CI gate over a non-zero count; run a step that changes GitHub without confirmation; print a key
+- [x] `claude/skills/project-setup/SKILL.md` with frontmatter matching the other skills (`name`, `description`, `when_to_use`, `allowed_tools: [Read, Write, Edit, Bash, AskUserQuestion]`)
+- [x] `new`: the four steps in the spec, filling `{{AGENTS_REV}}` from `git ls-remote git@github.com:bnomis/agents.git refs/heads/main`, `{{PROJECT_NAME}}` from the directory name (confirmed) and `{{TEST_COMMAND}}` (asked)
+- [x] `adopt`: the four steps in the spec - show and remove a project-local runner or Stop hook doing the same job; count unaccepted hits by rule with `pre-commit run auditme-all --hook-stage manual --all-files`; at zero add `ci-audit-step.yml` and the deploy-key steps, above zero file one `TODO.md` item by the todo-add conventions (dated count by rule; Fix direction: fix or accept every hit, then add the CI step)
+- [x] Deploy-key steps exactly as the spec gives them, each confirmed before it runs, the key in the session's scratch directory, both files deleted after, the private key never printed
+- [x] A "Do not" list: push; enable the CI gate over a non-zero count; run a step that changes GitHub without confirmation; print a key
 
 **Acceptance Criteria:**
 
-- [ ] Every outward-facing step (deploy key, secret, commit) has a confirmation in the skill text
-- [ ] `adopt` never adds the CI step while the count is above zero
+- [x] Every outward-facing step (deploy key, secret, commit) has a confirmation in the skill text
+- [x] `adopt` never adds the CI step while the count is above zero
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/project-setup/tests/test_templates.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/project-setup/tests/test_templates.py` passes
 
 **Notes:**
 
