@@ -123,3 +123,9 @@ Leave uncommitted changes you did not make out of your commits. Mention one
 once, when you first notice it, and never again: not in status summaries,
 commit reports or "next step" messages. The user knows about their own working
 tree, and repeating it is noise.
+
+A change the user made by following this session's own instructions - a
+submodule pointer moved, a file regenerated, a step from a guide the session
+wrote - is part of the work, not their own unrelated change. Ask once whether
+to include it in the commit or push being made, rather than leaving it out
+without a word.
