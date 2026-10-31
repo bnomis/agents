@@ -141,6 +141,7 @@ def install_claude(options) -> None:
     """link files from source to target"""
     fdir = src_claude_dir()
     tdir = dest_claude_dir()
+    tdir.mkdir(parents=True, exist_ok=True)
 
     for f in fdir.iterdir():
         if f.name[0] == '.':
