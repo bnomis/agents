@@ -132,7 +132,7 @@ script and is blocked by a hit in one or by a loose `src/` module.
 
 ## Task 4: Guide, skill wording, close the item and the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Documentation (amendment 1.2); Acceptance criteria (1.2)
@@ -142,22 +142,22 @@ checks once, record the finished item, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] `docs/setup.md`, "What you get": say which files are audited (packages under `src/<package>/` and scripts in `bin/`), that a `.py` file directly in `src/` is reported as `src-loose-module`, and that other directories are not swept
-- [ ] `claude/skills/auditme/SKILL.md`: drop "the directory containing `src/`" from the `<project-root>` wording, so `src/` reads as optional
-- [ ] Byte-identity check: in a temporary directory, build a project with a package under `src/` and a `bin/` script, each holding at least one hit. Run `audit.py` from `git show 3d7aed9:claude/skills/auditme/checks/...` (export that tree to a temporary directory) and from the working tree, and compare the two outputs with `cmp`
-- [ ] Create `DONE.md` from `claude/skills/project-setup/templates/DONE.md`. Move the `TODO.md` item "A new project cannot commit Python without a `src/<package>/` layout" to its end: append its heading and body unchanged, then `Done: 2026-MM-DD - <the commits of Tasks 1-3>; spec amendment 1.2; tasks-2.md.`, using the date of the move. Then remove it from `TODO.md`
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] `docs/setup.md`, "What you get": say which files are audited (packages under `src/<package>/` and scripts in `bin/`), that a `.py` file directly in `src/` is reported as `src-loose-module`, and that other directories are not swept
+- [x] `claude/skills/auditme/SKILL.md`: drop "the directory containing `src/`" from the `<project-root>` wording, so `src/` reads as optional
+- [x] Byte-identity check: in a temporary directory, build a project with a package under `src/` and a `bin/` script, each holding at least one hit. Run `audit.py` from `git show 3d7aed9:claude/skills/auditme/checks/...` (export that tree to a temporary directory) and from the working tree, and compare the two outputs with `cmp`
+- [x] Create `DONE.md` from `claude/skills/project-setup/templates/DONE.md`. Move the `TODO.md` item "A new project cannot commit Python without a `src/<package>/` layout" to its end: append its heading and body unchanged, then `Done: 2026-MM-DD - <the commits of Tasks 1-3>; spec amendment 1.2; tasks-2.md.`, using the date of the move. Then remove it from `TODO.md`
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] The `cmp` in the byte-identity subtask reports no difference
-- [ ] Every acceptance criterion marked 1.2 in the spec holds
+- [x] The `cmp` in the byte-identity subtask reports no difference
+- [x] Every acceptance criterion marked 1.2 in the spec holds
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-2.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
+- [x] `pre-commit run --all-files` exits 0
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-2.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
 
 **Notes:**
 

@@ -17,6 +17,13 @@ existing one.
 - **`/project-setup`** - a skill that writes the config, CI workflow and project
   files for a new project, or adopts the hooks into an existing one.
 
+The checker audits the packages under `src/<package>/` and the scripts in
+`bin/`. `src/` is optional: a project with only `bin/` is audited over `bin/`,
+and a project with no Python at all passes. A `.py` file directly in `src/`
+belongs to no package, so it is reported as a `src-loose-module` hit; move it
+into a package, or accept it with a line-1 marker. Other directories are not
+swept.
+
 The checker's rules are described in `claude/skills/auditme/SKILL.md`.
 
 ### Why the scopes differ

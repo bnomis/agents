@@ -1,7 +1,7 @@
 # Project setup
 
 **Version:** 1.2
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-10-31
 
 Every project that uses these rules and skills should get the same mechanical
