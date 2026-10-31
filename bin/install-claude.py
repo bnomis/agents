@@ -5,13 +5,12 @@ install-claude: symlinks files in to ~/.claude/
 
 import argparse
 import json
-import logging
 import os
 import pathlib
 import shutil
 import sys
 import tempfile
-from typing import NoReturn
+import typing
 
 
 def symlink_file(options, src: pathlib.Path, dst: pathlib.Path) -> None:
@@ -68,29 +67,34 @@ class SettingsError(Exception):
     """~/.claude/settings.json cannot be merged into; nothing was written."""
 
 
-def _read_settings(path: pathlib.Path) -> dict:
-    """returns the parsed settings, {} when the file is absent"""
+def read_settings(path: pathlib.Path) -> dict[str, typing.Any]:
+    """returns the parsed settings, {} when the file is absent
+
+    Raises:
+        SettingsError: the file is not valid JSON, or not a JSON object.
+    """
     if not path.exists():
         return {}
+    text = path.read_text()
     try:
-        settings = json.loads(path.read_text())
+        settings = json.loads(text)
     except ValueError as e:
-        raise SettingsError(f'{path} is not valid JSON ({e}); not changed') from e
+        raise SettingsError(f'{path} is not valid JSON; not changed (check it with: python3 -m json.tool {path})') from e
     if not isinstance(settings, dict):
         raise SettingsError(f'{path} is not a JSON object; not changed')
     return settings
 
 
-def _has_stop_hook(settings: dict) -> bool:
+def has_stop_hook(settings: dict[str, typing.Any]) -> bool:
     """whether any Stop hook command already names the script"""
-    entries = settings.get('hooks', {}).get('Stop', [])
+    entries = (settings.get('hooks') or {}).get('Stop') or []
     return any(STOP_HOOK_SCRIPT in hook.get('command', '') for entry in entries for hook in entry.get('hooks', []))
 
 
 def register_stop_hook(options, settings_path: pathlib.Path) -> None:
     """adds the Stop hook to settings.json once, keeping everything else"""
-    settings = _read_settings(settings_path)
-    if _has_stop_hook(settings):
+    settings = read_settings(settings_path)
+    if has_stop_hook(settings):
         print(f'Stop hook already registered in {settings_path}')
         return
 
@@ -166,19 +170,13 @@ def parse_args(argv) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv) -> NoReturn:
+def main(argv) -> typing.NoReturn:
     options = parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG)
-    options.logger = logging.getLogger('install-claude')
-    m = 0
     try:
         install_claude(options)
     except SettingsError as e:
-        m = f'Error: {e}'
-    except Exception as e:
-        m = f'Exception: {e}'
-        options.logger.exception(m)
-    sys.exit(m)
+        sys.exit(e)
+    sys.exit(0)
 
 
 if __name__ == '__main__':

@@ -113,3 +113,14 @@ def test_install_into_home_without_claude_dir(installer, tmp_path, monkeypatch):
     installer.install_claude(None)
     assert stop_commands(home / '.claude' / 'settings.json') == [installer.STOP_HOOK_COMMAND]
     assert (home / '.claude' / 'skills').is_dir()
+
+
+def test_main_exits_with_the_settings_error(installer, tmp_path, monkeypatch, capsys):
+    home = tmp_path.resolve()
+    monkeypatch.setenv('HOME', str(home))
+    (home / '.claude').mkdir()
+    (home / '.claude' / 'settings.json').write_text('{not json')
+    with pytest.raises(SystemExit) as exc:
+        installer.main([])
+    assert exc.value.code != 0
+    assert 'settings.json is not valid JSON' in str(exc.value.code)
