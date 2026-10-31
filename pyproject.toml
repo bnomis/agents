@@ -56,7 +56,10 @@ ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S112', 'S311']
 "tests/*" = ["S101", "S603", "S607"]
 # S603/S607 subprocess: the hygiene checks run `ruff` and `uv` from PATH, the
 # same tools the user runs, against the audited project.
-"claude/skills/auditme/checks/auditme/rules/project_hygiene.py" = ["S603", "S607"]
+"claude/skills/auditme/checks/auditme/rules/project_hygiene.py" = [
+    "S603",
+    "S607",
+]
 # S603/S607 subprocess: the changed-files runner runs `git` from PATH and the
 # sibling `audit.py` with the running interpreter; both are its whole job.
 "claude/skills/auditme/checks/changed.py" = ["S603", "S607"]
@@ -69,6 +72,4 @@ exclude-newer = "14 days"
 prerelease = "disallow"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.16.10",
-]
+dev = ["ruff>=0.17.1"]
