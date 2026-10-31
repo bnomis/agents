@@ -59,6 +59,9 @@ Prerequisites:
 - Python meeting `requires-python` in `pyproject.toml`; the hooks run with the
   `python3` their shebang finds on `PATH`
 - `jq`, used by the Stop hook
+- `ruff` on `PATH`, which the checker runs: the project's own from its `.venv`
+  when that is on `PATH`, or `uv tool install ruff`. Without it every sweep
+  reports `ruff not installed`
 
 Install:
 

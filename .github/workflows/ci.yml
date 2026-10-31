@@ -23,6 +23,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv tool install pre-commit
       - run: uv sync
+      # The checker runs `ruff` from PATH: use the project's locked one.
+      - run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
       - run: uv run --no-project --with pytest pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider
 
