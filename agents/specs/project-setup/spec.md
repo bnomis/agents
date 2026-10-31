@@ -1,7 +1,7 @@
 # Project setup
 
-**Version:** 1.1
-**Status:** implemented
+**Version:** 1.2
+**Status:** proposed
 **Date:** 2026-10-31
 
 Every project that uses these rules and skills should get the same mechanical
@@ -38,6 +38,18 @@ design, not the project:
   `~/.claude/skills` symlink, so a checker change reaches every project the
   moment it is committed here, with no commit in the project to show its
   catch-up surface - the auditme skill's own failure mode 1.
+- **The checker refuses a project without `src/<package>/`** (amendment 1.2,
+  found 2026-10-31 by walking `docs/setup.md` in a throwaway repository pinned
+  at `3974fbb`). Committing `bin/tool.py` failed `auditme-changed` with `the
+  audit sweep exited 2: ERROR: <repo>/src does not exist`, and a loose
+  `src/a.py` failed with `ERROR: no package under <repo>/src`. `main()` in
+  `audit.py` returns 2 before `bin/` is considered, and `changed.py` fails on
+  any non-zero exit, so no commit touching a `.py` file can pass. Of the git
+  repositories beside this one on 2026-10-31, 19 of 24 had no `src/`, this
+  repository among them, so `adopt` blocks them as `new` does. The two guards
+  date from the first checker (2026-05-03), which audited only `src/`; extra
+  roots came later and the guards were never revisited. The operator chose on
+  2026-10-31 to audit whatever roots exist.
 
 ## Module location
 
@@ -52,6 +64,9 @@ design, not the project:
 | `claude/skills/project-setup/SKILL.md` | The skill (new), with `templates/` beside it |
 | `docs/setup.md` | The user guide (new); `README.md` gains an overview linking to it |
 | `claude/skills/auditme/tests/test_changed.py`, `tests/test_install_claude.py` | Tests (new) |
+| `claude/skills/auditme/checks/audit.py` | 1.2: drops the `src/` guards, emits `src-loose-module` |
+| `claude/skills/auditme/checks/auditme/core.py` | 1.2: `loose_src_modules()` (new) |
+| `claude/skills/auditme/tests/test_driver.py` | 1.2: the no-`src/` cases replace the two error tests |
 
 ## API
 
@@ -84,6 +99,19 @@ class ChangedError(Exception):
 Invocation: `changed.py [--all] [--base <ref>] [<repo-root>]`, `<repo-root>`
 defaulting to `git rev-parse --show-toplevel` of the working directory.
 
+### The driver (1.2)
+
+```python
+def loose_src_modules(scope: pathlib.Path) -> list[pathlib.Path]:
+    """Every `.py` file directly in `<scope>/src/`, outside any package, sorted.
+
+    Empty when `src/` is absent. Pure apart from reading the directory.
+    """
+```
+
+Invocation is unchanged: `audit.py <scope-root> [--package <name>]
+[--extra-root <dir> ...]`. `src/` becomes optional.
+
 ### The hooks
 
 `auditme-changed` (commit stage) and `auditme-all` (manual stage), published in
@@ -111,6 +139,10 @@ matches the other skills in `claude/skills/`, with
 | Unaccepted hits in scope | exit 1, listing them |
 | Stop hook: project not opted in, or `stop_hook_active` already true | exit 0, no output |
 | `install-claude.py`: `~/.claude/settings.json` is not valid JSON | refuse, naming the file; nothing written |
+| `audit.py`: `<scope-root>` is not a directory (1.2) | `ERROR: <scope> is not a directory`, exit 2 |
+| `audit.py`: no package under `src/` and no extra root (1.2) | notice on stderr, exit 0 |
+| `audit.py`: a `.py` file directly in `src/` (1.2) | one unaccepted `src-loose-module` hit per file |
+| `audit.py --package <name>` naming a missing package | unchanged: `ERROR: <root> not found`, exit 2 |
 
 ## Implementation
 
@@ -153,6 +185,40 @@ the skill was missing, the sweep timed out or crashed; that is the same fail-ope
 as the empty CI scope. Here a missing checker cannot happen (the hook runs the
 checker beside it), and a timeout, crash, non-JSON line or `auditme-check-crash`
 hit exits 1 naming the cause. The timeout is 600 seconds.
+
+### Projects without a `src/` package (1.2)
+
+`audit.py` audits whatever roots exist, instead of requiring `src/<package>/`:
+
+1. The `src/ does not exist` guard is replaced by a check that `<scope-root>`
+   is a directory, so a mistyped scope is still an error.
+2. The `no package under src` guard is removed. `_audit_roots()` already
+   returns `[]` for a missing `src/`, so a project with only `bin/` is swept
+   over `bin/`. With no root at all, the driver prints
+   `audit.py: no package under src/ and no extra root; nothing to audit` on
+   stderr and exits 0.
+3. **Loose modules.** Before the first pass, and only when `--package` is
+   not given, the driver emits one hit per path from `loose_src_modules()`:
+   `rule='src-loose-module'`, `variant='module directly under src/, outside
+   any package'`, `path='src/<name>.py'`, `line=1`, `evidence=<name>.py`.
+   Acceptance is the usual inline marker on line 1, read with
+   `_accept_reason(lines, 1, rule='src-loose-module')`. Such a file belongs
+   to no root, so without this hit it would never be audited, and the Python
+   rules' layout is `src/<project>/`. It is emitted by the driver, not
+   registered in `CHECKS`, because a registered check runs once per root and
+   a project holding only `src/a.py` has none.
+4. `--package` and `--extra-root` keep their errors for a missing name.
+   `changed.py` is unchanged: a loose file is a `.py` file, so it triggers
+   the sweep.
+
+Output for a project with a package under `src/` and no loose module beside
+it is unchanged byte for byte. The one existing layout whose output changes is
+a package plus a loose `src/*.py`, which today passes with the loose file
+never audited.
+
+Known limit, not fixed here: with no root, the per-root project-level checks
+(the lockfile, `AGENTS.md`, spec drift) do not run, so a project with no
+Python passes vacuously.
 
 ### The published hooks
 
@@ -298,6 +364,13 @@ conversation or the project that motivated it, in this order:
    alias); the Stop hook does not fire (not opted in, `jq` missing); hits appear
    only after an upgrade (expected); `SKIP=auditme-changed` for one commit.
 
+Amendment 1.2: "What you get" says which files are audited - packages under
+`src/<package>/` and scripts in `bin/` - that a `.py` file directly in `src/`
+is reported as `src-loose-module`, and that other directories are not swept.
+The auditme `SKILL.md` drops "the directory containing `src/`" from its
+`<project-root>` wording, and documents `src-loose-module` beside the driver's
+description of roots.
+
 Every command in it is runnable as written, with placeholders saying where the
 value comes from. `README.md` gains a short section saying what the repository
 is and linking to `docs/setup.md`.
@@ -316,6 +389,15 @@ is and linking to `docs/setup.md`.
   `settings.json` keeps every other key, an invalid file is refused.
 - The Stop hook: a shell test running it with a stub payload in an opted-in and a
   non-opted-in repository.
+- 1.2, `test_driver.py`: `test_a_missing_src_directory_is_an_error` and
+  `test_an_empty_src_directory_is_an_error` are replaced by cases for: a project
+  with only `bin/` is swept over `bin/` and exits 0; an empty project exits 0
+  with the stderr notice; a scope that is not a directory exits 2; a loose
+  `src/a.py` gives one `src-loose-module` hit at line 1, with or without a
+  package beside it; a line-1 `# auditme: accept[src-loose-module] <reason>`
+  marker accepts it; `--package` emits none.
+- 1.2, `test_changed.py`: in a temporary repository with no `src/`, a commit
+  of a clean `bin/` script passes, and one with a hit in `bin/` fails.
 
 ## Acceptance criteria
 
@@ -330,6 +412,10 @@ is and linking to `docs/setup.md`.
   existing one each leave a working, committed setup; `adopt` adds no CI gate
   over a non-zero count.
 - `docs/setup.md` takes a new machine from nothing to a passing hook run.
+- 1.2: a project with no `src/` can commit a clean `bin/` script and is
+  blocked by a hit in one; a loose `src/*.py` blocks the commit until it moves
+  into a package or is accepted; output for a project with a `src/` package
+  and no loose module is byte-identical to `3d7aed9`'s.
 
 ## External dependencies
 

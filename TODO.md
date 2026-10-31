@@ -30,6 +30,10 @@ changes the checker's contract for every project, so it goes through the
 project-setup spec first. Option (b) needs only a sentence in the spec and
 in the guide.
 
+Note 2026-10-31: the operator chose (a), and to report a `.py` file directly
+in `src/` as a `src-loose-module` hit. Spec:
+`agents/specs/project-setup/spec.md` (amendment 1.2); tasks: not yet written.
+
 ## Project-setup end-to-end checks that were never run
 
 Found on 2026-10-31, after the project-setup queue (task list
