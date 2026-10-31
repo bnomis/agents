@@ -27,6 +27,24 @@ Flag a library to the user if any of these are true:
 Note: slow release cadence alone is not a red flag. Some libraries are
 feature-complete. Look for *abandonment*, not *quietness*.
 
+## Datasets, lexicons and models: check the licence for the use
+
+A dataset, lexicon, corpus or model the user is asked to fetch, or that a
+spec measures against, carries terms as binding as a library's. Before
+recommending one:
+
+- read its licence from the primary source (the repository's LICENSE, the
+  dataset card, the publisher's page) and record it with the date read;
+- know whether the project's use is commercial; if the project has not said,
+  ask before recommending anything non-commercial, research-only,
+  request-only or of unknown licence;
+- name the terms in the recommendation itself ("CC BY-NC-SA: non-commercial
+  only"), beside a commercially usable alternative where one exists.
+
+A non-commercial source is not made safe by using it only to measure or to
+derive values: the derived values (counts, thresholds, expected test values)
+still come from that use.
+
 ## When flagging, give alternatives
 
 Name 1-2 maintained alternatives, why they're preferable (active
