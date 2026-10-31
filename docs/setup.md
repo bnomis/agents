@@ -1,0 +1,190 @@
+# Setting up the shared guards
+
+This guide takes you from nothing to a project whose commits and CI run the
+shared audit checks. It covers a new machine, a new user, a new project and an
+existing one.
+
+## What you get
+
+- **`auditme-changed`** - a pre-commit hook. It sweeps the whole tree with the
+  auditme checker, then fails the commit on any unaccepted hit in a file the
+  commit changes, or in a file a cross-file hit names as related to one.
+- **`auditme-all`** - the same sweep reported over every file, run at the
+  manual stage. CI runs it, so a hit in a file nobody touched still fails the
+  push.
+- **A Stop hook** - a Claude Code hook that blocks the end of a turn once while
+  an opted-in project's changed files carry unaccepted hits.
+- **`/project-setup`** - a skill that writes the config, CI workflow and project
+  files for a new project, or adopts the hooks into an existing one.
+
+The checker's rules are described in `claude/skills/auditme/SKILL.md`.
+
+### Why the scopes differ
+
+The commit hook looks at changed files only, so a commit is never blocked by
+someone else's old hit. CI looks at the whole tree, so a hit that appears
+without touching its file (a cross-file duplicate, say) is still caught. A
+cross-file hit counts as changed when either of its files changed.
+
+### Why the checker is pinned
+
+Projects pin the hooks to a revision of this repository (`rev:` in
+`.pre-commit-config.yaml`). A new rule therefore never fails a build until you
+choose to upgrade (see [Upgrading the checker](#upgrading-the-checker)).
+
+### Why the Stop hook is global
+
+The Stop hook is registered once, in `~/.claude/settings.json`, and does
+nothing in a project whose `.pre-commit-config.yaml` lacks `id: auditme-changed`.
+It runs the installed checker, not the project's pinned one, so it is an early
+warning and the pinned hook stays the authority.
+
+## A new machine
+
+Prerequisites:
+
+- `git`
+- `gh`, authenticated: `gh auth login`
+- an SSH key registered on GitHub with read access to this repository (see
+  [A new user](#a-new-user))
+- `uv`, from <https://docs.astral.sh/uv/>
+- `pre-commit`: `uv tool install pre-commit`
+- Python meeting `requires-python` in `pyproject.toml`; the hooks run with the
+  `python3` their shebang finds on `PATH`
+- `jq`, used by the Stop hook
+
+Install:
+
+```shell
+git clone git@github.com:bnomis/agents.git <directory>
+cd <directory>
+bin/install-claude.py
+```
+
+`<directory>` is wherever you keep your source. The installer symlinks every
+entry under `claude/` into `~/.claude/`, renaming any existing file to
+`.orig`, and adds the Stop hook to `~/.claude/settings.json`. It adds the hook
+once, keeps every other setting, and saves the original as
+`settings.json.orig`. It refuses to touch a settings file that is not a valid
+JSON object.
+
+Check it:
+
+```shell
+ls ~/.claude/skills
+grep -n 'auditme-stop.sh' ~/.claude/settings.json
+```
+
+## A new user
+
+1. Ask the repository owner for read access to `bnomis/agents`.
+2. Create your own SSH key and add it to your GitHub account:
+   `ssh-keygen -t ed25519`, then `gh ssh-key add ~/.ssh/id_ed25519.pub`.
+3. Check access: `git ls-remote git@github.com:bnomis/agents.git refs/heads/main`
+   prints a commit and a ref.
+
+Rules and skills in this repository are shared, so they hold nothing specific
+to one project. A project's own rules and skills go in its `claude/` directory
+(`claude/rules/`, `claude/skills/`); see `claude/rules/rule-scope.md`.
+
+## A new project
+
+In an empty repository, in Claude Code:
+
+```text
+/project-setup new
+```
+
+It asks for the project's test command, then writes:
+
+- `.pre-commit-config.yaml` - ruff, shellcheck and both audit hooks, pinned to
+  the current `main` of this repository
+- `.github/workflows/ci.yml` - tests, the commit-time checks over the whole
+  tree, and `auditme-all`
+- `AGENTS.md`, `CLAUDE.md`, `TODO.md`, `DONE.md` and `claude/rules/README.md`
+
+It installs the git hooks with `pre-commit install --hook-type pre-commit
+--hook-type pre-push`, then offers to create the deploy key.
+
+### The deploy key
+
+CI clones this repository over SSH, so it needs a read-only deploy key. The
+skill, asking before each step:
+
+1. generates a key pair in a scratch directory,
+2. adds the public half to `bnomis/agents` with `gh repo deploy-key add`,
+3. stores the private half in the project's `AGENTS_DEPLOY_KEY` secret with
+   `gh secret set`,
+4. deletes both files.
+
+GitHub admits one deploy key per repository, so each project has its own key.
+The workflow installs it under the `github-agents` host alias and rewrites the
+clone URL to use it.
+
+## An existing project
+
+```text
+/project-setup adopt
+```
+
+It adds the two hooks to `.pre-commit-config.yaml`, and shows you any
+project-local runner or Stop hook doing the same job before asking to remove it.
+
+Then it counts unaccepted hits by rule over the whole tree:
+
+```shell
+pre-commit run auditme-all --hook-stage manual --all-files
+```
+
+- **No hits:** it adds the CI step and offers the deploy key.
+- **Hits:** it files one `TODO.md` item with the dated count by rule, and leaves
+  CI alone. Fix or accept every hit, then add the CI step.
+
+A hit is accepted with a comment on its line or the line above:
+
+```python
+# auditme: accept[<rule>] <reason>
+```
+
+Why no gate over a backlog: a gate that fails every push gets switched off.
+
+To enable the gate later, paste
+`claude/skills/project-setup/templates/ci-audit-step.yml` into the workflow
+after the project's own setup, and run the deploy-key steps.
+
+## Upgrading the checker
+
+```shell
+pre-commit autoupdate --repo git@github.com:bnomis/agents.git
+pre-commit run auditme-all --hook-stage manual --all-files
+```
+
+A new rule can report hits in code that passed before. Fix or accept them in
+the same commit as the upgrade, so `main` never carries a failing gate.
+
+## Troubleshooting
+
+**The hook cannot clone this repository.** Run
+`git ls-remote git@github.com:bnomis/agents.git refs/heads/main` on your
+machine. If it fails, your SSH key lacks access. In CI, check that the
+`AGENTS_DEPLOY_KEY` secret exists, that the deploy key is on `bnomis/agents`,
+and that the `Install the audit deploy key` step ran before `pre-commit`.
+
+**The Stop hook does not fire.**
+
+- The project is not opted in: its `.pre-commit-config.yaml` must contain
+  `id: auditme-changed`.
+- `jq` is missing: `command -v jq`.
+- The installer has not run: `grep -n 'auditme-stop.sh' ~/.claude/settings.json`.
+
+**Hits appear only after an upgrade.** Expected: the new checker has new rules.
+See [Upgrading the checker](#upgrading-the-checker).
+
+**One commit must go through.**
+
+```shell
+SKIP=auditme-changed git commit
+```
+
+CI still sweeps the whole tree, so the hit must be fixed or accepted before it
+passes there.
