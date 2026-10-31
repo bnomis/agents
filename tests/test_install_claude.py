@@ -105,3 +105,11 @@ def test_file_mode_kept(installer, settings):
     installer.register_stop_hook(None, settings)
     assert settings.stat().st_mode & 0o777 == 0o600
     assert list(settings.parent.glob('settings.json.*')) == [settings.with_name('settings.json.orig')]
+
+
+def test_install_into_home_without_claude_dir(installer, tmp_path, monkeypatch):
+    home = tmp_path.resolve()
+    monkeypatch.setenv('HOME', str(home))
+    installer.install_claude(None)
+    assert stop_commands(home / '.claude' / 'settings.json') == [installer.STOP_HOOK_COMMAND]
+    assert (home / '.claude' / 'skills').is_dir()
