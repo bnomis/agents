@@ -3,3 +3,4 @@
 | Spec | Path | Description |
 |------|------|-------------|
 | [Cleanup](cleanup/spec.md) | `claude/skills/cleanup/SKILL.md` | Skill that deletes local branches and worktrees already merged into the default branch |
+| [Project setup](project-setup/spec.md) | `claude/skills/auditme/checks/changed.py`, `.pre-commit-hooks.yaml`, `claude/hooks/auditme-stop.sh`, `claude/skills/project-setup/` | Shared audit guards as pinned pre-commit hooks, a global Stop hook, the `/project-setup` skill and its user guide |
