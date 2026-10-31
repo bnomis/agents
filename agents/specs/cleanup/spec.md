@@ -1,6 +1,6 @@
 # Cleanup skill
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** implemented
 **Date:** 2026-10-27
 
@@ -94,7 +94,15 @@ nothing is deleted before step 5.
      worktree is clean;
    - **kept**, with the reason: dirty (list the changed paths, up to a
      handful, then "and more"), locked (with the lock reason), branch not
-     merged.
+     merged, or holds a submodule (1.1, below).
+
+   (1.1) A worktree **holds a submodule** when its git directory
+   (`git -C <path> rev-parse --absolute-git-dir`) contains a `modules`
+   directory. Git refuses to remove such a worktree without `--force`, even
+   once the submodule's checkout is cleared, so it is never removable here.
+   When it is otherwise clean and its branch merged, it is kept with that
+   reason, and the plan gives the user the commands to run themselves:
+   `git worktree remove --force <path>`, then `git branch -d <branch>`.
 3. **Collect branches** from
    `git for-each-ref --format='%(refname:short)' refs/heads`. Exclude the
    default branch, the current branch of the worktree Claude runs in, and
@@ -124,6 +132,11 @@ nothing is deleted before step 5.
    report from the plan; report from the re-run.
 
 The remote is never changed: no `git push --delete`.
+
+(1.1) `git submodule deinit` is never run in a linked worktree to get past a
+refusal. A submodule's registration lives in the configuration every
+worktree shares, so deinit there unregisters it in the main checkout too,
+and the worktree stays unremovable.
 
 ## Error handling
 
@@ -156,7 +169,9 @@ the scratchpad directory, with a bare repository as `origin`, containing:
 - a dirty worktree on a merged branch (both kept);
 - a locked worktree (kept);
 - a worktree whose directory was deleted (pruned);
-- a clean detached worktree at a commit in `main` (removed).
+- a clean detached worktree at a commit in `main` (removed);
+- (1.1) a clean worktree on a merged branch with an initialised submodule
+  (kept, with the `--force` commands for the user).
 
 Run `/cleanup` there, accept all, and check the result with
 `git branch` and `git worktree list`.
