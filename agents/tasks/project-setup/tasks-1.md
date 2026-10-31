@@ -206,7 +206,7 @@ hits, and does nothing anywhere else.
 
 ## Task 6: The setup templates
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** medium
 **Spec Reference:** Implementation - The `/project-setup` skill (the `new` steps); The published hooks - CI
@@ -217,21 +217,21 @@ the skill fills.
 
 **Subtasks:**
 
-- [ ] `pre-commit-config.yaml`: ruff check and format, shellcheck, and the `git@github.com:bnomis/agents.git` repo block with `auditme-changed` and `auditme-all`, `rev: {{AGENTS_REV}}`
-- [ ] `ci.yml`: checkout; the deploy-key step installing `AGENTS_DEPLOY_KEY` under the `github-agents` host alias with `IdentitiesOnly yes`, and the `url."git@github-agents:bnomis/agents.git".insteadOf "git@github.com:bnomis/agents.git"` rewrite; Python and uv; `uv sync`; `pre-commit run --all-files`; `pre-commit run auditme-all --hook-stage manual --all-files`; `{{TEST_COMMAND}}`. Each step commented with why, briefly
-- [ ] `ci-audit-step.yml`: the deploy-key step and the `auditme-all` step alone, for `adopt` to paste into an existing workflow
-- [ ] `AGENTS.md`, `CLAUDE.md` (`@AGENTS.md`), `TODO.md` and `DONE.md` (each with the convention header the shared todo skills expect), and `claude/rules/README.md` (what belongs there, pointing at `rule-scope.md`), with `{{PROJECT_NAME}}`
-- [ ] `claude/skills/project-setup/tests/test_templates.py`: every template exists; every placeholder is one of the documented set; the YAML templates' structure is checked as in Task 3
+- [x] `pre-commit-config.yaml`: ruff check and format, shellcheck, and the `git@github.com:bnomis/agents.git` repo block with `auditme-changed` and `auditme-all`, `rev: {{AGENTS_REV}}`
+- [x] `ci.yml`: checkout; the deploy-key step installing `AGENTS_DEPLOY_KEY` under the `github-agents` host alias with `IdentitiesOnly yes`, and the `url."git@github-agents:bnomis/agents.git".insteadOf "git@github.com:bnomis/agents.git"` rewrite; Python and uv; `uv sync`; `pre-commit run --all-files`; `pre-commit run auditme-all --hook-stage manual --all-files`; `{{TEST_COMMAND}}`. Each step commented with why, briefly
+- [x] `ci-audit-step.yml`: the deploy-key step and the `auditme-all` step alone, for `adopt` to paste into an existing workflow
+- [x] `AGENTS.md`, `CLAUDE.md` (`@AGENTS.md`), `TODO.md` and `DONE.md` (each with the convention header the shared todo skills expect), and `claude/rules/README.md` (what belongs there, pointing at `rule-scope.md`), with `{{PROJECT_NAME}}`
+- [x] `claude/skills/project-setup/tests/test_templates.py`: every template exists; every placeholder is one of the documented set; the YAML templates' structure is checked as in Task 3
 
 **Acceptance Criteria:**
 
-- [ ] No template names a project, path or date of any real project
-- [ ] The two CI templates use the same host alias and secret name as the spec
+- [x] No template names a project, path or date of any real project
+- [x] The two CI templates use the same host alias and secret name as the spec
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/project-setup/tests/test_templates.py` passes
+- [x] The task's commit passes its pre-commit hooks (`ruff-check`, `ruff-format`, `shellcheck`; never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/project-setup/tests/test_templates.py` passes
 
 **Notes:**
 

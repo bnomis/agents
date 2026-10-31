@@ -50,6 +50,7 @@ ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S112', 'S311']
 # subprocess and the hygiene test probes for `ruff` on PATH exactly as the
 # checker does. Both are the behaviour under test.
 "claude/skills/auditme/tests/*" = ["S101", "S603", "S607"]
+"claude/skills/project-setup/tests/*" = ["S101"]
 # The root-level tests run shipped scripts (the Stop hook, the installer) as
 # subprocesses from PATH; that is the behaviour under test.
 "tests/*" = ["S101", "S603", "S607"]
