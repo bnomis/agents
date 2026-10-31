@@ -32,7 +32,8 @@ in the guide.
 
 Note 2026-10-31: the operator chose (a), and to report a `.py` file directly
 in `src/` as a `src-loose-module` hit. Spec:
-`agents/specs/project-setup/spec.md` (amendment 1.2); tasks: not yet written.
+`agents/specs/project-setup/spec.md` (amendment 1.2); tasks:
+`agents/tasks/project-setup/tasks-2.md`.
 
 ## Project-setup end-to-end checks that were never run
 
