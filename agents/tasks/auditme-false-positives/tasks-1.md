@@ -137,7 +137,7 @@ inside a def defined in a handler no longer makes that handler re-raise.
 
 ## Task 4: `missing-raises-section` ignores caught raises
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation 3
@@ -148,20 +148,20 @@ def's raise counts only where the nested def is called.
 
 **Subtasks:**
 
-- [ ] Tests first, beside the existing `missing-raises-section` tests (an `errors.py` with `ProbeError` and `ParseError(ProbeError)`, and a module using them): no hit when `raise ParseError(...)` sits in a `try` whose handler catches `ParseError`, `ProbeError`, `Exception` or a bare `except:` without re-raising; no hit when a nested def raises it and the nested def's only call sits in such a `try`; no hit when a nested def raises it and is returned but never called in the subject (the nested def is still reported as its own subject when it has a docstring without `Raises:`); still a hit when the handler re-raises, catches an unrelated class, or there is no handler; still a hit for a nested def called outside any `try`. Run them and see the "no hit" cases fail
-- [ ] In `check_missing_raises_section`, build the parents table once per package with `package_class_parents`; for each subject (still every function at any depth), take sites from `nested_call_sites(node)`; a `Raise` site counts when its name passes today's test and no handler level at the site catches `class_lineage(name, parents)` (`_level_catches`, which treats a bare `except:`, `Exception` and `BaseException` as catching)
-- [ ] Keep the `__init__.py`/`errors.py` skip and the `Raises:` marker regex as they are
-- [ ] Add a docstring paragraph `Refinement (2026-11-01): ...` stating the carve-out
+- [x] Tests first, beside the existing `missing-raises-section` tests (an `errors.py` with `ProbeError` and `ParseError(ProbeError)`, and a module using them): no hit when `raise ParseError(...)` sits in a `try` whose handler catches `ParseError`, `ProbeError`, `Exception` or a bare `except:` without re-raising; no hit when a nested def raises it and the nested def's only call sits in such a `try`; no hit when a nested def raises it and is returned but never called in the subject (the nested def is still reported as its own subject when it has a docstring without `Raises:`); still a hit when the handler re-raises, catches an unrelated class, or there is no handler; still a hit for a nested def called outside any `try`. Run them and see the "no hit" cases fail
+- [x] In `check_missing_raises_section`, build the parents table once per package with `package_class_parents`; for each subject (still every function at any depth), take sites from `nested_call_sites(node)`; a `Raise` site counts when its name passes today's test and no handler level at the site catches `class_lineage(name, parents)` (`_level_catches`, which treats a bare `except:`, `Exception` and `BaseException` as catching)
+- [x] Keep the `__init__.py`/`errors.py` skip and the `Raises:` marker regex as they are
+- [x] Add a docstring paragraph `Refinement (2026-11-01): ...` stating the carve-out
 
 **Acceptance Criteria:**
 
-- [ ] Every case above passes
-- [ ] The existing `missing-raises-section` tests pass unchanged
+- [x] Every case above passes
+- [x] The existing `missing-raises-section` tests pass unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
