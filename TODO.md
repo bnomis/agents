@@ -45,7 +45,7 @@ may be better done as skipping callees whose raise depends on an argument;
 decide that in a spec first. Each change frees the accept markers the other
 project added, which it removes once it pins the change.
 
-Spec: `agents/specs/auditme-false-positives/spec.md`; tasks: not yet written.
+Spec: `agents/specs/auditme-false-positives/spec.md`; tasks: `agents/tasks/auditme-false-positives/tasks-1.md`.
 
 ## The checker's docstrings and help, and the setup guide, disagree with the code
 
