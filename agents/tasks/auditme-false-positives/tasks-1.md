@@ -98,7 +98,7 @@ operator decided on 2026-11-01 (spec amendment 1.1).
 
 ## Task 3: `raises-section-drift` follows called nested functions
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation 2; API (`nested_call_sites`)
@@ -109,22 +109,22 @@ inside a def defined in a handler no longer makes that handler re-raise.
 
 **Subtasks:**
 
-- [ ] First, reproduce finding 2 in the shape the operator confirmed on 2026-11-01 (see Notes): the subject `run(text, other, strict)` declares `ParseError` in `Raises:`; it defines a nested `attempt()` that calls `probe.parse.parse(text)` inside `try:` with `except probe.errors.ParseError:` re-raising it with a bare `raise` under `if strict:` and otherwise returning 0; the subject also has its own `try: probe.parse.parse(other)` / `except probe.errors.ParseError: pass`; and it ends `return attempt()`. Today this gives exactly one hit, `run: Raises: declares ParseError, which never reaches the caller`. Run the test and see it fail (the test asserts no hit)
-- [ ] Further tests: a nested def that is defined but never called adds nothing (an omission hit for the subject does not appear because of it); a call to the nested def inside the subject's own `try`/`except ParseError` that does not re-raise means `ParseError` does not reach; a handler in the subject that defines a nested def containing a bare `raise`, and itself does not re-raise, catches. Run them and see the new-behaviour cases fail
-- [ ] Add `nested_call_sites(func)` with the spec's signature and docstring: `_reach_sites(func.body)`, plus, for each call by bare `Name` to a def nested directly in `func.body`, that def's `_reach_sites(def.body)` with the call's levels prepended; one level deep
-- [ ] In `check_raises_section_drift`, use `nested_call_sites(node)` in place of `_reach_sites(node.body)`
-- [ ] Change `_handler_passes_on` to search the handler with `_walk_within_scope` rather than `ast.walk`, so a raise inside a def, lambda or class defined in the handler does not count; a bare `raise` under an `if` in the handler still does
-- [ ] Extend the `Refinement (2026-11-01)` paragraph in `check_raises_section_drift`'s docstring with the nested-function case
+- [x] First, reproduce finding 2 in the shape the operator confirmed on 2026-11-01 (see Notes): the subject `run(text, other, strict)` declares `ParseError` in `Raises:`; it defines a nested `attempt()` that calls `probe.parse.parse(text)` inside `try:` with `except probe.errors.ParseError:` re-raising it with a bare `raise` under `if strict:` and otherwise returning 0; the subject also has its own `try: probe.parse.parse(other)` / `except probe.errors.ParseError: pass`; and it ends `return attempt()`. Today this gives exactly one hit, `run: Raises: declares ParseError, which never reaches the caller`. Run the test and see it fail (the test asserts no hit)
+- [x] Further tests: a nested def that is defined but never called adds nothing (an omission hit for the subject does not appear because of it); a call to the nested def inside the subject's own `try`/`except ParseError` that does not re-raise means `ParseError` does not reach; a handler in the subject that defines a nested def containing a bare `raise`, and itself does not re-raise, catches. Run them and see the new-behaviour cases fail
+- [x] Add `nested_call_sites(func)` with the spec's signature and docstring: `_reach_sites(func.body)`, plus, for each call by bare `Name` to a def nested directly in `func.body`, that def's `_reach_sites(def.body)` with the call's levels prepended; one level deep
+- [x] In `check_raises_section_drift`, use `nested_call_sites(node)` in place of `_reach_sites(node.body)`
+- [x] Change `_handler_passes_on` to search the handler with `_walk_within_scope` rather than `ast.walk`, so a raise inside a def, lambda or class defined in the handler does not count; a bare `raise` under an `if` in the handler still does
+- [x] Extend the `Refinement (2026-11-01)` paragraph in `check_raises_section_drift`'s docstring with the nested-function case
 
 **Acceptance Criteria:**
 
-- [ ] The reproduction test no longer gives the hit, and every case above passes
-- [ ] Every existing `raises-section-drift` and translator-envelope test passes unchanged (both use handler helpers)
+- [x] The reproduction test no longer gives the hit, and every case above passes
+- [x] Every existing `raises-section-drift` and translator-envelope test passes unchanged (both use handler helpers)
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
