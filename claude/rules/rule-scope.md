@@ -22,6 +22,18 @@ commit here.
 The shared repository's `no-project-names` hook enforces this against a list
 of names kept outside it (a list inside it would name them).
 
+## Tools used across projects
+
+The same holds for any repository built to serve many projects - a task
+runner, a checker, a template - and not only for this one. Its code, tests,
+fixtures, specs, task lists, records and commit messages name no project it
+has been run on: a run that found something is "another project", and its
+dated figures stay without the name. Say so in that repository's own
+`AGENTS.md`, and add this repository's published `no-project-names` hook to
+its `.pre-commit-config.yaml`, passing its own names as `--allow=<name>` so
+the list can hold them too. Install the `commit-msg` hook type as well
+(`pre-commit install --hook-type commit-msg`) so commit messages are checked.
+
 ## Project-specific rules and skills
 
 Anything that holds for one project only - a command it provides, a path in
