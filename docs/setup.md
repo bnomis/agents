@@ -21,10 +21,21 @@ The checker audits the packages under `src/<package>/` and the scripts in
 `bin/`. `src/` is optional: a project with only `bin/` is audited over `bin/`,
 and a project with no Python at all passes. A `.py` file directly in `src/`
 belongs to no package, so it is reported as a `src-loose-module` hit; move it
-into a package, or accept it with a line-1 marker. Other directories are not
-swept.
+into a package, or accept it with a line-1 marker. No other directory's Python
+is swept.
 
-The checker's rules are described in `claude/skills/auditme/SKILL.md`.
+The checker also reads files outside those passes:
+
+- every `.md` file under the project, outside hidden directories and `.git`,
+  `.venv`, `node_modules`, `__pycache__`, `audit-reviews` and `tasks`, for
+  function signatures in a spec that no longer match the code
+  (`spec-api-signature-drift`);
+- `pyproject.toml` and `uv.lock` (`lockfile-drift`), `.pre-commit-config.yaml`
+  (`ruff-version-drift`) and `AGENTS.md`, which declares project standards
+  some rules enforce.
+
+The checker's rules are described in [The audit checker](guide/checker.md) and
+in `claude/skills/auditme/SKILL.md`.
 
 ### Why the scopes differ
 
@@ -79,16 +90,17 @@ bin/install-claude.py
 `claude/` into `~/.claude/` one level down: each file under `claude/` becomes
 a symlink, and each directory (`hooks/`, `rules/`, `skills/`) becomes a real
 directory of symlinks to its entries. It renames any existing file in a
-link's place to `.orig`, and adds the Stop hook to `~/.claude/settings.json`. It adds the hook
-once, keeps every other setting, and saves the original as
-`settings.json.orig`. It refuses to touch a settings file that is not a valid
-JSON object.
+link's place to `.orig`. In `~/.claude/settings.json` it adds the Stop hook
+once, and sets `claude/statusline.py` (model, context and rate-limit use, directory and git state) as the status
+line unless a `statusLine` is already set. It keeps every other setting, and
+saves the original as `settings.json.orig`. It refuses to touch a settings
+file that is not a valid JSON object.
 
 Check it:
 
 ```shell
 ls ~/.claude/skills
-grep -n 'auditme-stop.sh' ~/.claude/settings.json
+grep -n 'auditme-stop.sh\|statusline.py' ~/.claude/settings.json
 ```
 
 ## A new user

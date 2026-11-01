@@ -61,6 +61,7 @@ def dest_claude_dir() -> pathlib.Path:
 
 STOP_HOOK_SCRIPT = 'auditme-stop.sh'
 STOP_HOOK_COMMAND = f'bash "$HOME/.claude/hooks/{STOP_HOOK_SCRIPT}"'
+STATUS_LINE = {'command': '~/.claude/statusline.py', 'type': 'command'}
 
 
 class SettingsError(Exception):
@@ -100,7 +101,23 @@ def register_stop_hook(options, settings_path: pathlib.Path) -> None:
 
     entry = {'hooks': [{'type': 'command', 'command': STOP_HOOK_COMMAND}]}
     settings.setdefault('hooks', {}).setdefault('Stop', []).append(entry)
+    write_settings(settings_path, settings)
+    print(f'Registered Stop hook in {settings_path}')
 
+
+def register_status_line(options, settings_path: pathlib.Path) -> None:
+    """sets claude/statusline.py as the status line, unless one is already set"""
+    settings = read_settings(settings_path)
+    if 'statusLine' in settings:
+        print(f'Status line already set in {settings_path}')
+        return
+    settings['statusLine'] = STATUS_LINE
+    write_settings(settings_path, settings)
+    print(f'Registered status line in {settings_path}')
+
+
+def write_settings(settings_path: pathlib.Path, settings: dict[str, typing.Any]) -> None:
+    """writes settings.json atomically, keeping its mode; saves the first original as settings.json.orig"""
     if settings_path.exists():
         orig = settings_path.with_name(settings_path.name + '.orig')
         if not orig.exists():
@@ -117,7 +134,6 @@ def register_stop_hook(options, settings_path: pathlib.Path) -> None:
     except BaseException:
         pathlib.Path(tmp).unlink(missing_ok=True)
         raise
-    print(f'Registered Stop hook in {settings_path}')
 
 
 def find_dangling_symlinks(options, dir: pathlib.Path, max_depth: int = 2) -> None:
@@ -160,6 +176,7 @@ def install_claude(options) -> None:
 
     find_dangling_symlinks(options, tdir)
     register_stop_hook(options, tdir / 'settings.json')
+    register_status_line(options, tdir / 'settings.json')
 
 
 def parse_args(argv) -> argparse.Namespace:

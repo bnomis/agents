@@ -10,8 +10,8 @@ see [The checker](../guide/checker.md).
 install-claude [-h]
 ```
 
-Links the contents of `claude/` into `~/.claude/` and registers the Stop
-hook. It takes no options.
+Links the contents of `claude/` into `~/.claude/`, and registers the Stop
+hook and the status line. It takes no options.
 
 On disk:
 
@@ -33,13 +33,14 @@ On disk:
   to an existing file it copies it to `settings.json.orig`, once; it writes
   through a temporary file and keeps the file's mode. A missing file is
   created.
+- Sets `statusLine` to `{"type": "command", "command": "~/.claude/statusline.py"}`
+  in the same file, unless a `statusLine` is already set, in which case it is
+  left as it is.
 
 The settings file is read after the symlinks are made. If it is not valid
 JSON, or not a JSON object, the installer leaves it unchanged and exits; the
 symlinks are already in place.
 
-`statusline.py` is linked but not registered: nothing writes a `statusLine`
-entry to `settings.json`.
 
 | Exit | Meaning |
 |---|---|
@@ -175,8 +176,8 @@ and prints one line of the available parts joined by ` | `:
 A missing or zero field is left out. It writes nothing. It exits `0`, or `1`
 with a traceback when stdin is not JSON. Environment: none.
 
-The installer links it to `~/.claude/statusline.py` but does not configure it
-as the status line.
+The installer links it to `~/.claude/statusline.py` and sets it as the status
+line, unless one is already set.
 
 ## Published pre-commit hooks
 
