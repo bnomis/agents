@@ -98,7 +98,7 @@ operator decided on 2026-11-01 (spec amendment 1.1).
 
 ## Task 3: `raises-section-drift` follows called nested functions
 
-**Status:** todo
+**Status:** in-progress
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation 2; API (`nested_call_sites`)
@@ -129,6 +129,7 @@ inside a def defined in a handler no longer makes that handler re-raise.
 **Notes:**
 
 - Depends on Task 1
+- 2026-11-01, BLOCKED at the first subtask: finding 2 does not reproduce as stated. Probe (removed afterwards, `drift` helper with `ERRORS`/`CALLEE`): subject `run(text, strict)` documents `Raises: ParseError`, defines `def attempt()` containing `try: return probe.parse.parse(text)` / `except probe.errors.ParseError:` / `if strict: raise` / `return 0`, and ends `return attempt()`. `drift(...)` returned `[]`: no hit of any kind. The "extra declaration" branch needs a catching handler in the subject's own scope (`_function_levels` skips nested defs), so none is found and the declaration is not flagged. The fix below would change nothing for this shape. The operator must supply the shape that does give the hit (for example, whether the subject itself has a `try`/`except ParseError` around the call), or drop the nested-call half of the task
 - `_reach_sites` skips nested defs, lambdas and classes today, and `_handler_passes_on` uses `ast.walk`, which enters them; `_walk_within_scope` is the existing scope-bounded walk in the same module
 - Check every caller of `_handler_passes_on` (grep it) before changing it
 
@@ -171,7 +172,7 @@ def's raise counts only where the nested def is called.
 
 ## Task 5: `passthrough-shim` flags only real forwarding
 
-**Status:** todo
+**Status:** in-progress
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation 4
