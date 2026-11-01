@@ -114,7 +114,7 @@ than letting the commit hook and the CI audit disagree.
 
 ## Task 3: Document `ruff-version-drift`
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Documentation (Amendment 1.4)
@@ -125,20 +125,20 @@ to say which ruff the checker needs and what to do when the sweep reports
 
 **Subtasks:**
 
-- [ ] `docs/setup.md`, the "`ruff` on `PATH`" requirement: say the ruff there must be the version the ruff hook's `rev` pins, that the sweep reports `ruff-version-drift` otherwise, and how to make them equal (`uv add --dev ruff==<version>`, or change the hook's `rev`)
-- [ ] `claude/skills/project-setup/templates/ci.yml`: extend the comment above the `.venv/bin` step to say, in one line, that the locked ruff must equal the ruff hook's `rev`
-- [ ] `claude/skills/auditme/SKILL.md`: document `ruff-version-drift` beside the existing ruff check under "Mechanical sweep": what it compares, that it is project-level, the two "cannot verify" variants, and how to accept one
-- [ ] Check the wording against the implemented check in `project_hygiene.py`, variant strings included
+- [x] `docs/setup.md`, the "`ruff` on `PATH`" requirement: say the ruff there must be the version the ruff hook's `rev` pins, that the sweep reports `ruff-version-drift` otherwise, and how to make them equal (`uv add --dev ruff==<version>`, or change the hook's `rev`)
+- [x] `claude/skills/project-setup/templates/ci.yml`: extend the comment above the `.venv/bin` step to say, in one line, that the locked ruff must equal the ruff hook's `rev`
+- [x] `claude/skills/auditme/SKILL.md`: document `ruff-version-drift` beside the existing ruff check under "Mechanical sweep": what it compares, that it is project-level, the two "cannot verify" variants, and how to accept one
+- [x] Check the wording against the implemented check in `project_hygiene.py`, variant strings included
 
 **Acceptance Criteria:**
 
-- [ ] Each variant string the docs quote matches the code exactly
-- [ ] `claude/skills/project-setup/tests/test_templates.py` passes with the changed template
+- [x] Each variant string the docs quote matches the code exactly
+- [x] `claude/skills/project-setup/tests/test_templates.py` passes with the changed template
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/project-setup/tests/test_templates.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/project-setup/tests/test_templates.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
