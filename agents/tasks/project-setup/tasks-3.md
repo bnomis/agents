@@ -61,7 +61,7 @@ here.
 
 ## Task 2: Add the `ruff-version-drift` check
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API - The ruff version check (1.4); Error handling (1.4 rows); Implementation - The ruff version check (1.4), steps 1-4 and acceptance; Testing (1.4)
@@ -73,7 +73,7 @@ than letting the commit hook and the CI audit disagree.
 
 **Subtasks:**
 
-- [ ] Tests first, in `claude/skills/auditme/tests/test_project_hygiene.py`, under a `# check_ruff_version` heading beside the existing `# check_ruff` and `# check_lockfile` ones. A fixture writes an executable stub `ruff` into a temporary directory that prints a chosen line for `--version`, and puts that directory first on `PATH` (`monkeypatch.setenv`). Cases, each from the spec's Testing (1.4) list:
+- [x] Tests first, in `claude/skills/auditme/tests/test_project_hygiene.py`, under a `# check_ruff_version` heading beside the existing `# check_ruff` and `# check_lockfile` ones. A fixture writes an executable stub `ruff` into a temporary directory that prints a chosen line for `--version`, and puts that directory first on `PATH` (`monkeypatch.setenv`). Cases, each from the spec's Testing (1.4) list:
   - equal versions give no hit;
   - different versions give one hit at the `rev:` line, with `evidence='ruff on PATH is 0.17.1; the hook pins v0.17.3'`;
   - a `rev` without the `v` compares the same;
@@ -85,23 +85,23 @@ than letting the commit hook and the CI audit disagree.
   - a repo URL ending in `.git` or `/` is still found;
   - running the check for two roots of one project prints one hit, not two.
   Run them and see them fail before writing the check
-- [ ] `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`: add `check_ruff_version(scope, src_root) -> None` with the spec's signature and docstring, following steps 1-4 of the spec's Implementation section exactly: the line regexes, the `frozen:` fallback, `ruff --version` with `cwd=scope`, the three variants and their anchors, and `_accept_reason(lines, rev_line, rule='ruff-version-drift')`
-- [ ] Return without a hit on `FileNotFoundError` from `ruff --version`; `check_ruff` already reports `ruff not installed`
-- [ ] `claude/skills/auditme/checks/auditme/registry.py`: import it and append `check_ruff_version` to the end of `CHECKS` (append, never insert)
-- [ ] `claude/skills/auditme/tests/registry-order.txt`: append `check_ruff_version` as the last line
-- [ ] Leave `check_ruff` unchanged
+- [x] `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`: add `check_ruff_version(scope, src_root) -> None` with the spec's signature and docstring, following steps 1-4 of the spec's Implementation section exactly: the line regexes, the `frozen:` fallback, `ruff --version` with `cwd=scope`, the three variants and their anchors, and `_accept_reason(lines, rev_line, rule='ruff-version-drift')`
+- [x] Return without a hit on `FileNotFoundError` from `ruff --version`; `check_ruff` already reports `ruff not installed`
+- [x] `claude/skills/auditme/checks/auditme/registry.py`: import it and append `check_ruff_version` to the end of `CHECKS` (append, never insert)
+- [x] `claude/skills/auditme/tests/registry-order.txt`: append `check_ruff_version` as the last line
+- [x] Leave `check_ruff` unchanged
 
 **Acceptance Criteria:**
 
-- [ ] Every case above passes
-- [ ] `uv run --no-project python claude/skills/auditme/checks/audit.py .` in this repository gives no `ruff-version-drift` hit (Task 1 matched the versions)
-- [ ] The same run with `rev:` temporarily set back to `v0.17.3` (not committed) gives exactly one `ruff-version-drift` hit naming both versions
-- [ ] No other rule's output changes: `test_registry.py` and every existing `test_project_hygiene.py` test pass unchanged
+- [x] Every case above passes
+- [x] `uv run --no-project python claude/skills/auditme/checks/audit.py .` in this repository gives no `ruff-version-drift` hit (Task 1 matched the versions)
+- [x] The same run with `rev:` temporarily set back to `v0.17.3` (not committed) gives exactly one `ruff-version-drift` hit naming both versions
+- [x] No other rule's output changes: `test_registry.py` and every existing `test_project_hygiene.py` test pass unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
