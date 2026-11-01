@@ -27,7 +27,7 @@ Test commands run from the repository root.
 
 ## Task 1: Hoist the package class tree into shared helpers
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`package_class_parents`, `class_lineage`)
@@ -38,19 +38,19 @@ same lineage for `missing-raises-section`. Behaviour does not change.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# package_class_parents and class_lineage` heading: a base written `Base` and one written `mod.Base` both give `Base`; classes from two modules are pooled; `class_lineage` returns the name and every ancestor transitively; a cycle (`A(B)`, `B(A)`) terminates; an unknown name gives `{name}`. Run them and see them fail
-- [ ] In `claude/skills/auditme/checks/auditme/rules/error_handling.py`, add `package_class_parents(trees: Iterable[ast.Module]) -> dict[str, set[str]]` and `class_lineage(name: str, parents: Mapping[str, set[str]]) -> set[str]` with the spec's signatures and docstrings, beside `module_tuple_constants`
-- [ ] Replace the `package_classes`/`parents` construction and the `ancestors` closure in `check_raises_section_drift` with calls to the helpers; keep `is_domain` reading the same set of top-level class names
+- [x] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# package_class_parents and class_lineage` heading: a base written `Base` and one written `mod.Base` both give `Base`; classes from two modules are pooled; `class_lineage` returns the name and every ancestor transitively; a cycle (`A(B)`, `B(A)`) terminates; an unknown name gives `{name}`. Run them and see them fail
+- [x] In `claude/skills/auditme/checks/auditme/rules/error_handling.py`, add `package_class_parents(trees: Iterable[ast.Module]) -> dict[str, set[str]]` and `class_lineage(name: str, parents: Mapping[str, set[str]]) -> set[str]` with the spec's signatures and docstrings, beside `module_tuple_constants`
+- [x] Replace the `package_classes`/`parents` construction and the `ancestors` closure in `check_raises_section_drift` with calls to the helpers; keep `is_domain` reading the same set of top-level class names
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing `raises-section-drift` test passes unchanged
+- [x] The new tests pass
+- [x] Every existing `raises-section-drift` test passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
