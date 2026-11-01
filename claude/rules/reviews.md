@@ -116,7 +116,10 @@ Before publishing a review page:
   the review document's header, so either leads to the other.
 - When the user has documents to read or approve - specs, reviews, amended
   specs - list each one with its full absolute path, one per line, amended
-  ones included, and offer to publish them as a page.
+  ones included, and publish each as a page in the same turn, giving its
+  URL. Do not only offer the page: a path to a Markdown file is not
+  something the user can read comfortably, and asking first costs them a
+  turn.
 
 ## When planning work
 
