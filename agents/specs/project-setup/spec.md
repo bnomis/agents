@@ -1,6 +1,6 @@
 # Project setup
 
-**Version:** 1.4
+**Version:** 1.5
 **Status:** implemented
 **Date:** 2026-10-31
 
@@ -61,6 +61,13 @@ design, not the project:
   the gap itself: on 2026-11-01 its `uv.lock` held ruff 0.17.1 and its
   `.pre-commit-config.yaml` pinned `rev: v0.17.3`. The operator chose on
   2026-11-01 to check it rather than only document it.
+- **The audit's ruff depends on the shell** (amendment 1.5, found 2026-11-01
+  on the first push after 1.4 merged). The operator's shell had another ruff
+  (0.17.3) first on `PATH`, so the push gate ran it against this
+  repository's `rev: v0.17.1` and failed, while CI, which puts `.venv/bin`
+  first, passed. The same tree gave two answers, the disagreement 1.4 was
+  written to stop. The operator chose on 2026-11-01 that the checker prefers
+  the project's own ruff.
 
 ## Module location
 
@@ -80,7 +87,8 @@ design, not the project:
 | `claude/skills/auditme/tests/test_driver.py` | 1.2: the no-`src/` cases replace the two error tests |
 | `claude/skills/auditme/checks/auditme/rules/project_hygiene.py` | 1.4: `check_ruff_version()` (new) |
 | `claude/skills/auditme/checks/auditme/registry.py` | 1.4: `check_ruff_version` appended to `CHECKS` |
-| `claude/skills/auditme/tests/test_project_hygiene.py` | 1.4: the `ruff-version-drift` cases |
+| `claude/skills/auditme/tests/test_project_hygiene.py` | 1.4: the `ruff-version-drift` cases; 1.5: the `.venv` ruff cases |
+| `claude/skills/auditme/checks/auditme/rules/project_hygiene.py` | 1.5: `ruff_executable()` (new), used by `check_ruff` and `check_ruff_version` |
 
 ## API
 
@@ -130,13 +138,20 @@ Invocation is unchanged: `audit.py <scope-root> [--package <name>]
 
 ```python
 def check_ruff_version(scope: pathlib.Path, src_root: pathlib.Path) -> None:
-    """Emit a `ruff-version-drift` hit when the ruff on PATH is not the version
-    the project's `ruff-pre-commit` hook pins, or when the pin cannot be read.
+    """Emit a `ruff-version-drift` hit when the ruff the audit runs (see
+    `ruff_executable`, 1.5) is not the version the project's `ruff-pre-commit`
+    hook pins, or when the pin cannot be read.
 
     Project-level: reads `<scope>/.pre-commit-config.yaml` and runs
     `ruff --version` in `scope`; `src_root` is unused. Silent when the file is
     absent, holds no `ruff-pre-commit` repo, or ruff is not installed.
     """
+
+
+def ruff_executable(scope: pathlib.Path) -> tuple[str, str]:
+    """(1.5) Return (command, label) for the ruff the audit runs: the
+    project's `.venv/bin/ruff` when it is an executable file, labelled
+    `.venv/bin/ruff`, else `ruff` from PATH, labelled `ruff on PATH`."""
 ```
 
 ### The hooks
@@ -183,7 +198,7 @@ matches the other skills in `claude/skills/`, with
 | `audit.py`: a `.py` file directly in `src/` (1.2) | one unaccepted `src-loose-module` hit per file |
 | `audit.py --package <name>` naming a missing package | unchanged: `ERROR: <root> not found`, exit 2 |
 | `ruff-version-drift`: no `.pre-commit-config.yaml`, or no `ruff-pre-commit` repo in it (1.4) | no hit |
-| `ruff-version-drift`: `ruff` not on `PATH` (1.4) | no hit; `check_ruff` already reports `ruff not installed` |
+| `ruff-version-drift`: no ruff to run, neither `.venv/bin/ruff` nor one on `PATH` (1.4, 1.5) | no hit; `check_ruff` already reports `ruff not installed` |
 | `ruff-version-drift`: the repo has no `rev:`, or a `rev:` that is neither a version nor carries a `# frozen: <version>` comment (1.4) | one unaccepted hit, variant `the ruff-pre-commit rev names no version` |
 | `ruff-version-drift`: `ruff --version` prints no `ruff X.Y.Z` (1.4) | one unaccepted hit, variant `ruff --version printed no version` |
 
@@ -282,16 +297,17 @@ at the project, not the root, so it emits the same hit on every pass and
    `# frozen: v?X.Y.Z` comment, which `pre-commit autoupdate --freeze` writes
    beside a commit SHA. Neither gives the `names no version` hit, anchored at
    the `rev:` line, or at the repo line when there is no `rev:`.
-3. **Read the running version**: `ruff --version` with `cwd=scope`, the same
-   `PATH` as `check_ruff`; its stdout must match `^ruff (\d+\.\d+\.\d+)`.
+3. **Read the running version**: `ruff --version` with `cwd=scope`, run with
+   the command `ruff_executable(scope)` gives, as `check_ruff` is (1.5); its stdout must match `^ruff (\d+\.\d+\.\d+)`.
    Otherwise the `printed no version` hit, anchored at the `rev:` line, with
    the first 200 characters of the output as evidence.
 4. **Compare**: equal versions emit nothing. Different ones emit
    `rule='ruff-version-drift'`,
-   `variant='ruff on PATH differs from the ruff-pre-commit rev'`,
+   `variant='the ruff the audit runs differs from the ruff-pre-commit rev'`,
    `path='.pre-commit-config.yaml'`, `line=<the rev: line>`,
-   `evidence='ruff on PATH is <running>; the hook pins <rev>'`. The evidence
-   names both versions, so it changes only when one of them does.
+   `evidence='<label> is <running>; the hook pins <rev>'`, `<label>` from
+   `ruff_executable` (1.5). The evidence names both versions and which ruff
+   ran, so it changes only when one of them does.
 
 Acceptance is the usual inline marker, read with
 `_accept_reason(lines, rev_line, rule='ruff-version-drift')`, so a YAML
@@ -301,8 +317,13 @@ hook's version into the lockfile, say. The fix is to make the two equal:
 `uv add --dev ruff==<version>` to move the lock, or a `rev` change to move the
 hook.
 
-`check_ruff` is unchanged: it still runs whichever ruff is on `PATH`. The new
-check makes the difference visible rather than choosing a ruff itself.
+**Which ruff runs (1.5).** Both `check_ruff` and `check_ruff_version` run
+the command `ruff_executable(scope)` returns: the project's
+`<scope>/.venv/bin/ruff` when it is a file with the execute bit, else `ruff`
+from `PATH`. The project's own ruff is the version its lockfile pins, so the
+audit gives the same answer in every shell and in CI, whatever ruff a shell
+finds first; `PATH` is only the fallback for a project with no `.venv`. 1.4
+had both checks run whichever ruff was first on `PATH`.
 
 **Catch-up surface.** This repository fires the check at once (0.17.1 locked,
 `v0.17.3` pinned, on 2026-11-01), and so does any adopting project whose lock
@@ -515,6 +536,11 @@ is and linking to `docs/setup.md`.
   `ruff` on `PATH` give none; `# auditme: accept[ruff-version-drift] <reason>`
   on the `rev:` line, and on the line above it, accepts the hit, and a marker
   scoped to another rule does not; two roots give one hit, not two.
+- 1.5, `test_project_hygiene.py`: a `.venv/bin/ruff` stub is preferred over a
+  different ruff on `PATH`; a differing `.venv` ruff's hit names
+  `.venv/bin/ruff` in its evidence; a `.venv/bin/ruff` without the execute bit
+  falls back to `PATH`; `check_ruff` runs the `.venv` ruff when `PATH` has
+  none.
 
 ## Acceptance criteria
 
@@ -533,7 +559,10 @@ is and linking to `docs/setup.md`.
   blocked by a hit in one; a loose `src/*.py` blocks the commit until it moves
   into a package or is accepted; output for a project with a `src/` package
   and no loose module is byte-identical to `3d7aed9`'s.
-- 1.4: a project whose ruff on `PATH` differs from its `ruff-pre-commit`
+- 1.5: with another ruff first on `PATH`, a project whose `.venv/bin/ruff`
+  equals its hook's `rev` gets no `ruff-version-drift` hit, in the push gate
+  as in CI.
+- 1.4: a project whose ruff differs from its `ruff-pre-commit`
   `rev` fails `auditme-changed --all` with one `ruff-version-drift` hit until
   the versions match or the hit is accepted; a project whose versions match,
   or that has no `ruff-pre-commit` hook, gets no new hit; this repository's

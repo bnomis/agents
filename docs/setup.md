@@ -59,9 +59,10 @@ Prerequisites:
 - Python meeting `requires-python` in `pyproject.toml`; the hooks run with the
   `python3` their shebang finds on `PATH`
 - `jq`, used by the Stop hook
-- `ruff` on `PATH`, which the checker runs: the project's own from its `.venv`
-  when that is on `PATH`, or `uv tool install ruff`. Without it every sweep
-  reports `ruff not installed`. It must be the version the ruff hook's `rev`
+- `ruff`, which the checker runs: the project's own `.venv/bin/ruff` when it
+  exists (after `uv sync`), whatever else is on `PATH`; otherwise `ruff` from
+  `PATH`, such as `uv tool install ruff`. Without either, every sweep reports
+  `ruff not installed`. It must be the version the ruff hook's `rev`
   in `.pre-commit-config.yaml` pins; otherwise the sweep reports
   `ruff-version-drift`. Make them equal with `uv add --dev ruff==<version>`,
   or change the hook's `rev`
