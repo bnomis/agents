@@ -197,3 +197,22 @@ project-setup spec first.
 Spec: `agents/specs/project-setup/spec.md`, amendment 1.4; tasks: `agents/tasks/project-setup/tasks-3.md`.
 
 Done: 2026-11-01 - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.
+
+## The CI template says to pin actions to a commit SHA but pins tags
+
+Found on 2026-11-01 in `claude/skills/project-setup/templates/ci.yml`,
+whose comment reads "Pin third-party actions to a full commit SHA, and
+let Dependabot update them", above `actions/setup-python@v7.1.0` and
+`astral-sh/setup-uv@v10.3.3`, which are tags. This repository's own
+`.github/workflows/ci.yml` pins tags too, and has a
+`.github/dependabot.yml`.
+
+Cause: the comment and the pins were never reconciled; the 2026-10-31
+version bumps kept the tag form.
+
+Fix direction: decide which holds. Either pin each action to its full
+commit SHA, with the tag in a trailing comment, in the template and in
+this repository's workflow, or drop the SHA advice from the comment. The
+operator's call.
+
+Done: 2026-11-01 - the operator chose tag pins over SHA pins: the template's comment now says to pin each third-party action to an exact release tag, and the pins are unchanged; branch `docs/ci-template-tag-pins`.
