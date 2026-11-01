@@ -27,7 +27,7 @@ and the last task runs every test tree the checker's change can reach.
 
 ## Task 1: Lower this repository's ruff hook to the locked version
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation - The ruff version check (1.4), "This repository's own hit"
@@ -38,19 +38,19 @@ here.
 
 **Subtasks:**
 
-- [ ] Confirm the locked version: `grep -n -A1 '^name = "ruff"' uv.lock` shows `version = "0.17.1"`. If it shows another version, stop the task as `blocked` and name it: the operator's decision covers 0.17.1 only
-- [ ] In `.pre-commit-config.yaml`, change the `astral-sh/ruff-pre-commit` repo's `rev: v0.17.3` to `rev: v0.17.1`. Change nothing else in the file (the decision names this line only)
-- [ ] Run `pre-commit run ruff-check --all-files` and `pre-commit run ruff-format --all-files`. If either reports a change or a failure, stop the task as `blocked` with the output: the operator decided on the version, not on reformatting
+- [x] Confirm the locked version: `grep -n -A1 '^name = "ruff"' uv.lock` shows `version = "0.17.1"`. If it shows another version, stop the task as `blocked` and name it: the operator's decision covers 0.17.1 only
+- [x] In `.pre-commit-config.yaml`, change the `astral-sh/ruff-pre-commit` repo's `rev: v0.17.3` to `rev: v0.17.1`. Change nothing else in the file (the decision names this line only)
+- [x] Run `pre-commit run ruff-check --all-files` and `pre-commit run ruff-format --all-files`. If either reports a change or a failure, stop the task as `blocked` with the output: the operator decided on the version, not on reformatting
 
 **Acceptance Criteria:**
 
-- [ ] `.pre-commit-config.yaml` pins `rev: v0.17.1` for `ruff-pre-commit`
-- [ ] `.venv/bin/ruff --version` prints `ruff 0.17.1`
-- [ ] Both ruff hooks pass on every file without changing one
+- [x] `.pre-commit-config.yaml` pins `rev: v0.17.1` for `ruff-pre-commit`
+- [x] `.venv/bin/ruff --version` prints `ruff 0.17.1`
+- [x] Both ruff hooks pass on every file without changing one
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
 
 **Notes:**
 
@@ -61,7 +61,7 @@ here.
 
 ## Task 2: Add the `ruff-version-drift` check
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API - The ruff version check (1.4); Error handling (1.4 rows); Implementation - The ruff version check (1.4), steps 1-4 and acceptance; Testing (1.4)
@@ -73,7 +73,7 @@ than letting the commit hook and the CI audit disagree.
 
 **Subtasks:**
 
-- [ ] Tests first, in `claude/skills/auditme/tests/test_project_hygiene.py`, under a `# check_ruff_version` heading beside the existing `# check_ruff` and `# check_lockfile` ones. A fixture writes an executable stub `ruff` into a temporary directory that prints a chosen line for `--version`, and puts that directory first on `PATH` (`monkeypatch.setenv`). Cases, each from the spec's Testing (1.4) list:
+- [x] Tests first, in `claude/skills/auditme/tests/test_project_hygiene.py`, under a `# check_ruff_version` heading beside the existing `# check_ruff` and `# check_lockfile` ones. A fixture writes an executable stub `ruff` into a temporary directory that prints a chosen line for `--version`, and puts that directory first on `PATH` (`monkeypatch.setenv`). Cases, each from the spec's Testing (1.4) list:
   - equal versions give no hit;
   - different versions give one hit at the `rev:` line, with `evidence='ruff on PATH is 0.17.1; the hook pins v0.17.3'`;
   - a `rev` without the `v` compares the same;
@@ -85,23 +85,23 @@ than letting the commit hook and the CI audit disagree.
   - a repo URL ending in `.git` or `/` is still found;
   - running the check for two roots of one project prints one hit, not two.
   Run them and see them fail before writing the check
-- [ ] `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`: add `check_ruff_version(scope, src_root) -> None` with the spec's signature and docstring, following steps 1-4 of the spec's Implementation section exactly: the line regexes, the `frozen:` fallback, `ruff --version` with `cwd=scope`, the three variants and their anchors, and `_accept_reason(lines, rev_line, rule='ruff-version-drift')`
-- [ ] Return without a hit on `FileNotFoundError` from `ruff --version`; `check_ruff` already reports `ruff not installed`
-- [ ] `claude/skills/auditme/checks/auditme/registry.py`: import it and append `check_ruff_version` to the end of `CHECKS` (append, never insert)
-- [ ] `claude/skills/auditme/tests/registry-order.txt`: append `check_ruff_version` as the last line
-- [ ] Leave `check_ruff` unchanged
+- [x] `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`: add `check_ruff_version(scope, src_root) -> None` with the spec's signature and docstring, following steps 1-4 of the spec's Implementation section exactly: the line regexes, the `frozen:` fallback, `ruff --version` with `cwd=scope`, the three variants and their anchors, and `_accept_reason(lines, rev_line, rule='ruff-version-drift')`
+- [x] Return without a hit on `FileNotFoundError` from `ruff --version`; `check_ruff` already reports `ruff not installed`
+- [x] `claude/skills/auditme/checks/auditme/registry.py`: import it and append `check_ruff_version` to the end of `CHECKS` (append, never insert)
+- [x] `claude/skills/auditme/tests/registry-order.txt`: append `check_ruff_version` as the last line
+- [x] Leave `check_ruff` unchanged
 
 **Acceptance Criteria:**
 
-- [ ] Every case above passes
-- [ ] `uv run --no-project python claude/skills/auditme/checks/audit.py .` in this repository gives no `ruff-version-drift` hit (Task 1 matched the versions)
-- [ ] The same run with `rev:` temporarily set back to `v0.17.3` (not committed) gives exactly one `ruff-version-drift` hit naming both versions
-- [ ] No other rule's output changes: `test_registry.py` and every existing `test_project_hygiene.py` test pass unchanged
+- [x] Every case above passes
+- [x] `uv run --no-project python claude/skills/auditme/checks/audit.py .` in this repository gives no `ruff-version-drift` hit (Task 1 matched the versions)
+- [x] The same run with `rev:` temporarily set back to `v0.17.3` (not committed) gives exactly one `ruff-version-drift` hit naming both versions
+- [x] No other rule's output changes: `test_registry.py` and every existing `test_project_hygiene.py` test pass unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_registry.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -114,7 +114,7 @@ than letting the commit hook and the CI audit disagree.
 
 ## Task 3: Document `ruff-version-drift`
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Documentation (Amendment 1.4)
@@ -125,20 +125,20 @@ to say which ruff the checker needs and what to do when the sweep reports
 
 **Subtasks:**
 
-- [ ] `docs/setup.md`, the "`ruff` on `PATH`" requirement: say the ruff there must be the version the ruff hook's `rev` pins, that the sweep reports `ruff-version-drift` otherwise, and how to make them equal (`uv add --dev ruff==<version>`, or change the hook's `rev`)
-- [ ] `claude/skills/project-setup/templates/ci.yml`: extend the comment above the `.venv/bin` step to say, in one line, that the locked ruff must equal the ruff hook's `rev`
-- [ ] `claude/skills/auditme/SKILL.md`: document `ruff-version-drift` beside the existing ruff check under "Mechanical sweep": what it compares, that it is project-level, the two "cannot verify" variants, and how to accept one
-- [ ] Check the wording against the implemented check in `project_hygiene.py`, variant strings included
+- [x] `docs/setup.md`, the "`ruff` on `PATH`" requirement: say the ruff there must be the version the ruff hook's `rev` pins, that the sweep reports `ruff-version-drift` otherwise, and how to make them equal (`uv add --dev ruff==<version>`, or change the hook's `rev`)
+- [x] `claude/skills/project-setup/templates/ci.yml`: extend the comment above the `.venv/bin` step to say, in one line, that the locked ruff must equal the ruff hook's `rev`
+- [x] `claude/skills/auditme/SKILL.md`: document `ruff-version-drift` beside the existing ruff check under "Mechanical sweep": what it compares, that it is project-level, the two "cannot verify" variants, and how to accept one
+- [x] Check the wording against the implemented check in `project_hygiene.py`, variant strings included
 
 **Acceptance Criteria:**
 
-- [ ] Each variant string the docs quote matches the code exactly
-- [ ] `claude/skills/project-setup/tests/test_templates.py` passes with the changed template
+- [x] Each variant string the docs quote matches the code exactly
+- [x] `claude/skills/project-setup/tests/test_templates.py` passes with the changed template
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/project-setup/tests/test_templates.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/project-setup/tests/test_templates.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -149,7 +149,7 @@ to say which ruff the checker needs and what to do when the sweep reports
 
 ## Task 4: Close amendment 1.4
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Acceptance criteria (1.4)
@@ -159,19 +159,19 @@ motivating item to `DONE.md`, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Move the `TODO.md` item "The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.`, and remove it from `TODO.md`
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] Move the `TODO.md` item "The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.`, and remove it from `TODO.md`
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] The spec's 1.4 acceptance criteria hold: a project whose ruff differs from its `ruff-pre-commit` `rev` fails `changed.py --all` with one `ruff-version-drift` hit (shown by Task 2's tests and its temporary-`rev` run); a matching or hook-less project gets no new hit; this repository's whole-tree audit passes with `rev: v0.17.1`
+- [x] The spec's 1.4 acceptance criteria hold: a project whose ruff differs from its `ruff-pre-commit` `rev` fails `changed.py --all` with one `ruff-version-drift` hit (shown by Task 2's tests and its temporary-`rev` run); a matching or hook-less project gets no new hit; this repository's whole-tree audit passes with `rev: v0.17.1`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-3.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-3.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
 
 **Notes:**
 

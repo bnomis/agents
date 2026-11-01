@@ -61,7 +61,10 @@ Prerequisites:
 - `jq`, used by the Stop hook
 - `ruff` on `PATH`, which the checker runs: the project's own from its `.venv`
   when that is on `PATH`, or `uv tool install ruff`. Without it every sweep
-  reports `ruff not installed`
+  reports `ruff not installed`. It must be the version the ruff hook's `rev`
+  in `.pre-commit-config.yaml` pins; otherwise the sweep reports
+  `ruff-version-drift`. Make them equal with `uv add --dev ruff==<version>`,
+  or change the hook's `rev`
 
 Install:
 

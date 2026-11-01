@@ -4,31 +4,6 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins
-
-Found on 2026-11-01, recorded in an adopting project's own `TODO.md`: its
-CI audit runs `ruff` from the project's `.venv`, where a dependency
-cooldown had locked an older ruff than the `rev` of its pre-commit ruff
-hook. Both versions passed the tree that day, but a later difference
-between them would make the commit hook and the CI audit disagree.
-
-Cause: `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`
-runs a bare `ruff check` and `ruff format --check`, so it uses whichever
-ruff is first on `PATH`. `docs/setup.md` ("ruff on PATH") and the CI
-template (`claude/skills/project-setup/templates/ci.yml`, "use the
-project's locked one") point it at the project's `.venv`, and nothing
-ties that version to the ruff hook's `rev`. Every adopting project has the
-same gap.
-
-Fix direction: at least, say in `docs/setup.md` and the CI template that
-the locked ruff must equal the ruff hook's `rev`, and keep them equal when
-either moves. Better, have the checker report the ruff version it ran, or
-fail when it differs from the hook's `rev` in `.pre-commit-config.yaml`;
-that changes the checker's behaviour, so it goes through the
-project-setup spec first.
-
-Spec: `agents/specs/project-setup/spec.md`, amendment 1.4; tasks: `agents/tasks/project-setup/tasks-3.md`.
-
 ## The CI template says to pin actions to a commit SHA but pins tags
 
 Found on 2026-11-01 in `claude/skills/project-setup/templates/ci.yml`,

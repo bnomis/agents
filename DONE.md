@@ -170,3 +170,30 @@ Note 2026-10-31: since `3607aa2` (the installer fix) and amendment 1.2 (the
 only the real CI run and the real deploy key remain.
 
 Done: 2026-11-01 - every part that lives in this repository is done: this repository is adopted (its CI audit passes since run `41218182723`), the push gate is settled (spec amendment 1.3), and the real CI run and real deploy key were proven when two adopted projects' CI runs on 2026-11-01 passed "Install the audit deploy key", "Audit the whole tree" and "Remove the audit deploy key". Adopting each remaining project is that project's own work, recorded in its own `TODO.md`.
+
+## The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins
+
+Found on 2026-11-01, recorded in an adopting project's own `TODO.md`: its
+CI audit runs `ruff` from the project's `.venv`, where a dependency
+cooldown had locked an older ruff than the `rev` of its pre-commit ruff
+hook. Both versions passed the tree that day, but a later difference
+between them would make the commit hook and the CI audit disagree.
+
+Cause: `claude/skills/auditme/checks/auditme/rules/project_hygiene.py`
+runs a bare `ruff check` and `ruff format --check`, so it uses whichever
+ruff is first on `PATH`. `docs/setup.md` ("ruff on PATH") and the CI
+template (`claude/skills/project-setup/templates/ci.yml`, "use the
+project's locked one") point it at the project's `.venv`, and nothing
+ties that version to the ruff hook's `rev`. Every adopting project has the
+same gap.
+
+Fix direction: at least, say in `docs/setup.md` and the CI template that
+the locked ruff must equal the ruff hook's `rev`, and keep them equal when
+either moves. Better, have the checker report the ruff version it ran, or
+fail when it differs from the hook's `rev` in `.pre-commit-config.yaml`;
+that changes the checker's behaviour, so it goes through the
+project-setup spec first.
+
+Spec: `agents/specs/project-setup/spec.md`, amendment 1.4; tasks: `agents/tasks/project-setup/tasks-3.md`.
+
+Done: 2026-11-01 - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.
