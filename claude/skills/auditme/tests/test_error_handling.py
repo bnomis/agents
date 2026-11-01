@@ -4,6 +4,7 @@
 `test_get_container_default.py`.
 """
 
+import ast
 import collections.abc
 import pathlib
 
@@ -977,6 +978,88 @@ def test_an_undocumented_function_is_out_of_scope(project: Builder, run_check: R
     assert run_check(MISSING_RAISES, root) == []
 
 
+CAUGHT_ERRORS = 'class ProbeError(Exception):\n    pass\n\n\nclass ParseError(ProbeError):\n    pass\n\n\nclass FetchError(ProbeError):\n    pass\n'
+
+
+def _caught_module(body: str) -> dict[str, str]:
+    return {'src/probe/errors.py': CAUGHT_ERRORS, 'src/probe/mod.py': 'import probe.errors\n\n\n' + body}
+
+
+@pytest.mark.parametrize('handler', ['except probe.errors.ParseError:', 'except probe.errors.ProbeError:', 'except Exception:', 'except:'])
+def test_a_raise_caught_by_a_handler_around_it_is_not_a_hit(project: Builder, run_check: Runner, handler: str) -> None:
+    root = project(
+        _caught_module(
+            f'def load(label: str) -> int:\n    """Load the thing."""\n    try:\n        raise probe.errors.ParseError(label)\n    {handler}\n        return 0\n'
+        )
+    )
+    assert run_check(MISSING_RAISES, root) == []
+
+
+@pytest.mark.parametrize('handler', ['except probe.errors.ParseError:', 'except probe.errors.ProbeError:', 'except Exception:', 'except:'])
+def test_a_nested_raise_called_inside_a_catching_try_is_not_a_hit(project: Builder, run_check: Runner, handler: str) -> None:
+    root = project(
+        _caught_module(
+            'def load(label: str) -> int:\n'
+            '    """Load the thing."""\n'
+            '    def inner() -> int:\n'
+            '        raise probe.errors.ParseError(label)\n'
+            '    try:\n'
+            '        return inner()\n'
+            f'    {handler}\n'
+            '        return 0\n'
+        )
+    )
+    assert run_check(MISSING_RAISES, root) == []
+
+
+def test_a_nested_raise_never_called_in_the_subject_is_not_the_subjects_hit(project: Builder, run_check: Runner) -> None:
+    root = project(
+        _caught_module(
+            'def load(label: str):\n    """Load the thing."""\n    def inner() -> int:\n        raise probe.errors.ParseError(label)\n    return inner\n'
+        )
+    )
+    assert run_check(MISSING_RAISES, root) == []
+
+
+def test_a_documented_nested_def_is_still_its_own_subject(project: Builder, run_check: Runner) -> None:
+    root = project(
+        _caught_module(
+            'def load(label: str):\n'
+            '    """Load the thing."""\n'
+            '    def inner() -> int:\n'
+            '        """Inner."""\n'
+            '        raise probe.errors.ParseError(label)\n'
+            '    return inner\n'
+        )
+    )
+    assert [(hit['rule'], hit['line']) for hit in run_check(MISSING_RAISES, root)] == [('missing-raises-section', 6)]
+
+
+@pytest.mark.parametrize(
+    'handler',
+    ['except probe.errors.ParseError:\n        raise', 'except probe.errors.FetchError:\n        return 0'],
+    ids=['re-raises', 'unrelated-class'],
+)
+def test_a_raise_a_handler_does_not_stop_is_still_a_hit(project: Builder, run_check: Runner, handler: str) -> None:
+    root = project(
+        _caught_module(f'def load(label: str) -> int:\n    """Load the thing."""\n    try:\n        raise probe.errors.ParseError(label)\n    {handler}\n')
+    )
+    assert [hit['rule'] for hit in run_check(MISSING_RAISES, root)] == ['missing-raises-section']
+
+
+def test_a_nested_raise_called_outside_any_try_is_still_a_hit(project: Builder, run_check: Runner) -> None:
+    root = project(
+        _caught_module(
+            'def load(label: str) -> int:\n'
+            '    """Load the thing."""\n'
+            '    def inner() -> int:\n'
+            '        raise probe.errors.ParseError(label)\n'
+            '    return inner()\n'
+        )
+    )
+    assert [hit['rule'] for hit in run_check(MISSING_RAISES, root)] == ['missing-raises-section']
+
+
 # --------------------------------------------------------------------------
 # check_bare_except_in_module_with_narrow_errors
 # --------------------------------------------------------------------------
@@ -1770,3 +1853,255 @@ def store(rows: list) -> None:
 """
     root = project({'src/probe/errors.py': ERRORS, 'src/probe/write.py': callee, 'src/probe/use.py': caller})
     assert run_check(RAISES_DRIFT, root) == []
+
+
+# --- raises-section-drift: errors guarded by unset optional arguments -------
+
+LOAD_CALLER = """import probe.errors
+import probe.loader
+
+
+def run(name: str, *args: str) -> int:
+    \"\"\"Run it.
+
+    Raises:
+        FetchError: nothing to run.
+    \"\"\"
+    if not name:
+        raise probe.errors.FetchError('empty')
+    return {call}
+"""
+
+OPTIONAL_CALLEE = """import probe.errors
+
+LIMIT = 3
+
+
+def load({params}) -> int:
+    \"\"\"Load it.
+
+    Raises:
+        ParseError: bad input.
+    \"\"\"
+{body}"""
+
+GUARDED = '    if strict:\n        raise probe.errors.ParseError(name)\n    return 0\n'
+OMITS_PARSE_ERROR = [('src/probe/use.py', 'run: Raises: omits ParseError, declared by probe.loader.load')]
+
+
+def loader_drift(project: Builder, run_check: Runner, call: str, params: str = 'name: str, strict: bool = False', body: str = GUARDED) -> list[tuple[str, str]]:
+    callee = OPTIONAL_CALLEE.format(params=params, body=body)
+    caller = LOAD_CALLER.format(call=call)
+    root = project({'src/probe/errors.py': ERRORS, 'src/probe/loader.py': callee, 'src/probe/use.py': caller})
+    return sorted((hit['path'], hit['variant']) for hit in run_check(RAISES_DRIFT, root) if hit['rule'] == 'raises-section-drift')
+
+
+def test_a_call_leaving_the_guarding_optional_argument_unset_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    assert loader_drift(project, run_check, "probe.loader.load('x')") == []
+
+
+def test_a_keyword_only_optional_guard_left_unset_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    assert loader_drift(project, run_check, "probe.loader.load('x')", params='name: str, *, strict: bool = False') == []
+
+
+def test_a_self_call_leaving_the_optional_argument_unset_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    caller = """import probe.errors
+
+
+class Runner:
+    def load(self, name: str, strict: bool = False) -> int:
+        \"\"\"Load it.
+
+        Raises:
+            ParseError: bad input.
+        \"\"\"
+        if strict:
+            raise probe.errors.ParseError(name)
+        return 0
+
+    def run(self, name: str) -> int:
+        \"\"\"Run it.
+
+        Raises:
+            FetchError: nothing to run.
+        \"\"\"
+        if not name:
+            raise probe.errors.FetchError('empty')
+        return self.load(name)
+"""
+    root = project({'src/probe/errors.py': ERRORS, 'src/probe/use.py': caller})
+    assert [hit for hit in run_check(RAISES_DRIFT, root) if hit['rule'] == 'raises-section-drift'] == []
+
+
+def test_a_self_call_supplying_the_optional_argument_positionally_is_a_hit(project: Builder, run_check: Runner) -> None:
+    caller = """import probe.errors
+
+
+class Runner:
+    def load(self, name: str, strict: bool = False) -> int:
+        \"\"\"Load it.
+
+        Raises:
+            ParseError: bad input.
+        \"\"\"
+        if strict:
+            raise probe.errors.ParseError(name)
+        return 0
+
+    def run(self, name: str) -> int:
+        \"\"\"Run it.
+
+        Raises:
+            FetchError: nothing to run.
+        \"\"\"
+        if not name:
+            raise probe.errors.FetchError('empty')
+        return self.load(name, True)
+"""
+    root = project({'src/probe/errors.py': ERRORS, 'src/probe/use.py': caller})
+    hits = [hit['variant'] for hit in run_check(RAISES_DRIFT, root) if hit['rule'] == 'raises-section-drift']
+    assert hits == ['run: Raises: omits ParseError, declared by probe.use.Runner.load']
+
+
+@pytest.mark.parametrize('call', ["probe.loader.load('x', True)", "probe.loader.load('x', strict=True)", 'probe.loader.load(*args)'])
+def test_a_call_supplying_the_optional_argument_is_still_a_hit(project: Builder, run_check: Runner, call: str) -> None:
+    assert loader_drift(project, run_check, call) == OMITS_PARSE_ERROR
+
+
+def test_a_guard_on_a_parameter_without_a_default_is_still_a_hit(project: Builder, run_check: Runner) -> None:
+    body = '    if not name.isdigit():\n        raise probe.errors.ParseError(name)\n    return 0\n'
+    assert loader_drift(project, run_check, "probe.loader.load('x')", body=body) == OMITS_PARSE_ERROR
+
+
+def test_a_guard_on_a_module_level_name_is_still_a_hit(project: Builder, run_check: Runner) -> None:
+    body = '    if LIMIT > 2:\n        raise probe.errors.ParseError(name)\n    return 0\n'
+    assert loader_drift(project, run_check, "probe.loader.load('x')", body=body) == OMITS_PARSE_ERROR
+
+
+def test_an_error_also_raised_outside_the_guard_is_still_a_hit(project: Builder, run_check: Runner) -> None:
+    body = GUARDED.replace('    return 0\n', '    raise probe.errors.ParseError(name)\n')
+    assert loader_drift(project, run_check, "probe.loader.load('x')", body=body) == OMITS_PARSE_ERROR
+
+
+def test_a_callee_only_documenting_the_error_is_still_a_hit(project: Builder, run_check: Runner) -> None:
+    body = '    return probe.parse.parse(name)\n'
+    assert loader_drift(project, run_check, "probe.loader.load('x')", body=body) == OMITS_PARSE_ERROR
+
+
+# --- raises-section-drift: called nested functions --------------------------
+
+NESTED_CALLER = """import probe.errors
+import probe.parse
+
+
+def run(text: str, other: str, strict: bool) -> int:
+    \"\"\"Run it.
+
+    Raises:
+        {declared}: the text is bad.
+    \"\"\"
+{body}"""
+
+REPRODUCTION = """    def attempt() -> int:
+        try:
+            return probe.parse.parse(text)
+        except probe.errors.ParseError:
+            if strict:
+                raise
+            return 0
+
+    try:
+        probe.parse.parse(other)
+    except probe.errors.ParseError:
+        pass
+    return attempt()
+"""
+
+
+def nested_drift(project: Builder, run_check: Runner, body: str, declared: str = 'ParseError') -> list[tuple[str, str]]:
+    return drift(project, run_check, NESTED_CALLER.format(declared=declared, body=body))
+
+
+def test_a_called_nested_def_that_re_raises_keeps_the_declaration_reaching(project: Builder, run_check: Runner) -> None:
+    assert nested_drift(project, run_check, REPRODUCTION) == []
+
+
+def test_a_nested_def_never_called_adds_nothing(project: Builder, run_check: Runner) -> None:
+    body = """    def attempt() -> int:
+        return probe.parse.parse(text)
+
+    return 0
+"""
+    assert nested_drift(project, run_check, body, declared='FetchError') == []
+
+
+def test_a_nested_def_called_outside_any_try_reaches_the_subject(project: Builder, run_check: Runner) -> None:
+    body = """    def attempt() -> int:
+        return probe.parse.parse(text)
+
+    return attempt()
+"""
+    assert nested_drift(project, run_check, body, declared='FetchError') == [
+        ('src/probe/use.py', 'run: Raises: omits ParseError, declared by probe.parse.parse')
+    ]
+
+
+def test_a_nested_def_called_inside_a_catching_try_does_not_reach(project: Builder, run_check: Runner) -> None:
+    body = """    def attempt() -> int:
+        return probe.parse.parse(text)
+
+    try:
+        return attempt()
+    except probe.errors.ParseError:
+        return 0
+"""
+    assert nested_drift(project, run_check, body) == [('src/probe/use.py', 'run: Raises: declares ParseError, which never reaches the caller')]
+
+
+def test_a_bare_raise_in_a_def_inside_a_handler_does_not_make_it_re_raise(project: Builder, run_check: Runner) -> None:
+    body = """    try:
+        return probe.parse.parse(text)
+    except probe.errors.ParseError:
+        def again() -> None:
+            raise
+
+        return 0
+"""
+    assert nested_drift(project, run_check, body) == [('src/probe/use.py', 'run: Raises: declares ParseError, which never reaches the caller')]
+
+
+# --------------------------------------------------------------------------
+# package_class_parents and class_lineage
+# --------------------------------------------------------------------------
+
+
+def parse_modules(*sources: str) -> list[ast.Module]:
+    return [ast.parse(source) for source in sources]
+
+
+def test_package_class_parents_strips_module_prefix_from_bases() -> None:
+    trees = parse_modules('class A(Base): pass\nclass B(mod.Base): pass\n')
+    parents = auditme.rules.error_handling.package_class_parents(trees)
+    assert parents['A'] == {'Base'}
+    assert parents['B'] == {'Base'}
+
+
+def test_package_class_parents_pools_modules() -> None:
+    trees = parse_modules('class A(Base): pass\n', 'class B(A): pass\n')
+    parents = auditme.rules.error_handling.package_class_parents(trees)
+    assert set(parents) >= {'A', 'B'}
+    assert parents['B'] == {'A'}
+
+
+def test_class_lineage_is_transitive() -> None:
+    parents = {'C': {'B'}, 'B': {'A'}, 'A': set()}
+    assert auditme.rules.error_handling.class_lineage('C', parents) == {'A', 'B', 'C'}
+
+
+def test_class_lineage_terminates_on_a_cycle() -> None:
+    parents = {'A': {'B'}, 'B': {'A'}}
+    assert auditme.rules.error_handling.class_lineage('A', parents) == {'A', 'B'}
+
+
+def test_class_lineage_of_an_unknown_name_is_itself() -> None:
+    assert auditme.rules.error_handling.class_lineage('Nope', {}) == {'Nope'}
