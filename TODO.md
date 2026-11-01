@@ -27,7 +27,7 @@ fail when it differs from the hook's `rev` in `.pre-commit-config.yaml`;
 that changes the checker's behaviour, so it goes through the
 project-setup spec first.
 
-Spec: `agents/specs/project-setup/spec.md`, amendment 1.4; tasks: not yet written.
+Spec: `agents/specs/project-setup/spec.md`, amendment 1.4; tasks: `agents/tasks/project-setup/tasks-3.md`.
 
 ## The CI template says to pin actions to a commit SHA but pins tags
 
