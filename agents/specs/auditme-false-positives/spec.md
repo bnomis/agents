@@ -1,6 +1,6 @@
 # Auditme false positives
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** proposed
 **Date:** 2026-11-01
 
@@ -36,6 +36,16 @@ Decision (operator, 2026-11-01): for finding 1, skip callee errors whose
 every raise depends on the callee's arguments, rather than evaluating the
 caller's values and guards. A caller that really can pass a bad value is then
 left to the Phase B review (checklist item A4).
+
+Amendment 1.1 (operator, 2026-11-01): the 1.0 predicate, "every raise sits
+under an `if` or `match` testing a callee parameter", also covers plain input
+validation (`if not text.isdigit(): raise ParseError(...)`), so it would hide
+almost every real omission; the queue's Task 2 found it failing the existing
+drift tests. The carve-out is narrowed to the optional-argument case: the
+error is skipped for a call only when every raise of it is guarded by a
+parameter that has a default and the call does not supply that argument.
+Fixed names, pre-checked values and dispatch types stay hits, for accept
+markers or the Phase B review.
 
 ## Module location
 
@@ -77,15 +87,19 @@ def class_lineage(name: str, parents: Mapping[str, set[str]]) -> set[str]:
     """
 
 
-def argument_dependent(func: ast.FunctionDef | ast.AsyncFunctionDef, error: str, parents: Mapping[str, set[str]]) -> bool:
-    """Whether every raise of `error` in `func` depends on its arguments.
+def unset_optional_guard(func: ast.FunctionDef | ast.AsyncFunctionDef, error: str, parents: Mapping[str, set[str]], call: ast.Call, bound: bool) -> bool:
+    """Whether `call` leaves unset every optional argument guarding `error`.
 
     True when `func`'s own scope (nested defs, lambdas and classes excluded)
     holds at least one `raise X(...)` or `raise mod.X(...)` whose lineage
     contains `error`, and each such raise has an enclosing `If` (in its body
     or `orelse`) or `Match` inside `func` whose test or subject reads a Name
-    that is one of `func`'s parameters (any kind). False otherwise, including
-    when `func` raises `error` only through its own callees.
+    that is a parameter with a default which `call` does not supply. A
+    parameter is supplied when a keyword names it or a positional argument
+    reaches its position; with `bound` (a call through `self.`), positional
+    arguments start at the second parameter. A call with a `*` or `**`
+    argument supplies every parameter. False otherwise, including when
+    `func` raises `error` only through its own callees.
     """
 
 
@@ -114,22 +128,23 @@ def ruff_dunder_all_key(name: str) -> tuple[int, list[int | str]]:
 The checks raise nothing new. A crash inside a check is still reported by the
 driver as `auditme-check-crash`. Where the new analysis cannot decide, it
 keeps today's hit: a callee whose node cannot be found (a re-export of
-something other than a function) is not argument-dependent, and a call whose
+something other than a function) is never skipped, and a call whose
 target is not a bare-named nested def adds no nested sites.
 
 ## Implementation
 
-**1. `raises-section-drift`: argument-dependent callee errors.** When a
+**1. `raises-section-drift`: unset optional arguments (1.1).** When a
 callee's documented name would reach the caller, look up the callee's
 `FunctionDef` in the parsed modules (by the qualname `resolve` already
-returns). If `argument_dependent(callee, name, parents)`, the name does not
-reach this caller through that call. Omissions only: the extra-declaration
-branch is unchanged. Test shapes: a callee raising `ParseError` under
-`if strict:` with `strict` a parameter, and under the `else` of an
-`isinstance(value, ...)` chain on a parameter, gives no omission hit for its
-caller; the same raise outside any `if`, or under an `if` testing a
-module-level name, still does; a callee that raises the name both inside and
-outside a parameter guard still does.
+returns). If `unset_optional_guard(callee, name, parents, call, bound)`, the
+name does not reach this caller through that call. Omissions only: the
+extra-declaration branch is unchanged. Test shapes: a callee
+`load(name, strict=False)` raising `ParseError` only under `if strict:` gives
+no omission hit for `load('x')`; still a hit for `load('x', True)`,
+`load('x', strict=True)` and `load(*args)`; still a hit when the guard tests
+a parameter without a default (`if not text.isdigit():`, the existing
+`CALLEE` fixture), a module-level name, or when the name is also raised
+outside the guard.
 
 **2. `raises-section-drift`: nested functions.** Replace
 `_reach_sites(node.body)` with `nested_call_sites(node)`, so a raise or call
@@ -172,7 +187,8 @@ literals keep the plain `sorted()` test. Test fixture, checked against ruff
 paragraph (`check_nonalphabetical_literals` gains a docstring stating its
 predicate). `SKILL.md` "Documented refinements" gains one entry per rule in
 the existing format, and the A4 line describing `raises-section-drift` adds
-that argument-dependent callee errors are skipped and left to review.
+that a callee error guarded only by optional arguments the call leaves unset
+is skipped, and that Phase B reviews the other value-dependent cases.
 `docs/guide/checker.md` updates the rows for the four rules.
 
 **Closing.** Move the `TODO.md` item to `DONE.md` with a `Done:` line naming

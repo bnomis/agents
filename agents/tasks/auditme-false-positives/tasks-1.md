@@ -59,28 +59,28 @@ same lineage for `missing-raises-section`. Behaviour does not change.
 
 ---
 
-## Task 2: `raises-section-drift` skips argument-dependent callee errors
+## Task 2: `raises-section-drift` skips errors guarded by unset optional arguments
 
 **Status:** todo
 **Priority:** high
 **Complexity:** medium
-**Spec Reference:** Implementation 1; API (`argument_dependent`); Error handling
+**Spec Reference:** Implementation 1 (amendment 1.1); API (`unset_optional_guard`); Error handling
 
-**Technical Goal:** A callee error whose every raise sits under a test of the
-callee's own parameters no longer reaches the callee's callers, as the
-operator decided on 2026-11-01.
+**Technical Goal:** A callee error whose every raise is guarded by an optional
+parameter that the call leaves unset no longer reaches that caller, as the
+operator decided on 2026-11-01 (spec amendment 1.1).
 
 **Subtasks:**
 
-- [ ] Tests first, beside the existing drift tests, using the `drift` helper with `ERRORS` and a callee of its own: no omission hit for the caller when the callee raises `ParseError` only under `if strict:` (`strict` a parameter), or only in the `else` of an `if isinstance(value, ...)` / `elif` chain on a parameter, or only in a `match` on a parameter; still one omission hit when the raise is outside any `if`, under an `if` that tests a module-level name, or both inside and outside a parameter guard; still one hit when the callee only documents `ParseError` and raises it through its own callee. Run them and see the "no hit" cases fail
-- [ ] Add `argument_dependent(func, error, parents) -> bool` with the spec's signature and docstring. Walk `func`'s own scope only (`_walk_within_scope`); a raise counts when `_raised_name` gives a name whose `class_lineage` contains `error`; it depends on arguments when an enclosing `If` (body or `orelse`) or `Match` inside `func` has a test or subject reading a `Name` in `func`'s parameters (positional-only, positional, `*args`, keyword-only, `**kwargs`)
-- [ ] In `check_raises_section_drift`, keep a map from qualname to `FunctionDef` while collecting subjects; where a resolved callee's documented name would reach the caller, skip it when `argument_dependent(callee_node, name, parents)`. A qualname with no `FunctionDef` is not argument-dependent. Omissions only: leave the extra-declaration branch alone
-- [ ] Add a `Refinement (2026-11-01): ...` paragraph to `check_raises_section_drift`'s docstring stating the carve-out, and that a caller that can pass a bad value is left to the Phase B review (A4)
+- [ ] Rework the uncommitted tests from the first attempt (see Notes) to the 1.1 shapes, beside the existing drift tests, using the `drift` helper with `ERRORS` and a callee `load(name, strict=False)` of its own that raises `ParseError` only under `if strict:`: no omission hit for a caller calling `load('x')`, or `self.load('x')` on a method `load(self, name, strict=False)`; still one omission hit for `load('x', True)`, `load('x', strict=True)` and `load(*args)`; still one hit when the guard tests a parameter without a default, a module-level name, or when the name is also raised outside the guard; still one hit when the callee only documents `ParseError` and raises it through its own callee. Run them and see the "no hit" cases fail
+- [ ] Replace the first attempt's `argument_dependent` with `unset_optional_guard(func, error, parents, call, bound) -> bool`, with the spec's signature and docstring. Walk `func`'s own scope only; a raise counts when `_raised_name` gives a name whose `class_lineage` contains `error`; it is skipped when an enclosing `If` (body or `orelse`) or `Match` inside `func` has a test or subject reading a `Name` that is a parameter with a default (positional with a default, or keyword-only with a default) not supplied by `call`: no keyword names it, no positional argument reaches its position (offset by one with `bound`), and `call` has no `Starred` argument and no `**` keyword
+- [ ] In `check_raises_section_drift`, keep a map from qualname to `FunctionDef` while collecting subjects; where a resolved callee's documented name would reach the caller, skip it when `unset_optional_guard(callee_node, name, parents, call, bound)`, with `bound` true for a call resolved through `self.`. A qualname with no `FunctionDef` is never skipped. Omissions only: leave the extra-declaration branch alone
+- [ ] Add a `Refinement (2026-11-01): ...` paragraph to `check_raises_section_drift`'s docstring stating the carve-out, and that other value-dependent cases are left to the Phase B review (A4)
 
 **Acceptance Criteria:**
 
 - [ ] Every case above passes
-- [ ] Every existing `raises-section-drift` test passes unchanged
+- [ ] Every existing `raises-section-drift` test passes unchanged, including the five that the first attempt broke: `test_a_callee_error_missing_from_raises_is_a_hit`, `test_a_callee_error_names_the_callee_file_as_related`, `test_a_method_call_on_self_follows_the_method`, `test_a_scoped_marker_accepts_raises_drift`, `test_a_function_re_exported_by_a_package_init_is_followed`
 
 **Definition of Done:**
 
@@ -91,7 +91,8 @@ operator decided on 2026-11-01.
 
 - Depends on Task 1
 - The drift rule never reads a callee's body today; it uses only the callee's documented `Raises:` (`raises_section_names`). This task adds the one body read the decision needs
-- The decision covers only callee errors that depend on the callee's arguments. It does not cover evaluating the caller's values or guards; a case that needs that stays a hit
+- The decision covers only errors guarded by optional arguments the call leaves unset. It does not cover evaluating the caller's values or guards (fixed names, pre-checked values, dispatch types); those stay hits
+- 2026-11-01, unblocked by the operator: the first attempt implemented the 1.0 predicate (any parameter guard), which also covered plain input validation and broke the five tests above. The operator chose to narrow the carve-out to unset optional arguments (spec amendment 1.1). The first attempt's code and tests are in the working tree, uncommitted; rework them rather than starting over
 
 ---
 
@@ -248,7 +249,7 @@ a missing hit from a carve-out.
 **Subtasks:**
 
 - [ ] `claude/skills/auditme/SKILL.md`, "Documented refinements": one entry per rule, `raises-section-drift`, `missing-raises-section`, `passthrough-shim` and `non-alphabetical-literal`, each dated 2026-11-01, in the existing format (the carve-out with an example, what keeps the old behaviour, and the helper and module to see)
-- [ ] `claude/skills/auditme/SKILL.md`, checklist item A4: add that `raises-section-drift` skips a callee error every raise of which depends on the callee's arguments, and that Phase B reviews whether a caller can pass a value that takes that path
+- [ ] `claude/skills/auditme/SKILL.md`, checklist item A4: add that `raises-section-drift` skips a callee error guarded only by optional arguments the call leaves unset, and that Phase B reviews the other value-dependent cases (fixed names, pre-checked values, dispatch types)
 - [ ] `docs/guide/checker.md`: update the rows for `missing-raises-section`, `raises-section-drift`, `passthrough-shim` and `non-alphabetical-literal` to match the narrowed predicates
 - [ ] Check each description against the code the earlier tasks wrote
 
