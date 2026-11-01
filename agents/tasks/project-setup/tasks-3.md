@@ -149,7 +149,7 @@ to say which ruff the checker needs and what to do when the sweep reports
 
 ## Task 4: Close amendment 1.4
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Acceptance criteria (1.4)
@@ -159,19 +159,19 @@ motivating item to `DONE.md`, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Move the `TODO.md` item "The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.`, and remove it from `TODO.md`
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] Move the `TODO.md` item "The checker runs whatever `ruff` is on `PATH`, not the version the ruff hook pins" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - spec amendment 1.4, agents/tasks/project-setup/tasks-3.md: the ruff-version-drift check, and this repository's ruff hook lowered to v0.17.1.`, and remove it from `TODO.md`
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] The spec's 1.4 acceptance criteria hold: a project whose ruff differs from its `ruff-pre-commit` `rev` fails `changed.py --all` with one `ruff-version-drift` hit (shown by Task 2's tests and its temporary-`rev` run); a matching or hook-less project gets no new hit; this repository's whole-tree audit passes with `rev: v0.17.1`
+- [x] The spec's 1.4 acceptance criteria hold: a project whose ruff differs from its `ruff-pre-commit` `rev` fails `changed.py --all` with one `ruff-version-drift` hit (shown by Task 2's tests and its temporary-`rev` run); a matching or hook-less project gets no new hit; this repository's whole-tree audit passes with `rev: v0.17.1`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-3.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/project-setup/tasks-3.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
 
 **Notes:**
 
