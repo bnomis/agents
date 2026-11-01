@@ -27,7 +27,7 @@ and the last task runs every test tree the checker's change can reach.
 
 ## Task 1: Lower this repository's ruff hook to the locked version
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation - The ruff version check (1.4), "This repository's own hit"
@@ -38,19 +38,19 @@ here.
 
 **Subtasks:**
 
-- [ ] Confirm the locked version: `grep -n -A1 '^name = "ruff"' uv.lock` shows `version = "0.17.1"`. If it shows another version, stop the task as `blocked` and name it: the operator's decision covers 0.17.1 only
-- [ ] In `.pre-commit-config.yaml`, change the `astral-sh/ruff-pre-commit` repo's `rev: v0.17.3` to `rev: v0.17.1`. Change nothing else in the file (the decision names this line only)
-- [ ] Run `pre-commit run ruff-check --all-files` and `pre-commit run ruff-format --all-files`. If either reports a change or a failure, stop the task as `blocked` with the output: the operator decided on the version, not on reformatting
+- [x] Confirm the locked version: `grep -n -A1 '^name = "ruff"' uv.lock` shows `version = "0.17.1"`. If it shows another version, stop the task as `blocked` and name it: the operator's decision covers 0.17.1 only
+- [x] In `.pre-commit-config.yaml`, change the `astral-sh/ruff-pre-commit` repo's `rev: v0.17.3` to `rev: v0.17.1`. Change nothing else in the file (the decision names this line only)
+- [x] Run `pre-commit run ruff-check --all-files` and `pre-commit run ruff-format --all-files`. If either reports a change or a failure, stop the task as `blocked` with the output: the operator decided on the version, not on reformatting
 
 **Acceptance Criteria:**
 
-- [ ] `.pre-commit-config.yaml` pins `rev: v0.17.1` for `ruff-pre-commit`
-- [ ] `.venv/bin/ruff --version` prints `ruff 0.17.1`
-- [ ] Both ruff hooks pass on every file without changing one
+- [x] `.pre-commit-config.yaml` pins `rev: v0.17.1` for `ruff-pre-commit`
+- [x] `.venv/bin/ruff --version` prints `ruff 0.17.1`
+- [x] Both ruff hooks pass on every file without changing one
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
 
 **Notes:**
 
