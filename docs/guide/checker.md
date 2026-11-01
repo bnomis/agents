@@ -224,12 +224,12 @@ Emitted by `checks/audit.py` itself, not by a registered check.
 | `filesystem-op-without-envelope` | A public function writing to the filesystem with no `try`/`except` |
 | `logger-exception-graceful-degradation` | A handler calling `logger.exception` then returning a constant default |
 | `docstring-raises-mismatch` | A docstring `Raises:` naming a different exception from the one the body raises |
-| `missing-raises-section` | A function raising a project error whose docstring has no `Raises:` section |
+| `missing-raises-section` | A function raising a project error that reaches its caller (not one a handler around it catches without re-raising) whose docstring has no `Raises:` section |
 | `bare-except-in-module-with-narrow-errors` | `except Exception` in a module that elsewhere catches a narrow `*_ERRORS` tuple |
 | `failure-as-absence` | A clean-absence return (`None`, empty) reached from a caught exception or a non-200 response |
 | `get-container-default-then-method-call` | `x = d.get(k, {})` later used as a method receiver: the default does not fire for an explicit null |
 | `translator-envelope-gap` | A body whose only error envelope is a translating decorator or context manager with too narrow an `except` |
-| `raises-section-drift` | A `Raises:` section naming an error that never reaches the caller, or omitting one that does |
+| `raises-section-drift` | A `Raises:` section naming an error that never reaches the caller, or omitting one that does (a callee error guarded only by optional arguments the call leaves unset does not count) |
 
 ### `imports_and_surfaces.py`
 
@@ -239,7 +239,7 @@ Emitted by `checks/audit.py` itself, not by a registered check.
 | `in-function-import` | An import inside a function (variant: stdlib, first-party or third-party), outside `TYPE_CHECKING` and `ImportError` guards |
 | `unused-submodule-import` | `import X.Y.Z` never referenced |
 | `layering-violation` | A first-party import going up the `AGENTS.md` package layering (*gated*) |
-| `passthrough-shim` | A module-level function whose body is only `return f(...)` with its own parameters |
+| `passthrough-shim` | An undecorated module-level function whose body is only `return f(...)`, passing each of its own parameters once, by name or position |
 | `empty-init-while-siblings-export` | A subpackage `__init__.py` exporting nothing while a sibling exports a substantial surface |
 | `migration-shim-consumer` | An import through a re-export shim instead of the symbol's canonical module |
 | `reexport-in-non-init` | `X = some.module.X` at module scope outside an `__init__.py` |
@@ -299,7 +299,7 @@ The rules from `wildcard-imports` to `leading-underscore-attribute-access`,
 | `leading-underscore-binding` | A parameter or bound name with a leading underscore |
 | `underscore-unpack-target-read` | A `_x` tuple-unpack target that is read afterwards |
 | `underscore-forloop-target-read` | A `for _x in ...` target read inside the loop |
-| `non-alphabetical-literal` | A collection of string members not in alphabetical order |
+| `non-alphabetical-literal` | A collection of string members not in alphabetical order (`__all__` may instead follow ruff's RUF022 order) |
 | `non-alphabetical-dict-keys` | A module-level dict with string keys not in alphabetical order |
 | `bare-parametric-annotation` | `dict`, `list`, `tuple`, `set` or `frozenset` in an annotation without type parameters |
 | `bare-nonbuiltin-generic-annotation` | A parameterisable non-builtin class (`collections.deque`, `queue.Queue`, ...) annotated without its parameter |

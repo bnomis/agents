@@ -238,7 +238,7 @@ longer reported.
 
 ## Task 7: Document the refinements
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation, "Docs"
@@ -249,20 +249,20 @@ a missing hit from a carve-out.
 
 **Subtasks:**
 
-- [ ] `claude/skills/auditme/SKILL.md`, "Documented refinements": one entry per rule, `raises-section-drift`, `missing-raises-section`, `passthrough-shim` and `non-alphabetical-literal`, each dated 2026-11-01, in the existing format (the carve-out with an example, what keeps the old behaviour, and the helper and module to see)
-- [ ] `claude/skills/auditme/SKILL.md`, checklist item A4: add that `raises-section-drift` skips a callee error guarded only by optional arguments the call leaves unset, and that Phase B reviews the other value-dependent cases (fixed names, pre-checked values, dispatch types)
-- [ ] `docs/guide/checker.md`: update the rows for `missing-raises-section`, `raises-section-drift`, `passthrough-shim` and `non-alphabetical-literal` to match the narrowed predicates
-- [ ] Check each description against the code the earlier tasks wrote
+- [x] `claude/skills/auditme/SKILL.md`, "Documented refinements": one entry per rule, `raises-section-drift`, `missing-raises-section`, `passthrough-shim` and `non-alphabetical-literal`, each dated 2026-11-01, in the existing format (the carve-out with an example, what keeps the old behaviour, and the helper and module to see)
+- [x] `claude/skills/auditme/SKILL.md`, checklist item A4: add that `raises-section-drift` skips a callee error guarded only by optional arguments the call leaves unset, and that Phase B reviews the other value-dependent cases (fixed names, pre-checked values, dispatch types)
+- [x] `docs/guide/checker.md`: update the rows for `missing-raises-section`, `raises-section-drift`, `passthrough-shim` and `non-alphabetical-literal` to match the narrowed predicates
+- [x] Check each description against the code the earlier tasks wrote
 
 **Acceptance Criteria:**
 
-- [ ] Each entry names a helper that exists (`grep -n 'def <helper>'` finds it)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] Each entry names a helper that exists (`grep -n 'def <helper>'` finds it)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
