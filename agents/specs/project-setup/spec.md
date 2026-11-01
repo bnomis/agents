@@ -1,7 +1,7 @@
 # Project setup
 
-**Version:** 1.3
-**Status:** implemented
+**Version:** 1.4
+**Status:** proposed
 **Date:** 2026-10-31
 
 Every project that uses these rules and skills should get the same mechanical
@@ -50,6 +50,17 @@ design, not the project:
   date from the first checker (2026-05-03), which audited only `src/`; extra
   roots came later and the guards were never revisited. The operator chose on
   2026-10-31 to audit whatever roots exist.
+- **The checker's ruff is not the hook's ruff** (amendment 1.4, found
+  2026-11-01 in one adopting project's own `TODO.md`). The CI audit runs
+  `ruff` from the project's `.venv`, where a dependency cooldown had locked an
+  older ruff than the `rev` of the project's `ruff-pre-commit` hook. Both
+  versions passed the tree that day, but any later difference between them
+  makes the commit hook and the CI audit disagree. `check_ruff` runs a bare
+  `ruff` from `PATH`; `docs/setup.md` and `templates/ci.yml` point it at the
+  `.venv`; nothing ties that version to the hook's `rev`. This repository has
+  the gap itself: on 2026-11-01 its `uv.lock` held ruff 0.17.1 and its
+  `.pre-commit-config.yaml` pinned `rev: v0.17.3`. The operator chose on
+  2026-11-01 to check it rather than only document it.
 
 ## Module location
 
@@ -67,6 +78,9 @@ design, not the project:
 | `claude/skills/auditme/checks/audit.py` | 1.2: drops the `src/` guards, emits `src-loose-module` |
 | `claude/skills/auditme/checks/auditme/core.py` | 1.2: `loose_src_modules()` (new) |
 | `claude/skills/auditme/tests/test_driver.py` | 1.2: the no-`src/` cases replace the two error tests |
+| `claude/skills/auditme/checks/auditme/rules/project_hygiene.py` | 1.4: `check_ruff_version()` (new) |
+| `claude/skills/auditme/checks/auditme/registry.py` | 1.4: `check_ruff_version` appended to `CHECKS` |
+| `claude/skills/auditme/tests/test_project_hygiene.py` | 1.4: the `ruff-version-drift` cases |
 
 ## API
 
@@ -112,6 +126,19 @@ def loose_src_modules(scope: pathlib.Path) -> list[pathlib.Path]:
 Invocation is unchanged: `audit.py <scope-root> [--package <name>]
 [--extra-root <dir> ...]`. `src/` becomes optional.
 
+### The ruff version check (1.4)
+
+```python
+def check_ruff_version(scope: pathlib.Path, src_root: pathlib.Path) -> None:
+    """Emit a `ruff-version-drift` hit when the ruff on PATH is not the version
+    the project's `ruff-pre-commit` hook pins, or when the pin cannot be read.
+
+    Project-level: reads `<scope>/.pre-commit-config.yaml` and runs
+    `ruff --version` in `scope`; `src_root` is unused. Silent when the file is
+    absent, holds no `ruff-pre-commit` repo, or ruff is not installed.
+    """
+```
+
 ### The hooks
 
 `auditme-changed` (commit stage) and `auditme-all` (manual stage), published in
@@ -155,6 +182,10 @@ matches the other skills in `claude/skills/`, with
 | `audit.py`: no package under `src/` and no extra root (1.2) | notice on stderr, exit 0 |
 | `audit.py`: a `.py` file directly in `src/` (1.2) | one unaccepted `src-loose-module` hit per file |
 | `audit.py --package <name>` naming a missing package | unchanged: `ERROR: <root> not found`, exit 2 |
+| `ruff-version-drift`: no `.pre-commit-config.yaml`, or no `ruff-pre-commit` repo in it (1.4) | no hit |
+| `ruff-version-drift`: `ruff` not on `PATH` (1.4) | no hit; `check_ruff` already reports `ruff not installed` |
+| `ruff-version-drift`: the repo has no `rev:`, or a `rev:` that is neither a version nor carries a `# frozen: <version>` comment (1.4) | one unaccepted hit, variant `the ruff-pre-commit rev names no version` |
+| `ruff-version-drift`: `ruff --version` prints no `ruff X.Y.Z` (1.4) | one unaccepted hit, variant `ruff --version printed no version` |
 
 ## Implementation
 
@@ -232,6 +263,60 @@ never audited.
 Known limit, not fixed here: with no root, the per-root project-level checks
 (the lockfile, `AGENTS.md`, spec drift) do not run, so a project with no
 Python passes vacuously.
+
+### The ruff version check (1.4)
+
+`check_ruff_version` is a project-level check like `check_lockfile`: it looks
+at the project, not the root, so it emits the same hit on every pass and
+`_emit()`'s de-duplication of identical lines leaves one. It is appended to
+`CHECKS` (never inserted, as the auditme skill requires).
+
+1. **Find the pin** by scanning `.pre-commit-config.yaml` line by line - the
+   checker stays stdlib-only, so no YAML parser. A repo entry is a line
+   matching `^\s*-\s*repo:\s*(\S+)`. The ruff one is the first whose URL,
+   with a trailing `/` and `.git` removed, ends in `/ruff-pre-commit`. Its pin
+   is the first line matching `^\s*rev:\s*['"]?([^'"\s#]+)['"]?\s*(#.*)?$`
+   after the repo line and before the next repo entry.
+2. **Read the pinned version**: the `rev` itself when it matches
+   `^v?(\d+\.\d+\.\d+)$`; else the version in a trailing
+   `# frozen: v?X.Y.Z` comment, which `pre-commit autoupdate --freeze` writes
+   beside a commit SHA. Neither gives the `names no version` hit, anchored at
+   the `rev:` line, or at the repo line when there is no `rev:`.
+3. **Read the running version**: `ruff --version` with `cwd=scope`, the same
+   `PATH` as `check_ruff`; its stdout must match `^ruff (\d+\.\d+\.\d+)`.
+   Otherwise the `printed no version` hit, anchored at the `rev:` line, with
+   the first 200 characters of the output as evidence.
+4. **Compare**: equal versions emit nothing. Different ones emit
+   `rule='ruff-version-drift'`,
+   `variant='ruff on PATH differs from the ruff-pre-commit rev'`,
+   `path='.pre-commit-config.yaml'`, `line=<the rev: line>`,
+   `evidence='ruff on PATH is <running>; the hook pins <rev>'`. The evidence
+   names both versions, so it changes only when one of them does.
+
+Acceptance is the usual inline marker, read with
+`_accept_reason(lines, rev_line, rule='ruff-version-drift')`, so a YAML
+comment `# auditme: accept[ruff-version-drift] <reason>` on the `rev:` line or
+the line above it accepts the hit - for a cooldown that has not yet let the
+hook's version into the lockfile, say. The fix is to make the two equal:
+`uv add --dev ruff==<version>` to move the lock, or a `rev` change to move the
+hook.
+
+`check_ruff` is unchanged: it still runs whichever ruff is on `PATH`. The new
+check makes the difference visible rather than choosing a ruff itself.
+
+**Catch-up surface.** This repository fires the check at once (0.17.1 locked,
+`v0.17.3` pinned, on 2026-11-01), and so does any adopting project whose lock
+and hook differ. Each project fixes or accepts its own hit when it next
+updates its pinned hooks, as with any checker change. In this repository the
+task list resolves the hit as recorded below.
+
+**This repository's own hit (1.4, decided by the operator on 2026-11-01).**
+Its ruff hook is lowered to `rev: v0.17.1`, the locked version, so the hook
+and the lock run the same ruff today. A later `pre-commit autoupdate` raises
+the hook again once the 14-day `exclude-newer` cooldown in `pyproject.toml`
+admits a newer ruff, and the check then says to move the lock with it. The
+alternative, accepting the hit until 0.17.3 cleared the cooldown, was
+rejected: it leaves a marker someone must remember to remove.
 
 ### The published hooks
 
@@ -386,6 +471,13 @@ The auditme `SKILL.md` drops "the directory containing `src/`" from its
 `<project-root>` wording, and documents `src-loose-module` beside the driver's
 description of roots.
 
+Amendment 1.4: `docs/setup.md`'s "ruff on `PATH`" requirement says the ruff
+there must be the version the ruff hook's `rev` pins, that the sweep reports
+`ruff-version-drift` when it is not, and how to make them equal (`uv add --dev
+ruff==<version>`, or change the `rev`). The comment above
+`templates/ci.yml`'s `.venv/bin` step says the same in one line. The auditme
+`SKILL.md` documents `ruff-version-drift` beside the existing ruff check.
+
 Every command in it is runnable as written, with placeholders saying where the
 value comes from. `README.md` gains a short section saying what the repository
 is and linking to `docs/setup.md`.
@@ -413,6 +505,16 @@ is and linking to `docs/setup.md`.
   marker accepts it; `--package` emits none.
 - 1.2, `test_changed.py`: in a temporary repository with no `src/`, a commit
   of a clean `bin/` script passes, and one with a hit in `bin/` fails.
+- 1.4, `test_project_hygiene.py`, with a stub `ruff` script on a temporary
+  `PATH` printing a chosen `ruff --version` line: equal versions give no hit;
+  different ones give one hit at the `rev:` line naming both; a `v`-less
+  `rev` compares the same; a SHA `rev` with `# frozen: v0.17.3` uses that
+  version; a SHA `rev` with no comment, and a repo with no `rev:`, give the
+  `names no version` hit; a stub printing no version gives the `printed no
+  version` hit; no config file, a config without `ruff-pre-commit`, and no
+  `ruff` on `PATH` give none; `# auditme: accept[ruff-version-drift] <reason>`
+  on the `rev:` line, and on the line above it, accepts the hit, and a marker
+  scoped to another rule does not; two roots give one hit, not two.
 
 ## Acceptance criteria
 
@@ -431,6 +533,11 @@ is and linking to `docs/setup.md`.
   blocked by a hit in one; a loose `src/*.py` blocks the commit until it moves
   into a package or is accepted; output for a project with a `src/` package
   and no loose module is byte-identical to `3d7aed9`'s.
+- 1.4: a project whose ruff on `PATH` differs from its `ruff-pre-commit`
+  `rev` fails `auditme-changed --all` with one `ruff-version-drift` hit until
+  the versions match or the hit is accepted; a project whose versions match,
+  or that has no `ruff-pre-commit` hook, gets no new hit; this repository's
+  own CI passes with its ruff hook at `rev: v0.17.1`.
 
 ## External dependencies
 
