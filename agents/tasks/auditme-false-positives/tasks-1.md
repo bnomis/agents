@@ -172,7 +172,7 @@ def's raise counts only where the nested def is called.
 
 ## Task 5: `passthrough-shim` flags only real forwarding
 
-**Status:** in-progress
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation 4
@@ -182,19 +182,19 @@ decorated, is no longer reported as a pass-through shim.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/test_imports_and_surfaces.py`, beside the existing shim tests: no hit for `return table.get(name, name)`; no hit for a keyword argument with a computed value (`f(x, size=len(x))`) or a `**kwargs` keyword; no hit for a function decorated `@pytest.fixture`, `@pytest.fixture(scope='module')`, or any other decorator; still a hit for `return f(a, b)` and for `return f(a, key=key)` with `a` and `key` parameters. Run them and see the "no hit" cases fail
-- [ ] In `check_passthrough_shim`: skip a function with any decorator; require every keyword to have a name (`kw.arg is not None`) and a value that is a `Name` of one of the wrapper's parameters; require that no parameter appears twice across positional and keyword arguments
-- [ ] Add a docstring paragraph `Refinement (2026-11-01): ...` stating the carve-out and why a decorator excludes a function (it registers the function for something else)
+- [x] Tests first in `claude/skills/auditme/tests/test_imports_and_surfaces.py`, beside the existing shim tests: no hit for `return table.get(name, name)`; no hit for a keyword argument with a computed value (`f(x, size=len(x))`) or a `**kwargs` keyword; no hit for a function decorated `@pytest.fixture`, `@pytest.fixture(scope='module')`, or any other decorator; still a hit for `return f(a, b)` and for `return f(a, key=key)` with `a` and `key` parameters. Run them and see the "no hit" cases fail
+- [x] In `check_passthrough_shim`: skip a function with any decorator; require every keyword to have a name (`kw.arg is not None`) and a value that is a `Name` of one of the wrapper's parameters; require that no parameter appears twice across positional and keyword arguments
+- [x] Add a docstring paragraph `Refinement (2026-11-01): ...` stating the carve-out and why a decorator excludes a function (it registers the function for something else)
 
 **Acceptance Criteria:**
 
-- [ ] Every case above passes
-- [ ] The existing `passthrough-shim` tests pass unchanged
+- [x] Every case above passes
+- [x] The existing `passthrough-shim` tests pass unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -205,7 +205,7 @@ decorated, is no longer reported as a pass-through shim.
 
 ## Task 6: `non-alphabetical-literal` accepts ruff's `__all__` order
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation 5; API (`ruff_dunder_all_key`)
@@ -215,20 +215,20 @@ longer reported.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/test_style_and_naming.py`, beside the existing literal tests: `__all__ = ['X_Y', 'Thing', '_private', 'helper', 'item2', 'item10']` gives no hit; the same list assigned to any other name gives one; a plainly sorted `__all__` gives no hit; an `__all__` in neither order gives one; an annotated `__all__: list[str] = [...]` in RUF022 order gives no hit. Direct tests of `ruff_dunder_all_key` on the same names. Run them and see the RUF022 cases fail
-- [ ] In `claude/skills/auditme/checks/auditme/rules/style_and_naming.py`, add `ruff_dunder_all_key(name)` with the spec's signature and docstring: group 0 when `len(name) > 1 and name.isupper()`, group 1 when `name[:1].isupper()`, group 2 otherwise; then a natural key splitting digit runs into integers
-- [ ] In `check_nonalphabetical_literals`, for an `Assign` or `AnnAssign` whose single target is the `Name` `__all__`, pass when the members equal `sorted(members)` or `sorted(members, key=ruff_dunder_all_key)`
-- [ ] Give `check_nonalphabetical_literals` a docstring stating its predicate (top-level assignments of string tuples, lists, sets and `frozenset(...)` literals; the fixed-length tuple exemption) and the `Refinement (2026-11-01): ...` paragraph
+- [x] Tests first in `claude/skills/auditme/tests/test_style_and_naming.py`, beside the existing literal tests: `__all__ = ['X_Y', 'Thing', '_private', 'helper', 'item2', 'item10']` gives no hit; the same list assigned to any other name gives one; a plainly sorted `__all__` gives no hit; an `__all__` in neither order gives one; an annotated `__all__: list[str] = [...]` in RUF022 order gives no hit. Direct tests of `ruff_dunder_all_key` on the same names. Run them and see the RUF022 cases fail
+- [x] In `claude/skills/auditme/checks/auditme/rules/style_and_naming.py`, add `ruff_dunder_all_key(name)` with the spec's signature and docstring: group 0 when `len(name) > 1 and name.isupper()`, group 1 when `name[:1].isupper()`, group 2 otherwise; then a natural key splitting digit runs into integers
+- [x] In `check_nonalphabetical_literals`, for an `Assign` or `AnnAssign` whose single target is the `Name` `__all__`, pass when the members equal `sorted(members)` or `sorted(members, key=ruff_dunder_all_key)`
+- [x] Give `check_nonalphabetical_literals` a docstring stating its predicate (top-level assignments of string tuples, lists, sets and `frozenset(...)` literals; the fixed-length tuple exemption) and the `Refinement (2026-11-01): ...` paragraph
 
 **Acceptance Criteria:**
 
-- [ ] Every case above passes
-- [ ] The existing `non-alphabetical-literal` tests pass unchanged
+- [x] Every case above passes
+- [x] The existing `non-alphabetical-literal` tests pass unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_style_and_naming.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_style_and_naming.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
