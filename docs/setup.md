@@ -75,9 +75,11 @@ cd <directory>
 bin/install-claude.py
 ```
 
-`<directory>` is wherever you keep your source. The installer symlinks every
-entry under `claude/` into `~/.claude/`, renaming any existing file to
-`.orig`, and adds the Stop hook to `~/.claude/settings.json`. It adds the hook
+`<directory>` is wherever you keep your source. The installer links
+`claude/` into `~/.claude/` one level down: each file under `claude/` becomes
+a symlink, and each directory (`hooks/`, `rules/`, `skills/`) becomes a real
+directory of symlinks to its entries. It renames any existing file in a
+link's place to `.orig`, and adds the Stop hook to `~/.claude/settings.json`. It adds the hook
 once, keeps every other setting, and saves the original as
 `settings.json.orig`. It refuses to touch a settings file that is not a valid
 JSON object.

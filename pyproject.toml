@@ -73,3 +73,7 @@ prerelease = "disallow"
 
 [dependency-groups]
 dev = ["ruff>=0.17.1"]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.7",
+]
