@@ -155,7 +155,9 @@ not inside a def or lambda defined in the handler. A bare `raise` under an
 `if` in the handler still passes the caught types on. The task starts with a
 failing test reproducing finding 2 as stated (outer declares `ParseError`;
 a nested def catches it from `parse()` and re-raises it on one branch; the
-outer calls the nested def). If the reproduction needs a different shape
+outer calls the nested def; and the outer has its own handler that catches
+`ParseError` from another call, which is what lets the extra-declaration
+branch fire). If the reproduction needs a different shape
 from the one this section fixes, the task stops for the operator.
 
 **3. `missing-raises-section`: caught raises.** For each subject (still every

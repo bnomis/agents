@@ -98,7 +98,7 @@ operator decided on 2026-11-01 (spec amendment 1.1).
 
 ## Task 3: `raises-section-drift` follows called nested functions
 
-**Status:** in-progress
+**Status:** todo
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation 2; API (`nested_call_sites`)
@@ -109,7 +109,7 @@ inside a def defined in a handler no longer makes that handler re-raise.
 
 **Subtasks:**
 
-- [ ] First, reproduce finding 2 as the spec states it: a test where the subject declares `ParseError` in `Raises:`, defines a nested def that calls `parse()` inside `try:` with `except ParseError:` re-raising it with a bare `raise` on one branch of an `if`, and calls the nested def. Run it and record the hit it gives. If it gives no hit, or the hit is not the one this task fixes (an "extra" `declares ParseError, which never reaches the caller`), stop the task as `blocked` with the test and its output: the fix below covers only that shape
+- [ ] First, reproduce finding 2 in the shape the operator confirmed on 2026-11-01 (see Notes): the subject `run(text, other, strict)` declares `ParseError` in `Raises:`; it defines a nested `attempt()` that calls `probe.parse.parse(text)` inside `try:` with `except probe.errors.ParseError:` re-raising it with a bare `raise` under `if strict:` and otherwise returning 0; the subject also has its own `try: probe.parse.parse(other)` / `except probe.errors.ParseError: pass`; and it ends `return attempt()`. Today this gives exactly one hit, `run: Raises: declares ParseError, which never reaches the caller`. Run the test and see it fail (the test asserts no hit)
 - [ ] Further tests: a nested def that is defined but never called adds nothing (an omission hit for the subject does not appear because of it); a call to the nested def inside the subject's own `try`/`except ParseError` that does not re-raise means `ParseError` does not reach; a handler in the subject that defines a nested def containing a bare `raise`, and itself does not re-raise, catches. Run them and see the new-behaviour cases fail
 - [ ] Add `nested_call_sites(func)` with the spec's signature and docstring: `_reach_sites(func.body)`, plus, for each call by bare `Name` to a def nested directly in `func.body`, that def's `_reach_sites(def.body)` with the call's levels prepended; one level deep
 - [ ] In `check_raises_section_drift`, use `nested_call_sites(node)` in place of `_reach_sites(node.body)`
@@ -129,7 +129,7 @@ inside a def defined in a handler no longer makes that handler re-raise.
 **Notes:**
 
 - Depends on Task 1
-- 2026-11-01, BLOCKED at the first subtask: finding 2 does not reproduce as stated. Probe (removed afterwards, `drift` helper with `ERRORS`/`CALLEE`): subject `run(text, strict)` documents `Raises: ParseError`, defines `def attempt()` containing `try: return probe.parse.parse(text)` / `except probe.errors.ParseError:` / `if strict: raise` / `return 0`, and ends `return attempt()`. `drift(...)` returned `[]`: no hit of any kind. The "extra declaration" branch needs a catching handler in the subject's own scope (`_function_levels` skips nested defs), so none is found and the declaration is not flagged. The fix below would change nothing for this shape. The operator must supply the shape that does give the hit (for example, whether the subject itself has a `try`/`except ParseError` around the call), or drop the nested-call half of the task
+- 2026-11-01, unblocked by the operator session: the first attempt's probe lacked the subject's own catching handler, and the extra-declaration branch fires only when some `try` level in the subject catches the error without re-raising, so it gave no hit. The reported site, read in the project that found it, has such a handler on another call, and its error reaches the caller only through the nested def's conditional bare `raise`. The shape in the first subtask was run against this worktree's checker at commit `338aa44` and gives the one hit above; the fix in the later subtasks (following called nested defs) covers it
 - `_reach_sites` skips nested defs, lambdas and classes today, and `_handler_passes_on` uses `ast.walk`, which enters them; `_walk_within_scope` is the existing scope-bounded walk in the same module
 - Check every caller of `_handler_passes_on` (grep it) before changing it
 
