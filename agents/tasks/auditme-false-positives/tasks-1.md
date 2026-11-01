@@ -273,7 +273,7 @@ a missing hit from a carve-out.
 
 ## Task 8: Close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Acceptance criteria; Implementation, "Closing"
@@ -283,21 +283,21 @@ a missing hit from a carve-out.
 
 **Subtasks:**
 
-- [ ] Run `uv run --no-project python claude/skills/auditme/checks/audit.py .` on this branch, and the same command in a temporary worktree of `main` (`git worktree add --detach <scratch> main`, removed afterwards), and compare their unaccepted hits. A hit on the branch that `main` does not have stops the task as `blocked` with both outputs
-- [ ] Move the `TODO.md` item "auditme rules report hits the code does not have" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - agents/specs/auditme-false-positives/spec.md, agents/tasks/auditme-false-positives/tasks-1.md: the five refinements, documented in SKILL.md.`, and remove it from `TODO.md`
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] Run `uv run --no-project python claude/skills/auditme/checks/audit.py .` on this branch, and the same command in a temporary worktree of `main` (`git worktree add --detach <scratch> main`, removed afterwards), and compare their unaccepted hits. A hit on the branch that `main` does not have stops the task as `blocked` with both outputs
+- [x] Move the `TODO.md` item "auditme rules report hits the code does not have" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - agents/specs/auditme-false-positives/spec.md, agents/tasks/auditme-false-positives/tasks-1.md: the five refinements, documented in SKILL.md.`, and remove it from `TODO.md`
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] The spec's acceptance criteria hold: each finding's fixture gives no hit, each "still" shape gives one, and this repository's audit has no new unaccepted hit
+- [x] The spec's acceptance criteria hold: each finding's fixture gives no hit, each "still" shape gives one, and this repository's audit has no new unaccepted hit
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/auditme-false-positives/tasks-1.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] `git show $(git log --diff-filter=A --format=%H -- agents/tasks/auditme-false-positives/tasks-1.md):TODO.md > <scratch>/todo-before.md`, then `python3 claude/skills/todo-review/verify_bodies.py <scratch>/todo-before.md TODO.md DONE.md` exits 0
 
 **Notes:**
 

@@ -1,7 +1,7 @@
 # Auditme false positives
 
 **Version:** 1.1
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-11-01
 
 Narrows five predicates of the auditme checker that report hits the code does
