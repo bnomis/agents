@@ -2,6 +2,7 @@
 
 import ast
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -10,10 +11,24 @@ from auditme.core import _accept_reason, _all_py_files, _emit, _relpath, _source
 from auditme.rules.state_and_effects import _corpus_py_files
 
 
+def ruff_executable(scope: pathlib.Path) -> tuple[str, str]:
+    """Return (command, label) for the ruff the audit runs: the project's
+    `.venv/bin/ruff` when it is an executable file, else `ruff` from PATH.
+
+    The project's own ruff is the one its lockfile pins, so preferring it makes
+    the answer the same in every shell and in CI, whatever else is on PATH.
+    """
+    venv_ruff = scope / '.venv' / 'bin' / 'ruff'
+    if venv_ruff.is_file() and os.access(venv_ruff, os.X_OK):
+        return str(venv_ruff), '.venv/bin/ruff'
+    return 'ruff', 'ruff on PATH'
+
+
 def check_ruff(scope: pathlib.Path, src_root: pathlib.Path) -> None:
+    ruff, _ = ruff_executable(scope)
     for cmd, variant in (
-        (['ruff', 'check', '--output-format=json', str(src_root)], 'ruff-check'),
-        (['ruff', 'format', '--check', str(src_root)], 'ruff-format'),
+        ([ruff, 'check', '--output-format=json', str(src_root)], 'ruff-check'),
+        ([ruff, 'format', '--check', str(src_root)], 'ruff-format'),
     ):
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=scope)
@@ -53,6 +68,8 @@ def check_ruff(scope: pathlib.Path, src_root: pathlib.Path) -> None:
 # `uv lock --check` exits non-zero both when the lockfile is genuinely stale
 # and when it could not resolve at all. Only the first message is the drift.
 _LOCKFILE_DRIFT_MARKER = 'needs to be updated'
+# uv's reason for re-resolving when the user's config adds an `exclude-newer` the lock lacks.
+_USER_EXCLUDE_NEWER_MARKER = 'due to addition of global exclude newer'
 _LOCKFILE_TIMESTAMP_RE = re.compile(r'\d{4}-\d{2}-\d{2}T[\d:.]+Z?')
 
 
@@ -63,6 +80,14 @@ def check_lockfile(scope: pathlib.Path, src_root: pathlib.Path) -> None:
         return
     try:
         result = subprocess.run(['uv', 'lock', '--check'], capture_output=True, text=True, cwd=scope)
+        # A user-level `exclude-newer` that the lock was not made with re-resolves
+        # it on this machine only; CI, without that config, sees no drift. Only
+        # when uv names that setting as the reason is the check repeated without
+        # the user's config. A lock made with the setting records it and passes
+        # the first run, and dropping the config for it would report drift.
+        if result.returncode != 0 and _USER_EXCLUDE_NEWER_MARKER in (result.stderr or '') + (result.stdout or ''):
+            env = {**os.environ, 'UV_NO_CONFIG': '1'}
+            result = subprocess.run(['uv', 'lock', '--check'], capture_output=True, text=True, cwd=scope, env=env)
     except FileNotFoundError:
         return
     if result.returncode == 0:
@@ -98,6 +123,81 @@ def check_lockfile(scope: pathlib.Path, src_root: pathlib.Path) -> None:
         accepted=False,
         accepted_reason=None,
     )
+
+
+_HOOK_REPO_RE = re.compile(r'^\s*-\s*repo:\s*(\S+)')
+_HOOK_REV_RE = re.compile(r"""^\s*rev:\s*['"]?([^'"\s#]+)['"]?\s*(#.*)?$""")
+_PLAIN_VERSION_RE = re.compile(r'^v?(\d+\.\d+\.\d+)$')
+_FROZEN_RE = re.compile(r'#\s*frozen:\s*(v?\d+\.\d+\.\d+)\s*$')
+_RUFF_VERSION_OUTPUT_RE = re.compile(r'^ruff (\d+\.\d+\.\d+)')
+
+
+def _ruff_hook_pin(lines: list[str]) -> tuple[int, int | None, str | None] | None:
+    """Return (repo line, rev line, pinned version text) for the first
+    `ruff-pre-commit` repo entry, or None when the file has none. Line numbers
+    are 1-based; the rev line and version are None when they cannot be read."""
+    for index, text in enumerate(lines):
+        repo = _HOOK_REPO_RE.match(text)
+        if not repo or not repo.group(1).rstrip('/').removesuffix('.git').rstrip('/').endswith('/ruff-pre-commit'):
+            continue
+        for rev_index in range(index + 1, len(lines)):
+            if _HOOK_REPO_RE.match(lines[rev_index]):
+                break
+            rev = _HOOK_REV_RE.match(lines[rev_index])
+            if not rev:
+                continue
+            if _PLAIN_VERSION_RE.match(rev.group(1)):
+                return index + 1, rev_index + 1, rev.group(1)
+            frozen = _FROZEN_RE.search(rev.group(2) or '')
+            return index + 1, rev_index + 1, frozen.group(1) if frozen else None
+        return index + 1, None, None
+    return None
+
+
+def check_ruff_version(scope: pathlib.Path, src_root: pathlib.Path) -> None:
+    """Emit a `ruff-version-drift` hit when the ruff the audit runs (see
+    `ruff_executable`) is not the version the project's `ruff-pre-commit` hook
+    pins, or when the pin cannot be read.
+
+    Project-level: reads `<scope>/.pre-commit-config.yaml` and runs
+    `ruff --version` in `scope`; `src_root` is unused. Silent when the file is
+    absent, holds no `ruff-pre-commit` repo, or ruff is not installed.
+    """
+    config = scope / '.pre-commit-config.yaml'
+    if not config.exists():
+        return
+    lines = _source_lines(config)
+    pin = _ruff_hook_pin(lines)
+    if pin is None:
+        return
+    repo_line, rev_line, pinned = pin
+    anchor = rev_line or repo_line
+
+    def emit(variant: str, evidence: str) -> None:
+        _emit(
+            rule='ruff-version-drift',
+            variant=variant,
+            path='.pre-commit-config.yaml',
+            line=anchor,
+            evidence=evidence,
+            accepted=(reason := _accept_reason(lines, anchor, rule='ruff-version-drift')) is not None,
+            accepted_reason=reason,
+        )
+
+    if pinned is None:
+        emit('the ruff-pre-commit rev names no version', 'the rev is not a version and has no `# frozen: <version>` comment')
+        return
+    try:
+        ruff, label = ruff_executable(scope)
+        result = subprocess.run([ruff, '--version'], capture_output=True, text=True, cwd=scope)
+    except FileNotFoundError:
+        return
+    running = _RUFF_VERSION_OUTPUT_RE.match(result.stdout.strip())
+    if not running:
+        emit('ruff --version printed no version', result.stdout.strip()[:200])
+        return
+    if running.group(1) != pinned.removeprefix('v'):
+        emit('the ruff the audit runs differs from the ruff-pre-commit rev', f'{label} is {running.group(1)}; the hook pins {pinned}')
 
 
 _PHASE_REF_RE = re.compile(r'\bPhase\s+[1-9][a-z]?\b')
@@ -175,8 +275,8 @@ def _signature_params(node: ast.AST) -> list[str] | None:
     A keyword-only marker is rendered as a `*` entry and a default as a
     `=` suffix, so a parameter that moved across the `*` or lost its
     default reads as a difference. Types are deliberately NOT compared:
-    a spec routinely writes `LitRevSettings` where the source writes
-    `litlib.settings.LitRevSettings`, and treating that as drift would
+    a spec routinely writes `AppSettings` where the source writes
+    `applib.settings.AppSettings`, and treating that as drift would
     bury the real findings.
     """
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -235,8 +335,8 @@ def _source_definitions(scope: pathlib.Path, src_root: pathlib.Path) -> dict[str
 
     - **Corpus-wide, not per-root.** The driver audits one root per pass, so
       resolving against `src_root` answers a different question on each pass:
-      litrev's `write_worklist` resolved to the library function on the
-      `src/litlib` pass and to a test double's method on the `src/tests` one,
+      one project's `write_worklist` resolved to the library function on the
+      library's pass and to a test double's method on the `src/tests` one,
       and the spec was reported as drifting from both. A name is ambiguous or
       it is not, and that is a property of the corpus.
     - **Module-level only.** A method that happens to share a module-level
@@ -300,8 +400,8 @@ def check_spec_api_signature_drift(scope: pathlib.Path, src_root: pathlib.Path) 
       - **An elided signature does not fire.** `def f(...)` and a block
         carrying `# ...` are a spec showing a contract rather than a
         signature.
-      - **Types are not compared.** A spec's `settings: LitRevSettings`
-        against a source's `settings: litlib.settings.LitRevSettings` is
+      - **Types are not compared.** A spec's `settings: AppSettings`
+        against a source's `settings: applib.settings.AppSettings` is
         the same parameter.
       - **Prose does not fire.** Only fenced blocks under an API heading are
         read, so a spec naming a function in a sentence is out of scope.
@@ -309,8 +409,8 @@ def check_spec_api_signature_drift(scope: pathlib.Path, src_root: pathlib.Path) 
         records of what was true when they ran, and regenerating or
         flagging them would falsify the record.
 
-    Raised as a request by litrev's review-11 (2026-09-01), which found
-    around twenty instances by hand in a single pass, nearly all of them a
+    Raised as a request by an audit (shipped 2026-09-01) that found many
+    instances by hand in a single pass, nearly all of them a
     parameter added by a fix whose commit did not touch the spec.
     """
     definitions = _source_definitions(scope, src_root)
@@ -358,6 +458,7 @@ def check_spec_api_signature_drift(scope: pathlib.Path, src_root: pathlib.Path) 
                 continue
             accept = _accept_reason(lines, index + 1, end_lineno=last_index + 1, rule='spec-api-signature-drift')
             _emit(
+                related=[_relpath(source_path, scope)],
                 rule='spec-api-signature-drift',
                 variant=f'{name}: spec says ({", ".join(spec_params)}), source says ({", ".join(source_params)})',
                 path=rel,

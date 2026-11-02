@@ -1,0 +1,20 @@
+- id: auditme-changed
+  name: no unaccepted audit hits in changed files
+  entry: claude/skills/auditme/checks/changed.py
+  language: script
+  pass_filenames: false
+  always_run: true
+  stages: [pre-commit]
+- id: auditme-all
+  name: no unaccepted audit hits anywhere
+  entry: claude/skills/auditme/checks/changed.py --all
+  language: script
+  pass_filenames: false
+  always_run: true
+  stages: [manual]
+- id: no-project-names
+  name: no project names in a repository used across projects
+  entry: bin/check-foreign-names.sh
+  language: script
+  exclude: ^uv\.lock$
+  stages: [pre-commit, commit-msg]

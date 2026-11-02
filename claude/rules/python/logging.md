@@ -7,8 +7,8 @@ paths:
 
 General logging rules (use `loguru`, log levels, exception logging) are
 in [coding-standards.md](coding-standards.md#logging). PII rules are in
-[security.md](../security.md). This file covers project-specific log
-conventions.
+[security.md](../security.md). This file covers structured log lines that
+other tools parse.
 
 ## ETA log lines
 
@@ -25,4 +25,5 @@ Example:
 loguru.logger.info(f'ETA: training will finish in {duration}')
 ```
 
-ETA is currently the only structured log-line prefix in this project.
+A project that parses any other prefix documents it in its own
+`claude/rules/`, with its level and format.

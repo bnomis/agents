@@ -85,7 +85,7 @@ To determine N: check existing files in `agents/test-plans/` and use the next av
 2. If uncommitted changes exist, ask the user if they want to commit them first
 3. After writing the plan, stage it: `git add agents/test-plans/plan-N.md`
 4. Ask the user if they'd like to commit
-5. Commit with message: `"testplan: add plan-N"`
+5. Commit with message: `"docs(tests): add plan-N"`
 6. Do not push unless the user asks
 
 ## Test plan index

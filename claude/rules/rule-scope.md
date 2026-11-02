@@ -7,6 +7,33 @@ project's runs. Give the reason for a rule in general terms ("a whole-tree
 check on every task costs most of each task's time"), not as the incident
 that prompted it; the incident belongs in that project's own records.
 
+## Every file in the shared repository, not only rules
+
+The same holds for everything committed to the shared repository: checker
+code and its comments and docstrings, tests and their fixtures, specs, task
+lists, user guides, `TODO.md` and `DONE.md`, and commit messages. A project
+that prompted a change is "one project"; a fixture uses neutral names (`pkg`,
+`probe`, `AppSettings`); a rule's history gives the date of the change, not
+the review number that asked for it. What a change found when run against a
+real project - its counts, its file paths, its review numbers - goes in the
+report to the user and in that project's own records, never into a file or
+commit here.
+
+The shared repository's `no-project-names` hook enforces this against a list
+of names kept outside it (a list inside it would name them).
+
+## Tools used across projects
+
+The same holds for any repository built to serve many projects - a task
+runner, a checker, a template - and not only for this one. Its code, tests,
+fixtures, specs, task lists, records and commit messages name no project it
+has been run on: a run that found something is "another project", and its
+dated figures stay without the name. Say so in that repository's own
+`AGENTS.md`, and add this repository's published `no-project-names` hook to
+its `.pre-commit-config.yaml`, passing its own names as `--allow=<name>` so
+the list can hold them too. Install the `commit-msg` hook type as well
+(`pre-commit install --hook-type commit-msg`) so commit messages are checked.
+
 ## Project-specific rules and skills
 
 Anything that holds for one project only - a command it provides, a path in

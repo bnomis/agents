@@ -65,7 +65,16 @@ Test each pipeline by its output, not its exit status (`pipefail` is on).
    - **stale branch**: clean, and its branch is merged;
    - **stale detached**: clean, detached, and its `HEAD` commit is merged;
    - **kept**, with the reason: locked (give the lock reason), dirty (list
-     a few changed paths, then "and N more"), or branch not merged.
+     a few changed paths, then "and N more"), branch not merged, or holds a
+     submodule (below).
+
+   A worktree **holds a submodule** when its git directory
+   (`git -C <path> rev-parse --absolute-git-dir`) contains a `modules`
+   directory. Git refuses to remove such a worktree without `--force`, even
+   once the submodule's checkout is cleared, so it is never removable here.
+   When it is otherwise clean and its branch merged, keep it with that
+   reason and give the user the commands to run themselves:
+   `git worktree remove --force <path>`, then `git branch -d <branch>`.
 
 3. **Collect branches** from
    `git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads`.
@@ -103,6 +112,10 @@ Test each pipeline by its output, not its exit status (`pipefail` is on).
      failure and carry on.
 
    Never `git push --delete`, and never delete anything not in the plan.
+   Never run `git submodule deinit` in a linked worktree to get past a
+   refusal: the submodule's registration lives in the configuration every
+   worktree shares, so it unregisters the submodule in the main checkout
+   too, and the worktree stays unremovable.
 
 6. **Report** from a fresh look, not from the plan: run
    `git worktree list` and `git branch -vv`, then say what was removed,

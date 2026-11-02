@@ -9,15 +9,19 @@ or "accepted because pre-existing" logic in the calling layer.
 Usage:
     audit.py <scope-root> [--package <package-name>] [--extra-root <dir> ...]
 
-<scope-root> is the directory containing src/, agents/, docs/, etc.
+<scope-root> is the project directory (agents/, docs/, and usually src/).
+src/ is optional: the sweep passes over the packages under it, if any, then
+the extra roots, and a project with neither is reported and exits 0.
+A .py file directly in src/ belongs to no root, so the driver reports it as a
+src-loose-module hit (accepted by a line-1 marker) rather than skip it unseen.
 <package-name> restricts the run to one package under src/. It defaults to
 EVERY package under src/, each audited in its own pass, plus every extra root.
 
 That default matters. A project whose src/ holds both the library and the test
 tree - src/mylib/ and src/tests/ - has two packages, and a driver that audited
-only the first would report a partial scope as a complete one. On the litrev
-project that silently hid 440 hits, all of them in src/tests/, across five
-audit cycles: the sweep looked clean because the test tree was never read.
+only the first would report a partial scope as a complete one. On one project
+that silently hid every hit in src/tests/ across several audit cycles: the
+sweep looked clean because the test tree was never read.
 
 An extra root is auditable Python that is not a package under src/. bin/ is
 the default one, and the same failure had a second instance there: enumerating
@@ -43,13 +47,26 @@ Output schema (one JSON object per line):
         "line": <1-indexed line number or null>,
         "evidence": "<source snippet or identifier>",
         "accepted": <bool>,
-        "accepted_reason": "<why, if accepted>"
+        "accepted_reason": "<why, if accepted>",
+        "related": ["<other path>", ...]
     }
+
+`related` appears only on a hit that compares files: the other files' paths,
+sorted, never the hit's own. `changed.py` treats the hit as changed when any
+of them changed.
 
 Acceptance is determined exclusively by:
     1. AGENTS.md "Accepted cross-layer exceptions" / "Accepted lazy imports" tables
-    2. An inline `# auditme: accept <reason>` comment on the preceding or
-       same line as the hit.
+    2. An inline `# auditme: accept[<rule>] <reason>` comment on the
+       preceding or same line as the hit, answering for that rule only. The
+       unscoped `# auditme: accept <reason>` answers for every rule on the
+       line, including rules added later, so new markers name their rule.
+    3. A few file-level and multi-line forms some checks document in their
+       own docstrings (a line-1 marker for `src-loose-module`, a marker on
+       any line of a multi-line statement).
+
+`ruff` and `lockfile-drift` hits are never accepted by a marker: they are
+cleared with ruff's `# noqa` or `uv lock`.
 
 No other signal acts as acceptance. The existence of a finding in a
 prior review, a decision note, or an assumption of intentionality does
@@ -93,8 +110,8 @@ def main() -> int:
     args = parser.parse_args()
 
     scope = args.scope.resolve()
-    if not (scope / 'src').exists():
-        print(f'ERROR: {scope}/src does not exist', file=sys.stderr)
+    if not scope.is_dir():
+        print(f'ERROR: {scope} is not a directory', file=sys.stderr)
         return 2
 
     if args.extra_root is not None:
@@ -107,6 +124,22 @@ def main() -> int:
                 print(f'ERROR: {scope / name} is not a directory', file=sys.stderr)
                 return 2
 
+    if not args.package:
+        # A module directly in src/ belongs to no root, so no pass would read
+        # it. The driver reports it, not a registered check: a check runs once
+        # per root, and a project holding only src/a.py has none.
+        for path in auditme.core.loose_src_modules(scope):
+            reason = auditme.core._accept_reason(auditme.core._source_lines(path), 1, rule='src-loose-module')
+            _emit(
+                rule='src-loose-module',
+                variant='module directly under src/, outside any package',
+                path=path.relative_to(scope).as_posix(),
+                line=1,
+                evidence=path.name,
+                accepted=reason is not None,
+                accepted_reason=reason,
+            )
+
     if args.package:
         # --package is a request for one package, so it drops the extra roots
         # too. It is for re-checking a single package during fix verification;
@@ -115,8 +148,8 @@ def main() -> int:
     else:
         roots = auditme.core._audit_roots(scope)
         if not roots:
-            print(f'ERROR: no package under {scope}/src', file=sys.stderr)
-            return 2
+            print('audit.py: no package under src/ and no extra root; nothing to audit', file=sys.stderr)
+            return 0
 
     for root in roots:
         if not root.exists():

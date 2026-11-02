@@ -241,7 +241,7 @@ def check_as_import(scope: pathlib.Path, src_root: pathlib.Path) -> None:
 
     An alias is a second name for a module, so every reader has to hold the
     mapping in their head, and the full-import-path codemods do not see it:
-    litrev's AGENTS.md states the ban and names two enforcement mechanisms -
+    one project's AGENTS.md states the ban and names two enforcement mechanisms -
     ruff's `ICN003`, which only sees the modules listed in `banned-from`, and
     `bin/full-path-imports.sh --check`, which rewrites `from X import Y` and
     leaves a bare `import gitutils as module` alone. Both reported clean over a
@@ -300,8 +300,8 @@ def check_from_import(scope: pathlib.Path, src_root: pathlib.Path) -> None:
 
     The shared import rule asks for full import paths - `import pathlib` then
     `pathlib.Path` - and names one exception: an `__init__.py`'s re-export
-    list. Until 2026-10-14 nothing mechanical read that rule, so featlib's
-    review-2 found ten sites by hand under S4, a judgement question answering
+    list. Until 2026-10-14 nothing mechanical read that rule, so audits found
+    its sites by hand under S4, a judgement question answering
     what a parser can.
 
     The signal is any `ast.ImportFrom` in a non-`__init__.py` file, at any
@@ -406,7 +406,7 @@ def check_layering_violations(scope: pathlib.Path, src_root: pathlib.Path) -> No
     if not layer_order:
         return
     rank = {pkg: i for i, pkg in enumerate(layer_order)}
-    package_root_name = src_root.name  # e.g. 'feathf'
+    package_root_name = src_root.name  # e.g. 'pkg'
 
     for path in _all_py_files(src_root):
         rel = _relpath(path, scope)
@@ -468,7 +468,14 @@ def _maybe_emit_layering(rel, lines, lineno, importer_pkg, module_name, rank, ac
 def check_passthrough_shim(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag module-level functions whose body is exactly `return f(...)`
     where the call's args are the function's own parameters. These are
-    pass-through shims that add no behaviour and obscure the real callee."""
+    pass-through shims that add no behaviour and obscure the real callee.
+
+    Refinement (2026-11-01): only real forwarding is flagged. Every keyword
+    value must be a Name of one of the wrapper's parameters (a `**` keyword
+    or a computed value is not), no parameter may be passed twice across the
+    positional and keyword arguments (`table.get(name, name)` computes), and
+    a function with any decorator is skipped, since a decorator registers it
+    for something else (a fixture, a command, a route)."""
     for path in _all_py_files(src_root):
         rel = _relpath(path, scope)
         lines = _source_lines(path)
@@ -478,6 +485,8 @@ def check_passthrough_shim(scope: pathlib.Path, src_root: pathlib.Path) -> None:
             continue
         for node in tree.body:
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if node.decorator_list:
                 continue
             # strip a leading docstring
             body = [b for b in node.body if not (isinstance(b, ast.Expr) and isinstance(b.value, ast.Constant))]
@@ -492,6 +501,11 @@ def check_passthrough_shim(scope: pathlib.Path, src_root: pathlib.Path) -> None:
             if not call.args:
                 continue
             if not all(isinstance(a, ast.Name) and a.id in param_names for a in call.args):
+                continue
+            if not all(kw.arg is not None and isinstance(kw.value, ast.Name) and kw.value.id in param_names for kw in call.keywords):
+                continue
+            passed = [a.id for a in call.args if isinstance(a, ast.Name)] + [kw.value.id for kw in call.keywords if isinstance(kw.value, ast.Name)]
+            if len(passed) != len(set(passed)):
                 continue
             try:
                 call_src = ast.unparse(call.func)
@@ -517,7 +531,7 @@ def check_empty_init_with_exporting_siblings(scope: pathlib.Path, src_root: path
     least one sibling subpackage exports a non-trivial public surface.
     Sparse public surfaces force consumers to reach into private submodules.
 
-    Acceptance (review-36): this is a file-level finding, so the
+    Acceptance: this is a file-level finding, so the
     accept-marker scan looks at every line in the file rather than just
     the docstring line. A docstring-only ``__init__.py`` cannot host an
     inline comment on the docstring opener; the marker has to land on a
@@ -598,7 +612,7 @@ def check_migration_shim_consumers(scope: pathlib.Path, src_root: pathlib.Path) 
         except SyntaxError, UnicodeDecodeError:
             continue
         rel = _relpath(path, scope)
-        # mod path like 'feathf.models.settings'
+        # mod path like 'pkg.models.settings'
         rel_parts = path.relative_to(src_root).parts
         if rel_parts[-1] == '__init__.py':
             shim_mod = package_root_name + '.' + '.'.join(rel_parts[:-1]) if len(rel_parts) > 1 else package_root_name
@@ -607,7 +621,7 @@ def check_migration_shim_consumers(scope: pathlib.Path, src_root: pathlib.Path) 
         for node in tree.body:
             if not isinstance(node, (ast.Assign, ast.AnnAssign)):
                 continue
-            # X = feathf.something.X
+            # X = pkg.something.X
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
             value = node.value
             if value is None:
@@ -764,7 +778,7 @@ def check_annotated_all_assignment(scope: pathlib.Path, src_root: pathlib.Path) 
     An annotated assignment is an `ast.AnnAssign`, not an `ast.Assign`. A
     public-surface guard written to match `ast.Assign` therefore does not see
     the module at all - and reports green while checking nothing, which is the
-    worst failure a guard has. On litrev this switched the guard off for a
+    worst failure a guard has. On one project this switched the guard off for a
     whole package: its `__all__` entries were never checked for a consumer, and
     the private-submodule exception entries written for it were inert, while
     the suite passed throughout.

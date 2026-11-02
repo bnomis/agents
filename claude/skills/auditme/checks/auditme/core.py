@@ -24,7 +24,14 @@ ACCEPT_COMMENT_RE = re.compile(r'#\s*auditme:\s*accept\b(?:\[([a-z0-9-]+)\])?\s*
 _EMITTED: set[str] = set()
 
 
-def _emit(**kwargs) -> None:
+def _emit(related: list[str] | None = None, **kwargs) -> None:
+    """Print one hit. `related` names the other files a cross-file hit compares
+    against (repository-relative, sorted, de-duplicated); it is omitted when
+    empty so every other hit serialises as before."""
+    if related:
+        kwargs['related'] = sorted(set(related) - {kwargs.get('path')})
+        if not kwargs['related']:
+            del kwargs['related']
     line = json.dumps(kwargs, sort_keys=True)
     if line in _EMITTED:
         return
@@ -89,6 +96,14 @@ def _all_py_files(src_root: pathlib.Path) -> list[pathlib.Path]:
     return sorted(p for p in src_root.rglob('*.py'))
 
 
+def module_dotted(path: pathlib.Path, src_root: pathlib.Path) -> str:
+    """The dotted name a module is imported by, rooted at its own root."""
+    parts = path.relative_to(src_root).with_suffix('').parts
+    if parts and parts[-1] == '__init__':
+        parts = parts[:-1]
+    return '.'.join((src_root.name,) + parts)
+
+
 def _relpath(p: pathlib.Path, root: pathlib.Path) -> str:
     return str(p.relative_to(root))
 
@@ -146,6 +161,17 @@ def _packages_under(src: pathlib.Path) -> list[pathlib.Path]:
         for p in src.iterdir()
         if p.is_dir() and not p.name.startswith('.') and p.name != '__pycache__' and not p.name.endswith(('.egg-info', '.dist-info')) and any(p.rglob('*.py'))
     )
+
+
+def loose_src_modules(scope: pathlib.Path) -> list[pathlib.Path]:
+    """Every `.py` file directly in `<scope>/src/`, outside any package, sorted.
+
+    Empty when `src/` is absent. Pure apart from reading the directory.
+    """
+    src = scope / 'src'
+    if not src.is_dir():
+        return []
+    return sorted(p for p in src.glob('*.py') if p.is_file())
 
 
 def _extra_roots(scope: pathlib.Path, names: collections.abc.Sequence[str] | None = None) -> list[pathlib.Path]:

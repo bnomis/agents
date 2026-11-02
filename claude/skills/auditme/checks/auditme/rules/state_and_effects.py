@@ -6,7 +6,7 @@ import pathlib
 import re
 from collections import defaultdict
 
-from auditme.core import _accept_reason, _all_py_files, _emit, _extra_roots, _relpath, _source_lines
+from auditme.core import _accept_reason, _all_py_files, _emit, _extra_roots, _relpath, _source_lines, module_dotted
 
 _DISK_IO_NAMES = {
     'open',
@@ -691,6 +691,30 @@ _MUTABLE_VALUE_SHAPES: dict[type[ast.expr], tuple[str, str]] = {
     ast.SetComp: ('set comprehension', 'frozenset(...)'),
 }
 
+# The builtin constructors that build the same three mutable containers. A call
+# to one states its type in the assignment as a literal does, so it is the same
+# finding; any other call (`get_defaults()`) states none and stays out. Ruled on
+# 2026-10-31 on an audit's request; see `requests.md`.
+_MUTABLE_CONSTRUCTORS: dict[str, tuple[str, str]] = {
+    'dict': ('dict constructor call', 'types.MappingProxyType(...)'),
+    'list': ('list constructor call', 'tuple(...)'),
+    'set': ('set constructor call', 'frozenset(...)'),
+}
+
+
+def mutable_value_shape(value: ast.expr) -> tuple[str, str] | None:
+    """The `(shape, required wrap)` of a mutable container value, or None.
+
+    A literal or comprehension of a dict, list or set, or a call to the bare
+    builtin `dict`, `list` or `set`. Pure.
+    """
+    shape = _MUTABLE_VALUE_SHAPES.get(type(value))
+    if shape is not None:
+        return shape
+    if isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
+        return _MUTABLE_CONSTRUCTORS.get(value.func.id)
+    return None
+
 
 def _corpus_py_files(scope: pathlib.Path, src_root: pathlib.Path) -> list[pathlib.Path]:
     """Every `.py` file the sweep reads, not just the root being swept.
@@ -699,8 +723,8 @@ def _corpus_py_files(scope: pathlib.Path, src_root: pathlib.Path) -> list[pathli
     a single extra root such as `bin/`). That is the right scope for finding a
     package's own exports, and the wrong scope for finding who reads them: a
     project whose `src/` holds both the library and the test tree has readers
-    in a sibling package, invisible to a scan rooted at the library. On litrev
-    that hid three mutable exported dicts whose only cross-module readers were
+    in a sibling package, invisible to a scan rooted at the library. On one
+    project that hid mutable exported dicts whose only cross-module readers were
     in `src/tests/`. A script in `bin/` is a reader on the same argument.
 
     Falls back to the root being swept when the project has neither a `src/`
@@ -720,9 +744,9 @@ def _dotted_read(node: ast.Attribute) -> tuple[str, str] | None:
     """Resolve an attribute chain to the `(module, name)` it reads, or None.
 
     Two rooted forms count. The ordinary one is a chain of attributes on a
-    name - `feathf.evaluation.primary.METRICS_BY_HEAD` reads `METRICS_BY_HEAD`
-    from `feathf.evaluation.primary`. The second is the `sys.modules`
-    indirection - `sys.modules['feathf.evaluation.primary'].METRICS_BY_HEAD` -
+    name - `pkg.evaluation.primary.METRICS_BY_HEAD` reads `METRICS_BY_HEAD`
+    from `pkg.evaluation.primary`. The second is the `sys.modules`
+    indirection - `sys.modules['pkg.evaluation.primary'].METRICS_BY_HEAD` -
     which is the documented idiom for reaching a module without importing it,
     used to break a package-initialisation ordering cycle. It reads exactly
     what the dotted form reads, so a scan that resolved only the dotted form
@@ -795,14 +819,6 @@ def _reads_by_module_and_name(
     return reads
 
 
-def _module_dotted(path: pathlib.Path, src_root: pathlib.Path) -> str:
-    """The dotted name a module is imported by, rooted at its own root."""
-    parts = path.relative_to(src_root).with_suffix('').parts
-    if parts and parts[-1] == '__init__':
-        parts = parts[:-1]
-    return '.'.join((src_root.name,) + parts)
-
-
 def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag module-level mutable containers that are read by name from
     another module in the same corpus. Externally-read globals should
@@ -810,7 +826,8 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
 
     Signal:
       - Module-level `NAME = {...}` / `NAME = [...]` / `NAME = {...}` set
-        literal, or the comprehension form of any of the three, where the
+        literal, the comprehension form of any of the three, or a call to
+        the bare builtin `dict(...)` / `list(...)` / `set(...)`, where the
         value is NOT wrapped in `types.MappingProxyType`, `frozenset`, or
         `tuple`.
       - `NAME` is read from another file, as `from <this-module> import NAME`,
@@ -824,8 +841,10 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
 
     A comprehension is the same container as its literal - `{k: f(k) for ...}`
     is a `dict`, mutable and shared exactly as `{...}` is - so it is the same
-    finding. A `Call` value (`DEFAULTS = get_defaults()`) is deliberately NOT
-    covered: its type is not knowable from the assignment.
+    finding, and so is a builtin constructor call (`list(...)`), which states
+    its type just as plainly (ruled 2026-10-31). Any other `Call` value
+    (`DEFAULTS = get_defaults()`) is deliberately NOT covered: its type is not
+    knowable from the assignment.
 
     The reader scan covers every root the sweep reads - every package under
     `src/` and every extra root such as `bin/` - not just the root being
@@ -845,7 +864,7 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
     candidates: list[tuple[pathlib.Path, ast.stmt, ast.expr, str]] = []
     module_name_of: dict[pathlib.Path, str] = {}
     for path in _all_py_files(src_root):
-        module_name_of[path] = _module_dotted(path, src_root)
+        module_name_of[path] = module_dotted(path, src_root)
         lines = _source_lines(path)
         try:
             tree = ast.parse('\n'.join(lines))
@@ -855,7 +874,7 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
             name, value = _module_level_binding(node)
             if name is None or value is None or name.startswith('_'):
                 continue
-            if type(value) not in _MUTABLE_VALUE_SHAPES:
+            if mutable_value_shape(value) is None:
                 continue
             candidates.append((path, node, value, name))
 
@@ -875,8 +894,9 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
         rel = _relpath(path, scope)
         lines = _source_lines(path)
         accept = _accept_reason(lines, assign_node.lineno, rule='mutable-module-level-exported')
-        shape, required_wrap = _MUTABLE_VALUE_SHAPES[type(value)]
+        shape, required_wrap = mutable_value_shape(value)
         _emit(
+            related=[_relpath(p, scope) for p, _ in external_importers],
             rule='mutable-module-level-exported',
             variant=(f'{name} is a mutable {shape} read by {len(external_importers)} other file(s); wrap in {required_wrap}'),
             path=rel,
@@ -911,7 +931,7 @@ def check_mutable_members_in_immutable_wrapper(scope: pathlib.Path, src_root: pa
 
     Every one of those wrappers is shallow. `types.MappingProxyType({'a': []})`
     passes `mutable-module-level-exported` and still hands every caller the
-    same live `list`; on litrev a proxy's values were the very objects a
+    same live `list`; on one project a proxy's values were the very objects a
     `get_defaults()` helper returned, so `defaults[k].append(...)` mutated the
     process-wide default seen through both names. A project that has adopted
     A20 reads the passing check as a guarantee, which is what makes this shape
@@ -928,7 +948,7 @@ def check_mutable_members_in_immutable_wrapper(scope: pathlib.Path, src_root: pa
     candidates: list[tuple[pathlib.Path, ast.stmt, str, str, list[tuple[int, str]]]] = []
     module_name_of: dict[pathlib.Path, str] = {}
     for path in _all_py_files(src_root):
-        module_name_of[path] = _module_dotted(path, src_root)
+        module_name_of[path] = module_dotted(path, src_root)
         try:
             tree = ast.parse('\n'.join(_source_lines(path)))
         except SyntaxError:

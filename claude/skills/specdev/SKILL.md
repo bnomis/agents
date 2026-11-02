@@ -213,5 +213,5 @@ Before making any changes to a spec file:
 2. If uncommitted changes exist, ask the user if they want to commit them first
 3. After editing the spec, stage only the spec file: `git add <SPEC-PATH>`
 4. Ask the user if they'd like to commit the changes
-5. Commit with a message describing what changed, e.g.: `"specdev: add error handling section to <SLUG> spec"`
+5. Commit with a message describing what changed, e.g.: `"docs(specs): add error handling to <SLUG> spec"`
 6. Do not push unless the user asks

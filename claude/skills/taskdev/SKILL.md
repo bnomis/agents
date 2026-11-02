@@ -387,5 +387,5 @@ Before making any changes to a task file:
 2. If uncommitted changes exist, ask the user if they want to commit them first
 3. After editing, stage the task file and index: `git add agents/tasks/<SLUG>/tasks-N.md agents/tasks/index.md`
 4. Ask the user if they'd like to commit the changes
-5. Commit with a message describing what changed, e.g.: `"taskdev: add error handling tasks"`
+5. Commit with a message describing what changed, e.g.: `"docs(tasks): add error handling tasks"`
 6. Do not push unless the user asks

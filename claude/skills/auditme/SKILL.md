@@ -76,16 +76,16 @@ Then run the shipped audit script:
 python3 ~/.claude/skills/auditme/checks/audit.py <project-root> [--package <pkg>] [--extra-root <dir>]
 ```
 
-`<project-root>` is the directory containing `src/` and `agents/`. `--package`
+`<project-root>` is the project's top directory; `src/` is optional. `--package`
 restricts the run to one package; it defaults to **every** package under
 `src/`, each audited in its own pass, followed by every extra root.
 
 Do not pass `--package` for a normal audit. A project whose `src/` holds both
 the library and the test tree has two packages, and auditing one of them
 reports a partial scope as a complete one. Until 2026-08-14 the default was
-"the alphabetically-first directory under `src/`", which on the litrev project
-meant `src/tests/` was never read: 440 hits stayed invisible across five audit
-cycles while the sweep looked clean. The same default would have picked
+"the alphabetically-first directory under `src/`", which on one project meant
+`src/tests/` was never read: every hit in it stayed invisible across several
+audit cycles while the sweep looked clean. The same default would have picked
 `__pycache__` on a project that had one.
 
 An **extra root** is auditable Python that is not a package under `src/`.
@@ -93,11 +93,34 @@ An **extra root** is auditable Python that is not a package under `src/`.
 `--extra-root <dir>` (repeatable, relative to the project root) replaces that
 default set. The same under-coverage had a second instance here: enumerating
 packages *under `src/`* gave a project whose scripts live in `bin/` no rows at
-all for them - accepted or otherwise - while three consecutive litrev
-summaries recorded "`bin/` remains at zero unaccepted hits" as though a
+all for them - accepted or otherwise - while consecutive audit summaries
+recorded "`bin/` remains at zero unaccepted hits" as though a
 measurement had been taken. A named `--extra-root` that does not exist is an
 error rather than an empty pass, because a typo would reinstate exactly that.
 `--package` asks for one package, so it drops the extra roots too.
+
+A `.py` file directly in `src/` belongs to no root, so no pass would read it.
+The driver reports it as a `src-loose-module` hit (not a registered check: a
+check runs once per root, and a project holding only `src/a.py` has none), and
+`--package` emits none. Move the file into a package, or accept it with
+`# auditme: accept[src-loose-module] <reason>` on line 1.
+
+The `ruff-version-drift` check sits beside the existing ruff check. It is
+project-level: it compares the version `ruff --version` prints for the ruff
+the audit runs with the `rev` of the `ruff-pre-commit` repo in
+`.pre-commit-config.yaml`, and reports `the ruff the audit runs differs from
+the ruff-pre-commit rev` at the `rev:` line when they differ, so the commit
+hook and the audit cannot disagree about formatting. The audit runs the
+project's own `.venv/bin/ruff` when it is an executable file, and `ruff` from
+`PATH` only otherwise, so the answer does not depend on which ruff a shell
+finds first; the hit's evidence names which one ran. A `rev` that is a commit SHA
+uses the version in its `# frozen: <version>` comment. Two variants say the
+check cannot verify: `the ruff-pre-commit rev names no version` (a SHA with no
+`frozen` comment, or no `rev:` at all) and `ruff --version printed no
+version`. It is silent when there is no config, no `ruff-pre-commit` repo, or
+no ruff to run (the ruff check reports that). Clear a hit by making the
+two equal; to accept one, put `# auditme: accept[ruff-version-drift] <reason>`
+on the `rev:` line or the line above it.
 
 Each root is audited in its own pass rather than in one pass rooted at
 `src/`, because `src_root.name` is the package's dotted root - several checks
@@ -118,9 +141,16 @@ Schema:
   "line": 42,
   "evidence": "source snippet",
   "accepted": false,
-  "accepted_reason": null
+  "accepted_reason": null,
+  "related": ["src/foo/baz.py"]
 }
 ```
+
+`related` appears only on a hit from a rule that compares two or more files:
+the other locations' repository-relative paths, sorted, never the hit's own
+path. A hit from any other rule has no `related` key. A scope filter such as
+`checks/changed.py` reports a hit when its `path` or any `related` path is in
+scope.
 
 **Rules:**
 
@@ -166,7 +196,7 @@ Rules for reviewers:
 
 ### 5. Spec review
 
-For each spec in scope, check it against the validation criteria and spec template in `agents/skills/specdev/SKILL.md`. Record gaps as findings. Skip if no specs in scope.
+For each spec in scope, check it against the validation criteria and spec template in `claude/skills/specdev/SKILL.md`. Record gaps as findings. Skip if no specs in scope.
 
 ### 6. Re-verify prior findings
 
@@ -218,7 +248,7 @@ If there are findings: `/taskdev agents/audit-reviews/review-N.md`. If none: tel
 2. If there are uncommitted changes, ask the user to commit them first
 3. Stage: `git add agents/audit-reviews/review-N.md agents/audit-reviews/summary.md agents/audit-reviews/index.md` plus any task files you marked done
 4. Ask the user if they would like to commit
-5. Commit message: `auditme: add review-N`
+5. Commit message: `docs(audit): add review-N`
 6. Do not push unless asked
 
 ## Acceptance mechanism
@@ -228,7 +258,7 @@ The script treats a hit as `accepted: true` only when one of these exists:
 1. **Inline comment** on the hit line or the preceding line, optionally scoped to a single rule:
    - `# auditme: accept[<rule-name>] <reason>` - answers for that rule only
    - `# auditme: accept <reason>` - answers for every rule that fires on the line
-2. **AGENTS.md table row** pairing the importer and imported module in backticks (for in-function imports). The importer module path is computed without a leading `src.` prefix (e.g. `featmo.config.structures`, not `src.featmo.config.structures`); AGENTS.md rows should use the same form.
+2. **AGENTS.md table row** pairing the importer and imported module in backticks (for in-function imports). The importer module path is computed without a leading `src.` prefix (e.g. `pkg.config.structures`, not `src.pkg.config.structures`); AGENTS.md rows should use the same form.
 
 Nothing else acts as acceptance - not a decision note under `agents/audit-reviews/`, not a prior review that "agreed" the pattern is fine, not an assumption about HF / sklearn / PEP conventions.
 
@@ -237,7 +267,7 @@ Nothing else acts as acceptance - not a decision note under `agents/audit-review
 **Write new markers in the scoped form.** An unscoped marker accepts every rule
 that fires on its line, including rules that did not exist when it was written -
 so a decision weighed about one predicate silently excuses a different one later.
-This is not hypothetical: on the litrev project, a marker reasoning entirely
+This is not hypothetical: on one project, a marker reasoning entirely
 about traceback diagnosability (written for
 `logger-exception-graceful-degradation`) was found pre-accepting the newly added
 `failure-as-absence` check on the same line, hiding a defect three prior reviews
@@ -267,7 +297,7 @@ Each question is a deterministic predicate. The reviewer reads the file end-to-e
 - **A2. Except tuple coverage.** For every `try/except` whose body touches disk or pandas/json parsers: does the except tuple include EVERY exception in the locked set below? Locked set: `OSError` (covers `PermissionError`, `FileNotFoundError`, `IsADirectoryError`); `UnicodeDecodeError` if the body decodes text; `pandas.errors.ParserError` if the body calls `pd.read_*`; `json.JSONDecodeError` if the body calls `json.load*`; `gzip.BadGzipFile` if the body opens `.gz`. Bare `Exception` also satisfies. Flag any tuple missing one of the above when the body matches that branch. The envelope need not be a lexical `try` - a translating decorator or a `with` block over a contextmanager is one too, and is the shape the reviewer has to read a second file to judge. Do not extend this set during an audit; expansion is a skill change.
   The `translator-envelope-gap` check now covers the non-lexical form mechanically, for the branches a machine can recognise without judgement: `json.load*`, `pd.read_*`, `gzip.open`, `read_text` and the filesystem primitives. Text decoding through any other route - `.decode()`, a codec, a library that reads bytes and returns `str` - is still this question's to answer by hand.
 - **A3. Domain-error layering.** For every `raise` statement: is the raised type the package's domain `*Error` (or a `*Error` from a strictly lower layer)? Flag stdlib `ValueError`/`RuntimeError`/`KeyError`/`TypeError` raised in a package that defines its own `*Error` class.
-- **A4. Docstring `Raises` accuracy.** For every function whose docstring has a `Raises:` section: does the body actually raise each declared exception type, and only those? Flag mismatches. A declared type is raised if the body raises it, or calls a function in the same package that raises it and does not catch it; an undeclared domain error that reaches the caller that way is a mismatch.
+- **A4. Docstring `Raises` accuracy.** For every function whose docstring has a `Raises:` section: does the body actually raise each declared exception type, and only those? Flag mismatches. A declared type is raised if the body raises it, or calls a function in the same package that raises it and does not catch it; an undeclared domain error that reaches the caller that way is a mismatch. The sweep's `raises-section-drift` rule checks the mechanical part: it follows each same-package callee one level through its declared `Raises:`, nets out handlers that catch without re-raising, and reports each omitted name, and each declared name that a handler in the function catches and nothing else raises. It skips a callee error guarded only by optional arguments the call leaves unset (`if strict: raise ...` called without `strict`). Phase B reviews the other value-dependent cases (fixed names, pre-checked values, dispatch types) and what the sweep cannot resolve: calls on instances, callables passed in, errors stored and raised later, and declared names reaching only through those.
 - **A5. Two sources of truth.** For every state value that has both a config field and a method parameter (or two attributes that should always agree): is the precedence rule documented and enforced? Flag silent precedence (whichever path wins by coincidence of execution order).
 - **A6. Stage method dual-path.** For every method on a pipeline-stage class: does it both return a value AND mutate `self.<attr>` for the same field? Flag tuple-returning methods that also self-mutate.
 - **A7. Constructor purity.** For every `__init__`: does it perform I/O (open, mkdir, read_text, subprocess, network, expensive compute)? Does it mutate any of its arguments? Flag both.
@@ -283,7 +313,7 @@ Each question is a deterministic predicate. The reviewer reads the file end-to-e
 - **A17. Public-surface drift.** For every `__init__.py` with `__all__`: is every symbol in `__all__` used outside the package? For every empty `__init__.py`: do consumers reach into private submodules? Flag bypasses of the canonical owning module.
 - **A18. Hot-path setup.** For every callback method (`on_step`, `on_log`, `on_evaluate`, `on_batch_*`): does it perform setup (mkdir, file open) that should live in `__init__`? Flag per-event side effects.
 - **A19. Wrong logger level for broad-except.** For every `except Exception` / `except BaseException`: does the body use `logger.exception` (not `warning`/`error`/`info`/`debug`)? And conversely, is `logger.exception` reserved for unexpected failures, not expected graceful-degradation paths? A broad handler that degrades gracefully fails one half of this question whichever level it uses; the fix is to remove or narrow it - see [Conflicts with no winner](#conflicts-with-no-winner).
-- **A20. Mutable module-level singleton.** For every module-level mutable container that is read by name from another module: is it immutable per the locked set below? Locked set: `dict` -> must be `types.MappingProxyType(...)`; `set` -> must be `frozenset(...)`; `list` -> must be `tuple(...)`, whether the value is written as a literal or as a comprehension - `{k: f(k) for ...}` is the same mutable `dict` that `{...}` is. The predicate is "read elsewhere", and a project that mandates full import paths writes every one of those reads dotted: verify with grep for **all three** of `from <module> import <name>`, `<module>.<name>` and `sys.modules['<module>'].<name>`, across **every** root the sweep reads - every package under `src/` and `bin/` - not just the package under audit. A reader in the test tree is a reader, and so is a script. The `sys.modules` form is not exotic: it is the documented way to reach a module without importing it, so the projects most careful about import cycles are the ones a scan that missed it under-reported. Do not extend this predicate to private (non-read) module-level containers, nor to a value whose type is not knowable from the assignment (`DEFAULTS = get_defaults()`); those are different rules. A container the wrapper only *appears* to freeze is A25's.
+- **A20. Mutable module-level singleton.** For every module-level mutable container that is read by name from another module: is it immutable per the locked set below? Locked set: `dict` -> must be `types.MappingProxyType(...)`; `set` -> must be `frozenset(...)`; `list` -> must be `tuple(...)`, whether the value is written as a literal, as a comprehension or as a call to the bare builtin constructor - `{k: f(k) for ...}` and `dict(a=1)` are the same mutable `dict` that `{...}` is. Any other call (`get_defaults()`) is out: it does not state its type. The predicate is "read elsewhere", and a project that mandates full import paths writes every one of those reads dotted: verify with grep for **all three** of `from <module> import <name>`, `<module>.<name>` and `sys.modules['<module>'].<name>`, across **every** root the sweep reads - every package under `src/` and `bin/` - not just the package under audit. A reader in the test tree is a reader, and so is a script. The `sys.modules` form is not exotic: it is the documented way to reach a module without importing it, so the projects most careful about import cycles are the ones a scan that missed it under-reported. Do not extend this predicate to private (non-read) module-level containers, nor to a value whose type is not knowable from the assignment (`DEFAULTS = get_defaults()`); those are different rules. A container the wrapper only *appears* to freeze is A25's.
 - **A21. Lazy init race.** For every `if X is None: X = ...` pattern at module scope (or in a module-level helper): is the assignment thread-safe under concurrent invocation? Flag idempotent-but-racy patterns in code paths that may be called concurrently (Optuna trials, multiprocessing).
 - **A22. Fall-through after partial handling.** For every `if/else` chain whose branches partly raise and partly return: is there a fall-through path where a raised-and-translated error in the first branch silently retries in the second? Flag with-block-or-elif-fall-through patterns (e.g. `if gz: ... except: raise` then code that re-runs as if `gz=False`).
 - **A23. Discarded multi-return.** For every call to a function that returns a tuple/dataclass: are all returned components used or explicitly named (`a, _ = f()`)? Flag silent discard of secondary returns that signal hidden state dependencies. Reading one attribute of a returned object discards the others when the function documents one of them as changing how the first is used; an attribute read that drops nothing documented is a use.
@@ -292,7 +322,7 @@ Each question is a deterministic predicate. The reviewer reads the file end-to-e
 
 ### Standards (S)
 
-- **S1. Type annotations on every signature.** Parameter and return annotations everywhere. Flag bare untyped signatures. **Scope is locked and asymmetric.** Enumerate every missing annotation individually, with `path:line`, for non-test source only. For files under a `tests/` directory, do NOT enumerate: report a single count line (missing parameter annotations, missing return annotations, modules affected, modules fully annotated). Reviews 3, 4 and 5 each chose differently here - review-3 skipped tests, review-4 enumerated 1916 of them, review-5 counted - and the swing is the single largest source of apparent finding-count movement between cycles. If the project records a standing exemption for test annotations (as an AGENTS.md note that `ANN` is not enabled for tests), the count also serves as a drift check on that note's own figures; a discrepancy is a documentation finding under Doc1, not an S1 finding.
+- **S1. Type annotations on every signature.** Parameter and return annotations everywhere. Flag bare untyped signatures. **Scope is locked and asymmetric.** Enumerate every missing annotation individually, with `path:line`, for non-test source only. For files under a `tests/` directory, do NOT enumerate: report a single count line (missing parameter annotations, missing return annotations, modules affected, modules fully annotated). Consecutive reviews of one project each chose differently here - one skipped tests, the next enumerated every one of them, the third counted - and the swing is the single largest source of apparent finding-count movement between cycles. If the project records a standing exemption for test annotations (as an AGENTS.md note that `ANN` is not enabled for tests), the count also serves as a drift check on that note's own figures; a discrepancy is a documentation finding under Doc1, not an S1 finding.
 - **S2. PascalCase / UPPER_SNAKE / lower_snake.** Names match project convention. Flag inconsistencies.
 - **S3. TYPE_CHECKING block placement.** Same idiom as the rest of the tree (top-of-file, after imports, etc.).
 - **S4. Project-specific rule files.** Any rule referenced by AGENTS.md not enforced by the script. Read the rule file; check the file under review.
@@ -322,7 +352,7 @@ Assess by reading test files - do not run the suite.
 ### Dependencies (D)
 
 - **D1. Declared in pyproject.** Every imported third-party module is declared.
-- **D2. Unused declarations.** Every declared dependency is imported somewhere.
+- **D2. Unused declarations.** Every declared dependency is imported somewhere, or run as a command. A dependency the project runs as a command is used though nothing imports it - a type checker, linter, formatter or hook runner declared so the environment installs it. It counts as run when the executable it installs is named in `.pre-commit-config.yaml` (a hook's `entry`, or the tool a hook's `repo` provides), in a CI workflow `run:` step, or as the first argument of a `subprocess` call in the project's own code, directly or through `uv run`, `python -m` or `pre-commit run`. A dependency a host tool loads as a plugin or theme is used too, when a declared dependency is that host and the plugin's installed metadata (`entry_points.txt` in its `.dist-info`) registers an entry point in a group the host loads. pytest loads every `pytest11` entry point, so a pytest plugin counts unless the project's pytest config disables it (`-p no:<name>`). mkdocs loads only what `mkdocs.yml` names, so an entry point in `mkdocs.themes` or `mkdocs.plugins` counts only when its name is the `theme: name:` or listed under `plugins:` (`mkdocs-material` registers `material`). A package name that merely resembles a tool's name, with no such entry point, is not evidence. Flag a dependency that is neither imported, run nor loaded anywhere.
 - **D3. Lockfile coherence.** Already script-checked; flag if the script's lockfile-drift hit appears.
 
 ### Documentation (Doc)
@@ -495,13 +525,20 @@ A refinement is a skill change too: same process as above (drain immediately, th
 
 Documented refinements:
 
-- **`except-interpolation` (review-36):** the predicate skips interpolation expressions of the form `type(<bound>).__name__` / `__qualname__` and `<bound>.__class__.__name__` / `__qualname__`. The class-name string is a categorical hint, not a lossy duplication of the message body. See `_is_categorical_class_name_expr` in `checks/auditme/rules/error_handling.py`.
-- **`empty-init-while-siblings-export` (review-36):** the predicate is file-level. The accept-marker scan walks every line in the file rather than just the docstring opener, so a docstring-only `__init__.py` can be accepted by adding a comment-only `# auditme: accept <reason>` line anywhere in the file.
-- **`legacy-typing` (2026-10-14, featlib review-2 and featim review-29):** the predicate skips `Set[` when it is preceded by `collections.abc.`. `collections.abc.Set` is the modern ABC, not the deprecated `typing.Set`. See the `legacy-typing` pattern in `check_text_patterns` in `checks/auditme/rules/style_and_naming.py`.
+- **`except-interpolation`:** the predicate skips interpolation expressions of the form `type(<bound>).__name__` / `__qualname__` and `<bound>.__class__.__name__` / `__qualname__`. The class-name string is a categorical hint, not a lossy duplication of the message body. See `_is_categorical_class_name_expr` in `checks/auditme/rules/error_handling.py`.
+- **`empty-init-while-siblings-export`:** the predicate is file-level. The accept-marker scan walks every line in the file rather than just the docstring opener, so a docstring-only `__init__.py` can be accepted by adding a comment-only `# auditme: accept <reason>` line anywhere in the file.
+- **`legacy-typing` (2026-10-14):** the predicate skips `Set[` when it is preceded by `collections.abc.`. `collections.abc.Set` is the modern ABC, not the deprecated `typing.Set`. See the `legacy-typing` pattern in `check_text_patterns` in `checks/auditme/rules/style_and_naming.py`.
+- **`filesystem-envelope-gap` (2026-11-01):** a bare name in a handler's type, alone or inside a tuple, that names a module-level tuple literal assigned once in the same file is read as that tuple's members, one level deep, so `except READ_ERRORS:` with `READ_ERRORS = (OSError, ValueError)` closes the gap. Another module's name, a call's result, a name assigned twice and a constant nested in another keep the name test. See `module_tuple_constants` in `checks/auditme/rules/error_handling.py`.
+- **`raises-section-drift` (2026-11-01):** a callee's declared error is not reported as omitted when every `raise` of it in the callee's own body sits under an `if` or `match` that tests a parameter with a default which the call leaves unset, as `if strict: raise ParseError(...)` called as `load('x')`. Omissions only. A guard on a parameter without a default, a module-level name, a raise outside the guard, or a call passing the argument (or `*args` / `**kwargs`) keeps the hit. A def nested directly in the subject and called by bare name also counts, one level deep, under the call's handlers; a raise inside a def, lambda or class defined in a handler does not make that handler re-raise. See `unset_optional_guard` and `nested_call_sites` in `checks/auditme/rules/error_handling.py`.
+- **`missing-raises-section` (2026-11-01):** a raise that a handler around it catches without re-raising, by its own class or a base class in the package's class tree (a bare `except:`, `Exception` and `BaseException` catch all), does not reach the caller and does not count, as `try: raise ParseError(...) except ParseError: ...`. A handler that re-raises, one for an unrelated class, or no handler keeps the hit. A nested def counts only where it is called by bare name, under that call's handlers. See `package_class_parents`, `class_lineage` and `nested_call_sites` in `checks/auditme/rules/error_handling.py`.
+- **`passthrough-shim` (2026-11-01):** only real forwarding is flagged. Every keyword value must be a bare parameter of the wrapper, no parameter may be passed twice (`table.get(name, name)` computes), and a decorated function is skipped, since the decorator registers it for something else (a fixture, a command, a route). A `**` keyword or a computed value keeps the function out of the rule too. See `check_passthrough_shim` in `checks/auditme/rules/imports_and_surfaces.py`.
+- **`non-alphabetical-literal` (2026-11-01):** an `__all__` assignment also passes when its members are in the order ruff's RUF022 writes: SCREAMING_SNAKE names first, then CamelCase, then the rest, each group in natural order. Any other name keeps the plain `sorted()` test, and so does an `__all__` in neither order. See `ruff_dunder_all_key` and `is_dunder_all_assignment` in `checks/auditme/rules/style_and_naming.py`.
+- **D2 (2026-10-31):** the Phase B predicate skips a declared dependency the project runs as a command (a pre-commit hook, a CI `run:` step, a `subprocess` call in its own code). Such a tool is used without being imported, and flagging it made each audit re-raise a finding the user had declined. D2 has no script check, so the carve-out lives only in the predicate's text.
+- **D2 (2026-11-02):** the Phase B predicate also skips a declared dependency a declared host tool loads as a plugin or theme, shown by an entry point in a group that host loads: `pytest11` for pytest, and `mkdocs.themes` or `mkdocs.plugins` for mkdocs when `mkdocs.yml` names the entry. The entry point is the positive evidence; a name that looks like a plugin's is not. As before, the carve-out lives only in the predicate's text.
 
 ## Rule conflict resolution
 
-A rule conflict exists when fixing a finding under rule X creates a finding under rule Y on the same code (e.g., review-34: `A18 callbacks-open-file-per-event` says move `mkdir` from `on_log` into `__init__`; `constructor-disk-io` then fires on the new location).
+A rule conflict exists when fixing a finding under rule X creates a finding under rule Y on the same code (e.g. `A18 callbacks-open-file-per-event` says move `mkdir` from `on_log` into `__init__`; `constructor-disk-io` then fires on the new location).
 
 When a conflict is detected:
 
@@ -527,10 +564,10 @@ accepting one of them. Neither rule is auto-accepted at these sites.
 |-------|--------------|--------|
 | `broad-except-wrong-level` and `logger-exception-graceful-degradation` (A19) | a handler for `Exception`, `BaseException` or a bare `except` that logs and then returns a default so the run carries on | Remove the handler and let the failure propagate, as the coding standard's "let unexpected exceptions propagate" asks. Do not change the logger level: `logger.warning` fires the first rule and `logger.exception` the second, so each change swaps one hit for the other. If the failure is expected and recoverable, catch that specific exception type and log it with `logger.warning`; neither rule fires on that. If the user decides a broad handler has to stay, keep `logger.exception`, since a failure nobody named is by definition unexpected and its traceback is wanted, and accept `logger-exception-graceful-degradation` with a scoped marker giving the user's reason. |
 
-Background: featim review-29 (2026-10-14) found four analysis-step handlers in
-`src/featim/analysis/orchestrator.py` that could satisfy neither rule. Its
-Decision 2 was answered the same day by removing the handlers rather than
-picking a winner, and this ruling generalises that answer.
+Background: an audit found broad handlers in a pipeline orchestrator that
+could satisfy neither rule. Its decision was answered by removing the handlers
+rather than picking a winner, and this ruling generalises that answer
+(2026-10-14).
 
 ## Severity guide
 
@@ -542,7 +579,7 @@ picking a winner, and this ruling generalises that answer.
 
 Earlier iterations relied on Claude to run greps and AST walks by hand, which agents reliably skipped, sampled, or silently filtered. The script fixed Phase A: agents cannot fake what a subprocess outputs. Acceptance is explicit (inline comment or AGENTS.md), not a decision-note argument.
 
-A first Phase B fix replaced "report every concern" with a fixed checklist; that closed one source of variance but left four others that drove the feathf project to 34 cycles before convergence:
+A first Phase B fix replaced "report every concern" with a fixed checklist; that closed one source of variance but left four others that kept one project's audits from converging for dozens of cycles:
 
 1. **Per-file fan-out** spread judgment thresholds across reviewers (one agent's "yes" was another agent's "no" on the same predicate). Cured by per-question fan-out.
 2. **Category-restricted runs** meant each lens found new things in code that prior lenses had ignored. Cured by always running every category in one pass.

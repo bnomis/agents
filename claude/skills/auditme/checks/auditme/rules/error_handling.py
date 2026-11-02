@@ -1,13 +1,14 @@
 """Checks on exception handling, error translation and failure reporting."""
 
 import ast
+import collections
 import contextlib
 import pathlib
 import re
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Mapping
 
-from auditme.core import _accept_reason, _all_py_files, _emit, _relpath, _source_lines
+from auditme.core import _accept_reason, _all_py_files, _emit, _relpath, _source_lines, module_dotted
 
 
 def check_silent_broad_except(scope: pathlib.Path, src_root: pathlib.Path) -> None:
@@ -82,7 +83,7 @@ def check_except_interpolation(scope: pathlib.Path, src_root: pathlib.Path) -> N
     ``str(exc)`` (or its f-string equivalent) into a new message
     produces a truncated copy that drifts from the original.
 
-    Exception (review-36): ``type(<bound>).__name__`` / ``__qualname__``
+    Exception: ``type(<bound>).__name__`` / ``__qualname__``
     and ``<bound>.__class__.__name__`` / ``__qualname__`` access only
     the exception class name string. The class name is a categorical
     hint, not a lossy duplication of the message body, so these
@@ -269,7 +270,7 @@ def check_asymmetric_exception_translation(scope: pathlib.Path, src_root: pathli
     # First pass: enumerate every module-level function and whether its body
     # contains a top-level try/except handler.
     function_index: dict[str, tuple[str, int, bool]] = {}
-    # function_index key is full dotted path (e.g. 'feathf.registry.runs.setup_mlflow_experiment')
+    # function_index key is full dotted path (e.g. 'pkg.registry.runs.setup_experiment')
     package_root_name = src_root.name
 
     for path in _all_py_files(src_root):
@@ -367,6 +368,7 @@ def check_asymmetric_exception_translation(scope: pathlib.Path, src_root: pathli
         accept = _accept_reason(_source_lines(scope / callee_path), callee_line, rule='asymmetric-exception-translation')
         sites_summary = '; '.join(f'{p}:{n}' for (p, n, _) in sites[:5])
         _emit(
+            related=[p for (p, _, _) in sites],
             rule='asymmetric-exception-translation',
             variant=f'{callee} has no own try/except; all {len(sites)} callers wrap it',
             path=callee_path,
@@ -513,7 +515,7 @@ def check_cli_entry_missing_error_envelope(scope: pathlib.Path, src_root: pathli
             #   - return annotation is `int` (CLI commands return an
             #     exit code)
             #   - OR has a parameter annotated with a name ending in
-            #     `.Feathf` / `.Cmd` / any cappa dispatcher root (the
+            #     `.App` / `.Cmd` / any cappa dispatcher root (the
             #     dispatcher-aware second argument)
             returns_int = False
             if node.returns is not None:
@@ -524,7 +526,7 @@ def check_cli_entry_missing_error_envelope(scope: pathlib.Path, src_root: pathli
                 except Exception:
                     pass
             # params whose annotation string contains a capitalised cappa
-            # command class (the `parent: 'feathf.cli.app.Feathf'` style)
+            # command class (the `parent: 'pkg.cli.app.App'` style)
             has_cappa_param = False
             for arg in node.args.args:
                 if arg.annotation is None:
@@ -664,7 +666,7 @@ def check_layer_has_domain_error_but_raises_stdlib(scope: pathlib.Path, src_root
       - The stdlib raise is NOT inside an `except` block (which is the
         re-raise-with-narrower-type pattern and is fine).
 
-    Scope rationale (review-73): the "widen to any module that imports a
+    Scope rationale: the "widen to any module that imports a
     domain `*Error` lazily" variant was tried and discarded because it
     over-fired on `config/structures.py.__post_init__` validation raises,
     which AGENTS.md's "Error type policy by layer" permits (`config` has
@@ -935,6 +937,56 @@ _FILESYSTEM_TOUCHING_CALLS = {
 }
 
 
+def module_tuple_constants(tree: ast.Module) -> dict[str, list[ast.expr]]:
+    """Map each name assigned exactly once at module level, to a tuple
+    literal, to that tuple's members. A name assigned more than once is left
+    out: which value a handler sees depends on order, so it is not resolved."""
+    counts: collections.Counter[str] = collections.Counter()
+    tuples: dict[str, list[ast.expr]] = {}
+    for stmt in tree.body:
+        if isinstance(stmt, ast.Assign):
+            targets, value = stmt.targets, stmt.value
+        elif isinstance(stmt, ast.AnnAssign) and stmt.value is not None:
+            targets, value = [stmt.target], stmt.value
+        else:
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                counts[target.id] += 1
+                if isinstance(value, ast.Tuple):
+                    tuples[target.id] = list(value.elts)
+    return {name: members for name, members in tuples.items() if counts[name] == 1}
+
+
+def package_class_parents(trees: Iterable[ast.Module]) -> dict[str, set[str]]:
+    """Map each top-level class in the given modules to the names of its bases.
+
+    A base written `mod.Base` is recorded as `Base`, so the table follows the
+    package's own class tree by bare name. Modules are pooled: a class and its
+    base may live in different ones. A class with no base maps to an empty set,
+    so the keys are exactly the package's top-level class names."""
+    parents: dict[str, set[str]] = defaultdict(set)
+    for tree in trees:
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
+                parents[node.name].update(ast.unparse(base).rsplit('.', 1)[-1] for base in node.bases if isinstance(base, (ast.Name, ast.Attribute)))
+    return dict(parents)
+
+
+def class_lineage(name: str, parents: Mapping[str, set[str]]) -> set[str]:
+    """The name and every ancestor of it, transitively, in `parents`.
+
+    A cycle terminates, and a name `parents` does not know is its own lineage."""
+    seen = {name}
+    stack = [name]
+    while stack:
+        for parent in parents.get(stack.pop(), ()):
+            if parent not in seen:
+                seen.add(parent)
+                stack.append(parent)
+    return seen
+
+
 def check_filesystem_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag `try` blocks that call a filesystem-touching third-party
     helper (`download_artifacts`, `from_pretrained`, `snapshot_download`,
@@ -946,6 +998,13 @@ def check_filesystem_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -
     `PermissionError`, not as the library's own exception. The narrow
     except clause lets those propagate past the wrapper's promise to
     translate to a project error class.
+
+    Refinement (2026-11-01): a bare name in a handler's type, alone or inside
+    a tuple, that names a module-level tuple literal assigned once in the same
+    file is read as that tuple's members, one level deep, so
+    `except READ_ERRORS:` with `READ_ERRORS = (OSError, ValueError)` is
+    covered. Any other name - another module's, a call's result, a nested
+    constant - keeps the name test. See `module_tuple_constants`.
     """
     for path in _all_py_files(src_root):
         rel = _relpath(path, scope)
@@ -954,6 +1013,7 @@ def check_filesystem_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -
             tree = ast.parse('\n'.join(lines))
         except SyntaxError:
             continue
+        constants = module_tuple_constants(tree)
         for node in ast.walk(tree):
             if not isinstance(node, ast.Try):
                 continue
@@ -981,8 +1041,15 @@ def check_filesystem_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -
                 if handler.type is None:
                     covers_os = True
                     break
+                elements = handler.type.elts if isinstance(handler.type, ast.Tuple) else [handler.type]
+                resolved: list[ast.expr] = []
+                for element in elements:
+                    if isinstance(element, ast.Name) and element.id in constants:
+                        resolved.extend(constants[element.id])
+                    else:
+                        resolved.append(element)
                 try:
-                    type_src = ast.unparse(handler.type)
+                    type_src = ', '.join(ast.unparse(element) for element in resolved)
                 except Exception:
                     continue
                 names = set(re.findall(r'[A-Za-z_][A-Za-z_0-9]*', type_src))
@@ -1044,7 +1111,7 @@ def check_filesystem_op_without_envelope(scope: pathlib.Path, src_root: pathlib.
     """
     # Drop `replace`, `rename`, `copy`, `remove` - too noisy due to
     # str.replace, dataclasses.replace, list.copy, list.remove etc.
-    # `read_text` / `read_bytes` / `from_pretrained` added per review-34
+    # `read_text` / `read_bytes` / `from_pretrained` added by a
     # predicate-extension decision: packages with a domain *Error must
     # envelope read-path IO too, not only writes.
     STDLIB_WRITE_CALLS = {
@@ -1371,29 +1438,9 @@ def check_docstring_raises_mismatch(scope: pathlib.Path, src_root: pathlib.Path)
             )
 
 
-def check_missing_raises_section(scope: pathlib.Path, src_root: pathlib.Path) -> None:
-    """Flag functions whose body raises a project exception but whose
-    docstring lacks any `Raises:` / `:raises:` section.
-
-    Signal:
-      - Function has a non-empty docstring.
-      - Function body contains at least one `ast.Raise` whose exception
-        class name ends in `Error` and that is NOT a bare `raise` inside
-        an except block (pure re-raise) and NOT a re-raise of a caught
-        variable (`raise exc_var`).
-      - Docstring contains NO `Raises:` block, `:raises X:` role, or
-        sentence beginning with `Raises `.
-    """
-    # Accept any of:
-    #   - a `Raises:` / `Raise:` header line (napoleon / google style)
-    #   - sphinx `:raises X:` role
-    #   - a prose sentence `Raise <X>Error` or `Raises <X>Error` that may
-    #     use a dotted-module-qualified form (`featmo.ensemble.errors.LoadError`)
-    raises_marker_re = re.compile(
-        r'(?:^\s*Raises?\s*:|:raises\s+[A-Za-z_]|\bRaises?\s+[A-Za-z_][\w.]*Error\b)',
-        re.MULTILINE,
-    )
-    STDLIB_ERRORS = {
+# Builtin exception classes: not a project's domain errors.
+STDLIB_ERRORS = frozenset(
+    {
         'ValueError',
         'TypeError',
         'RuntimeError',
@@ -1446,15 +1493,52 @@ def check_missing_raises_section(scope: pathlib.Path, src_root: pathlib.Path) ->
         'Exception',
         'BaseException',
     }
+)
+
+
+def check_missing_raises_section(scope: pathlib.Path, src_root: pathlib.Path) -> None:
+    """Flag functions whose body raises a project exception but whose
+    docstring lacks any `Raises:` / `:raises:` section.
+
+    Signal:
+      - Function has a non-empty docstring.
+      - Function body contains at least one `ast.Raise` whose exception
+        class name ends in `Error` and that is NOT a bare `raise` inside
+        an except block (pure re-raise) and NOT a re-raise of a caught
+        variable (`raise exc_var`).
+      - Docstring contains NO `Raises:` block, `:raises X:` role, or
+        sentence beginning with `Raises `.
+
+    Refinement (2026-11-01): a raise that a handler around it catches, by its
+    own class or a base class in the package's class tree (a bare `except:`,
+    `Exception` and `BaseException` catch all), without re-raising, does not
+    reach the caller and does not count (`_level_catches`). A def nested in
+    the subject counts only where it is called by bare name, under that
+    call's handlers (`nested_call_sites`); a nested def never called counts
+    nothing, and stays a subject of its own. A handler that re-raises, one
+    for an unrelated class, or no handler keeps the hit.
+    """
+    # Accept any of:
+    #   - a `Raises:` / `Raise:` header line (napoleon / google style)
+    #   - sphinx `:raises X:` role
+    #   - a prose sentence `Raise <X>Error` or `Raises <X>Error` that may
+    #     use a dotted-module-qualified form (`pkg.ensemble.errors.LoadError`)
+    raises_marker_re = re.compile(
+        r'(?:^\s*Raises?\s*:|:raises\s+[A-Za-z_]|\bRaises?\s+[A-Za-z_][\w.]*Error\b)',
+        re.MULTILINE,
+    )
+    parsed: list[tuple[pathlib.Path, list[str], ast.Module]] = []
     for path in _all_py_files(src_root):
+        lines = _source_lines(path)
+        try:
+            parsed.append((path, lines, ast.parse('\n'.join(lines))))
+        except SyntaxError:
+            continue
+    parents = package_class_parents(tree for _path, _lines, tree in parsed)
+    for path, lines, tree in parsed:
         if path.name == '__init__.py' or path.name == 'errors.py':
             continue
         rel = _relpath(path, scope)
-        lines = _source_lines(path)
-        try:
-            tree = ast.parse('\n'.join(lines))
-        except SyntaxError:
-            continue
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
@@ -1465,7 +1549,7 @@ def check_missing_raises_section(scope: pathlib.Path, src_root: pathlib.Path) ->
                 continue
             # Does body raise a project *Error class, not a re-raise or stdlib?
             found_project_raise = False
-            for inner in ast.walk(node):
+            for inner, levels in nested_call_sites(node):
                 if not isinstance(inner, ast.Raise):
                     continue
                 if inner.exc is None:
@@ -1484,6 +1568,9 @@ def check_missing_raises_section(scope: pathlib.Path, src_root: pathlib.Path) ->
                     continue
                 if name in STDLIB_ERRORS:
                     continue  # stdlib raises are covered by the layer-stdlib check
+                lineage = class_lineage(name, parents)
+                if any(_level_catches(level, lineage) for level in levels):
+                    continue
                 found_project_raise = True
                 break
             if not found_project_raise:
@@ -1758,8 +1845,8 @@ def _name_is_reguarded(scope_node: ast.AST, name: str) -> bool:
     `x = parsed.get('usage', {})` followed by `if x is None`, `x = x or {}`,
     `if x and x.get(...)`, or `if not isinstance(x, dict): raise DomainError`
     has already answered the question this check asks, whatever order the
-    statements appear in. The `isinstance` form is the cure litrev actually
-    applied at every site review-6 raised, so a predicate that did not
+    statements appear in. The `isinstance` form is the cure one project actually
+    applied at every site an audit raised, so a predicate that did not
     recognise it would re-report every fix as a defect. Testing the whole scope
     rather than only the statements between assignment and use keeps the
     predicate free of flow analysis, at the cost of missing a guard that runs
@@ -1936,7 +2023,7 @@ def _translator_envelopes(src_root: pathlib.Path) -> dict[str, frozenset[str]]:
 
     Indexed by short name rather than by dotted path, because the decorator is
     written as the name it was bound to at the use site and that binding is not
-    always an import the checker can follow - litrev's store reads the
+    always an import the checker can follow - one project's store reads the
     contextmanager back out of `sys.modules` to dodge a circular import, and a
     dotted-path index would resolve nothing there.
 
@@ -2031,8 +2118,8 @@ def check_translator_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -
     lexical `try/except` in the function. A `@translate_sqlite_errors`-style
     decorator is invisible to that scan, so a function guarded only by one
     reads as "no envelope at all" - and is then skipped, being neither
-    lexically guarded nor caught by the no-envelope checks. On litrev three
-    such sites in `store/query.py` survived six audit cycles: all three
+    lexically guarded nor caught by the no-envelope checks. On one project
+    such sites in a query module survived several audit cycles: each
     `json.loads` a sqlite column inside functions documenting
     `Raises: StoreError` whose only envelope caught `sqlite3.Error`, so a
     malformed column reached the CLI as a bare `json.JSONDecodeError`
@@ -2140,6 +2227,399 @@ def check_translator_envelope_gap(scope: pathlib.Path, src_root: pathlib.Path) -
                 path=rel,
                 line=lineno,
                 evidence=(lines[lineno - 1].strip()[:200] if lineno <= len(lines) else callee),
+                accepted=bool(accept),
+                accepted_reason=accept,
+            )
+
+
+# Handlers that catch every domain error, whatever its name.
+_BROAD_HANDLER_NAMES = frozenset({'BaseException', 'Exception'})
+
+
+def _handler_passes_on(handler: ast.ExceptHandler) -> bool:
+    """Whether an `except` clause re-raises (a bare `raise`, or `raise <bound name>`).
+
+    Only the clause's own scope counts: a raise inside a def, lambda or class
+    defined in the handler belongs to that scope.
+    """
+    bound = handler.name
+    return any(
+        isinstance(node, ast.Raise) and (node.exc is None or (isinstance(node.exc, ast.Name) and node.exc.id == bound)) for node in _walk_within_scope(handler)
+    )
+
+
+def _handler_types(handler: ast.ExceptHandler) -> frozenset[str] | None:
+    """The class-name tails an `except` clause matches, or None for a broad one. Pure."""
+    if handler.type is None:
+        return None
+    types = handler.type.elts if isinstance(handler.type, ast.Tuple) else [handler.type]
+    names = set()
+    for node in types:
+        if isinstance(node, (ast.Name, ast.Attribute)):
+            names.add(ast.unparse(node).rsplit('.', 1)[-1])
+    if names & _BROAD_HANDLER_NAMES:
+        return None
+    return frozenset(names)
+
+
+def _raised_name(node: ast.Raise) -> str | None:
+    """The class-name tail a `raise` statement raises, or None.
+
+    `raise X(...)` and `raise mod.X(...)` name a class; a bare `raise` and
+    `raise <name>` re-raise something already caught.
+    """
+    if node.exc is None or not isinstance(node.exc, ast.Call):
+        return None
+    func = node.exc.func
+    if isinstance(func, (ast.Name, ast.Attribute)):
+        return ast.unparse(func).rsplit('.', 1)[-1]
+    return None
+
+
+# One `try`'s handlers in source order: what each matches (None for a broad
+# clause) and whether it passes the error on.
+HandlerLevel = tuple[tuple[frozenset[str] | None, bool], ...]
+
+
+def _handler_level(node: ast.Try | ast.TryStar) -> HandlerLevel:
+    """A `try`'s handlers in source order. Pure."""
+    return tuple((_handler_types(handler), _handler_passes_on(handler)) for handler in node.handlers)
+
+
+def _level_catches(level: HandlerLevel, lineage: set[str]) -> bool:
+    """Whether a `try` stops an error of this lineage. Pure.
+
+    Python runs only the first clause that matches, so a re-raising clause
+    lets the error through even when a later, broader clause would catch it.
+    """
+    for types, passes_on in level:
+        if types is None or types & lineage:
+            return not passes_on
+    return False
+
+
+def _reach_sites(
+    body: list[ast.stmt],
+    catches: tuple[HandlerLevel, ...] = (),
+) -> list[tuple[ast.AST, tuple[HandlerLevel, ...]]]:
+    """Every `raise` and call in a function body, with the `try` levels around it.
+
+    Nested functions, lambdas and classes are skipped: their raises reach their
+    own callers. A `try` body sees its own handlers; its handlers, `else` and
+    `finally` see only the handlers outside it.
+    """
+    sites: list[tuple[ast.AST, tuple[HandlerLevel, ...]]] = []
+
+    def visit(node: ast.AST, around: tuple[HandlerLevel, ...]) -> None:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
+            return
+        if isinstance(node, (ast.Try, ast.TryStar)):
+            inner = (*around, _handler_level(node))
+            for child in node.body:
+                visit(child, inner)
+            for child in [*node.handlers, *node.orelse, *node.finalbody]:
+                visit(child, around)
+            return
+        if isinstance(node, (ast.Raise, ast.Call)):
+            sites.append((node, around))
+        for child in ast.iter_child_nodes(node):
+            visit(child, around)
+
+    for statement in body:
+        visit(statement, catches)
+    return sites
+
+
+def nested_call_sites(func: ast.FunctionDef | ast.AsyncFunctionDef) -> list[tuple[ast.AST, tuple[HandlerLevel, ...]]]:
+    """`_reach_sites(func.body)` plus, for each call by bare name to a def
+    nested directly in `func`'s body, that def's own reach sites with the
+    call's handler levels prepended. One level deep; a nested def that is
+    never called contributes nothing.
+    """
+    nested = {stmt.name: stmt for stmt in func.body if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    sites = _reach_sites(func.body)
+    for site, around in list(sites):
+        if isinstance(site, ast.Call) and isinstance(site.func, ast.Name) and site.func.id in nested:
+            sites.extend((inner, (*around, *levels)) for inner, levels in _reach_sites(nested[site.func.id].body))
+    return sites
+
+
+def _from_import_bindings(tree: ast.Module, module: str, is_package: bool) -> dict[str, str]:
+    """Each name a module's top-level `from ... import` binds, to its dotted target.
+
+    A relative import resolves against the module's own package. Pure.
+    """
+    package = module if is_package else module.rpartition('.')[0]
+    bindings: dict[str, str] = {}
+    for statement in tree.body:
+        if not isinstance(statement, ast.ImportFrom):
+            continue
+        if statement.level:
+            base = package.rsplit('.', statement.level - 1)[0] if statement.level > 1 else package
+            source = f'{base}.{statement.module}' if statement.module else base
+        elif statement.module:
+            source = statement.module
+        else:
+            continue
+        for alias in statement.names:
+            bindings[alias.asname or alias.name] = f'{source}.{alias.name}'
+    return bindings
+
+
+def _function_levels(body: list[ast.stmt]) -> list[HandlerLevel]:
+    """Every `try` level in a function body, nested defs skipped."""
+    levels: list[HandlerLevel] = []
+
+    def visit(node: ast.AST) -> None:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
+            return
+        if isinstance(node, (ast.Try, ast.TryStar)):
+            levels.append(_handler_level(node))
+        for child in ast.iter_child_nodes(node):
+            visit(child)
+
+    for statement in body:
+        visit(statement)
+    return levels
+
+
+def unset_optional_guard(
+    func: ast.FunctionDef | ast.AsyncFunctionDef,
+    error: str,
+    parents: Mapping[str, set[str]],
+    call: ast.Call,
+    bound: bool,
+) -> bool:
+    """Whether `call` leaves unset every optional argument guarding `error`.
+
+    True when `func`'s own scope (nested defs, lambdas and classes excluded)
+    holds at least one `raise X(...)` or `raise mod.X(...)` whose lineage
+    contains `error`, and each such raise has an enclosing `If` (in its body
+    or `orelse`) or `Match` inside `func` whose test or subject reads a Name
+    that is a parameter with a default which `call` does not supply. A
+    parameter is supplied when a keyword names it or a positional argument
+    reaches its position; with `bound` (a call through `self.`), positional
+    arguments start at the second parameter. A call with a `*` or `**`
+    argument supplies every parameter. False otherwise, including when
+    `func` raises `error` only through its own callees.
+    """
+    if any(isinstance(arg, ast.Starred) for arg in call.args) or any(kw.arg is None for kw in call.keywords):
+        return False
+    args = func.args
+    positional = [*args.posonlyargs, *args.args]
+    first_default = len(positional) - len(args.defaults)
+    optional = {arg.arg: index for index, arg in enumerate(positional) if index >= first_default}
+    optional.update({arg.arg: -1 for arg, default in zip(args.kwonlyargs, args.kw_defaults, strict=True) if default is not None})
+    reached = len(call.args) + (1 if bound else 0)
+    named = {kw.arg for kw in call.keywords}
+    unset = {name for name, index in optional.items() if name not in named and (index < 0 or index >= reached)}
+    if not unset:
+        return False
+
+    def reads_unset(expr: ast.expr) -> bool:
+        return any(isinstance(node, ast.Name) and node.id in unset for node in ast.walk(expr))
+
+    found = False
+
+    def visit(node: ast.AST, guarded: bool) -> bool:
+        """Walk `node`; False when a matching raise sits outside an unset-argument guard."""
+        nonlocal found
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
+            return True
+        if isinstance(node, ast.Raise):
+            name = _raised_name(node)
+            if name and error in class_lineage(name, parents):
+                found = True
+                if not guarded:
+                    return False
+        tested = node.test if isinstance(node, ast.If) else node.subject if isinstance(node, ast.Match) else None
+        inner = guarded or (tested is not None and reads_unset(tested))
+        return all(visit(child, inner) for child in ast.iter_child_nodes(node))
+
+    return all(visit(statement, False) for statement in func.body) and found
+
+
+def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> None:
+    """Flag a `Raises:` section that disagrees with the domain errors reaching
+    the caller (A4).
+
+    Signal:
+      - A function or method whose docstring has a Google-style `Raises:`
+        section (`raises_section_names`).
+      - What reaches its caller: every domain error its body raises, plus every
+        domain error a same-package callee's own `Raises:` section declares,
+        minus each that an enclosing `except` catches without re-raising.
+      - One hit per name the section omits, and one per domain error it
+        declares that never reaches the caller although a handler in the
+        function catches it - the positive evidence that it is caught there.
+
+    A domain error is an exception class the swept package defines - positive
+    evidence, so `sqlite3.Error` (tail `Error`) and a third-party `*Error` are
+    not one - and never a builtin (`STDLIB_ERRORS`). Subclasses follow the package's own class tree: catching
+    or declaring a base covers its subclasses. Callees are followed one level,
+    through the callee's declared section, not its body, and only within the
+    package being swept: a module function called by its dotted path (or a
+    name imported from a package module), a same-module function, or a method
+    called on `self`, following re-exports such as a package `__init__.py`'s
+    `from pkg.mod import name`. A call the check cannot resolve contributes
+    nothing, which is why an extra needs a catching handler: without one, the
+    declared error may arrive through such a call.
+
+    Raised by an audit whose Phase B A4 kept finding these by hand, cycle
+    after cycle (shipped 2026-10-31).
+
+    Refinement (2026-11-01): a callee's declared error does not reach the
+    caller through a call that leaves unset every optional argument guarding
+    it (`unset_optional_guard`): every raise of it in the callee's own body
+    sits under an `if` or `match` testing a parameter with a default that the
+    call does not supply, as `if strict: raise ParseError(...)` called as
+    `load('x')`. Omissions only; a guard on a parameter without a default, a
+    module-level name, a raise outside the guard, or a call passing the
+    argument (or `*args`/`**kwargs`) keeps the hit. Other value-dependent
+    cases (fixed names, pre-checked values, dispatch types) are left to the
+    Phase B review (A4).
+
+    Refinement (2026-11-01), nested functions: a def nested directly in the
+    subject and called by bare name contributes its raises and calls under
+    the call's handlers (`nested_call_sites`, one level deep), so an error it
+    catches and re-raises on one branch still reaches the subject's callers;
+    a def never called contributes nothing. A raise inside a def, lambda or
+    class defined in a handler does not make that handler re-raise.
+    """
+    modules: dict[str, tuple[pathlib.Path, ast.Module, list[str]]] = {}
+    for path in _all_py_files(src_root):
+        lines = _source_lines(path)
+        try:
+            tree = ast.parse('\n'.join(lines))
+        except SyntaxError:
+            continue
+        modules[module_dotted(path, src_root)] = (path, tree, lines)
+
+    parents = package_class_parents(tree for _path, tree, _lines in modules.values())
+    package_classes = set(parents)
+    declared_by: dict[str, set[str]] = {}
+    path_of: dict[str, pathlib.Path] = {}
+    functions: list[tuple[str, str, str | None, ast.FunctionDef | ast.AsyncFunctionDef]] = []
+    for module, (_path, tree, _lines) in modules.items():
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                functions.append((module, f'{module}.{node.name}', None, node))
+            elif isinstance(node, ast.ClassDef):
+                for member in node.body:
+                    if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        functions.append((module, f'{module}.{node.name}.{member.name}', node.name, member))
+    node_of: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    for _module, qualname, _cls, node in functions:
+        declared_by[qualname] = raises_section_names(ast.get_docstring(node) or '')
+        node_of[qualname] = node
+        path_of[qualname] = modules[_module][0]
+
+    # A package's `__init__.py` (or any module) re-exporting a function makes
+    # `pkg.name` another path to it. Followed until no alias is added, so a
+    # re-export of a re-export resolves too.
+    bindings_of = {module: _from_import_bindings(tree, module, path.name == '__init__.py') for module, (path, tree, _lines) in modules.items()}
+    aliases: dict[str, str] = {}
+    changed = True
+    while changed:
+        changed = False
+        for module, bindings in bindings_of.items():
+            for name, target in bindings.items():
+                target = aliases.get(target, target)
+                alias = f'{module}.{name}'
+                if target in declared_by and aliases.get(alias) != target and alias not in declared_by:
+                    aliases[alias] = target
+                    changed = True
+
+    def ancestors(name: str) -> set[str]:
+        return class_lineage(name, parents) - {name}
+
+    def is_domain(name: str) -> bool:
+        return name in package_classes and name not in STDLIB_ERRORS
+
+    def caught(name: str, around: tuple[HandlerLevel, ...]) -> bool:
+        lineage = {name} | ancestors(name)
+        return any(_level_catches(level, lineage) for level in around)
+
+    def resolve(call: ast.Call, module: str, cls: str | None, imported: dict[str, str]) -> str | None:
+        """The package function a call reaches, or None when it cannot be told."""
+        func = call.func
+        if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name) and func.value.id == 'self' and cls:
+            method = f'{module}.{cls}.{func.attr}'
+            return method if method in declared_by else None
+        if not isinstance(func, (ast.Name, ast.Attribute)):
+            return None
+        dotted = ast.unparse(func)
+        head, _, rest = dotted.partition('.')
+        if head in imported:
+            dotted = imported[head] + (f'.{rest}' if rest else '')
+        elif isinstance(func, ast.Name):
+            dotted = f'{module}.{dotted}'
+        dotted = aliases.get(dotted, dotted)
+        return dotted if dotted in declared_by else None
+
+    for module, qualname, cls, node in functions:
+        doc = ast.get_docstring(node) or ''
+        if 'Raises:' not in doc:
+            continue
+        declared = {name for name in raises_section_names(doc) if is_domain(name)}
+        path, tree, lines = modules[module]
+        imported = dict(bindings_of[module])
+        for statement in tree.body:
+            if isinstance(statement, ast.Import):
+                for alias in statement.names:
+                    if alias.asname:
+                        imported[alias.asname] = alias.name
+
+        reached: dict[str, set[str]] = defaultdict(set)
+        for site, around in nested_call_sites(node):
+            if isinstance(site, ast.Raise):
+                name = _raised_name(site)
+                if name and is_domain(name) and not caught(name, around):
+                    reached[name].add('')
+                continue
+            callee = resolve(site, module, cls, imported)
+            if callee is None or callee == qualname:
+                continue
+            callee_node = node_of.get(callee)
+            bound = isinstance(site.func, ast.Attribute) and isinstance(site.func.value, ast.Name) and site.func.value.id == 'self'
+            for name in declared_by[callee]:
+                if not is_domain(name) or caught(name, around):
+                    continue
+                if callee_node is not None and unset_optional_guard(callee_node, name, parents, site, bound):
+                    continue
+                reached[name].add(callee)
+
+        rel = _relpath(path, scope)
+        accept = _accept_reason(lines, node.lineno, rule='raises-section-drift')
+        evidence = lines[node.lineno - 1].strip()[:200] if node.lineno <= len(lines) else ''
+        for name in sorted(reached):
+            if name in declared or ancestors(name) & declared:
+                continue
+            callees = sorted(callee for callee in reached[name] if callee)
+            source = 'raised here' if '' in reached[name] else f'declared by {callees[0]}'
+            _emit(
+                related=[_relpath(path_of[callee], scope) for callee in callees if path_of[callee] != path],
+                rule='raises-section-drift',
+                variant=f'{node.name}: Raises: omits {name}, {source}',
+                path=rel,
+                line=node.lineno,
+                evidence=evidence,
+                accepted=bool(accept),
+                accepted_reason=accept,
+            )
+        levels = _function_levels(node.body)
+        for name in sorted(declared):
+            if any(name == found or name in ancestors(found) for found in reached):
+                continue
+            lineage = {name} | ancestors(name)
+            if not any(_level_catches(level, lineage) for level in levels):
+                continue
+            _emit(
+                rule='raises-section-drift',
+                variant=f'{node.name}: Raises: declares {name}, which never reaches the caller',
+                path=rel,
+                line=node.lineno,
+                evidence=evidence,
                 accepted=bool(accept),
                 accepted_reason=accept,
             )

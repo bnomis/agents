@@ -4,10 +4,13 @@ install-claude: symlinks files in to ~/.claude/
 """
 
 import argparse
-import logging
+import json
+import os
 import pathlib
+import shutil
 import sys
-from typing import NoReturn
+import tempfile
+import typing
 
 
 def symlink_file(options, src: pathlib.Path, dst: pathlib.Path) -> None:
@@ -56,6 +59,83 @@ def dest_claude_dir() -> pathlib.Path:
     return pathlib.Path.home() / '.claude'
 
 
+STOP_HOOK_SCRIPT = 'auditme-stop.sh'
+STOP_HOOK_COMMAND = f'bash "$HOME/.claude/hooks/{STOP_HOOK_SCRIPT}"'
+STATUS_LINE = {'command': '~/.claude/statusline.py', 'type': 'command'}
+
+
+class SettingsError(Exception):
+    """~/.claude/settings.json cannot be merged into; nothing was written."""
+
+
+def read_settings(path: pathlib.Path) -> dict[str, typing.Any]:
+    """returns the parsed settings, {} when the file is absent
+
+    Raises:
+        SettingsError: the file is not valid JSON, or not a JSON object.
+    """
+    if not path.exists():
+        return {}
+    text = path.read_text()
+    try:
+        settings = json.loads(text)
+    except ValueError as e:
+        raise SettingsError(f'{path} is not valid JSON; not changed (check it with: python3 -m json.tool {path})') from e
+    if not isinstance(settings, dict):
+        raise SettingsError(f'{path} is not a JSON object; not changed')
+    return settings
+
+
+def has_stop_hook(settings: dict[str, typing.Any]) -> bool:
+    """whether any Stop hook command already names the script"""
+    entries = (settings.get('hooks') or {}).get('Stop') or []
+    return any(STOP_HOOK_SCRIPT in hook.get('command', '') for entry in entries for hook in entry.get('hooks', []))
+
+
+def register_stop_hook(options, settings_path: pathlib.Path) -> None:
+    """adds the Stop hook to settings.json once, keeping everything else"""
+    settings = read_settings(settings_path)
+    if has_stop_hook(settings):
+        print(f'Stop hook already registered in {settings_path}')
+        return
+
+    entry = {'hooks': [{'type': 'command', 'command': STOP_HOOK_COMMAND}]}
+    settings.setdefault('hooks', {}).setdefault('Stop', []).append(entry)
+    write_settings(settings_path, settings)
+    print(f'Registered Stop hook in {settings_path}')
+
+
+def register_status_line(options, settings_path: pathlib.Path) -> None:
+    """sets claude/statusline.py as the status line, unless one is already set"""
+    settings = read_settings(settings_path)
+    if 'statusLine' in settings:
+        print(f'Status line already set in {settings_path}')
+        return
+    settings['statusLine'] = STATUS_LINE
+    write_settings(settings_path, settings)
+    print(f'Registered status line in {settings_path}')
+
+
+def write_settings(settings_path: pathlib.Path, settings: dict[str, typing.Any]) -> None:
+    """writes settings.json atomically, keeping its mode; saves the first original as settings.json.orig"""
+    if settings_path.exists():
+        orig = settings_path.with_name(settings_path.name + '.orig')
+        if not orig.exists():
+            shutil.copy2(settings_path, orig)
+
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=settings_path.parent, prefix=f'{settings_path.name}.')
+    try:
+        with os.fdopen(fd, 'w') as f:
+            f.write(json.dumps(settings, indent=2) + '\n')
+        if settings_path.exists():
+            shutil.copymode(settings_path, tmp)
+        os.replace(tmp, settings_path)
+    except BaseException:
+        pathlib.Path(tmp).unlink(missing_ok=True)
+        raise
+
+
 def find_dangling_symlinks(options, dir: pathlib.Path, max_depth: int = 2) -> None:
     root_depth = len(dir.parts)
     dangle = []
@@ -81,6 +161,7 @@ def install_claude(options) -> None:
     """link files from source to target"""
     fdir = src_claude_dir()
     tdir = dest_claude_dir()
+    tdir.mkdir(parents=True, exist_ok=True)
 
     for f in fdir.iterdir():
         if f.name[0] == '.':
@@ -94,6 +175,8 @@ def install_claude(options) -> None:
             symlink_file(options, src, dest)
 
     find_dangling_symlinks(options, tdir)
+    register_stop_hook(options, tdir / 'settings.json')
+    register_status_line(options, tdir / 'settings.json')
 
 
 def parse_args(argv) -> argparse.Namespace:
@@ -104,17 +187,13 @@ def parse_args(argv) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv) -> NoReturn:
+def main(argv) -> typing.NoReturn:
     options = parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG)
-    options.logger = logging.getLogger('install-claude')
-    m = 0
     try:
         install_claude(options)
-    except Exception as e:
-        m = f'Exception: {e}'
-        options.logger.exception(m)
-    sys.exit(m)
+    except SettingsError as e:
+        sys.exit(e)
+    sys.exit(0)
 
 
 if __name__ == '__main__':

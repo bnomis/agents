@@ -388,6 +388,137 @@ def test_a_marker_anywhere_in_the_file_accepts_the_finding(project: Builder, run
     assert hits[0]['accepted_reason'] == 'internal grouping only'
 
 
+def test_a_call_that_repeats_a_parameter_is_not_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            def load(name: str) -> object:
+                return probe.core.get(name, name)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_a_keyword_with_a_computed_value_is_not_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            def load(x: str) -> object:
+                return probe.core.load(x, size=len(x))
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_a_double_star_keyword_is_not_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            def load(x: str, **opts: object) -> object:
+                return probe.core.load(x, **opts)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_a_pytest_fixture_is_not_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            @pytest.fixture
+            def load(x: str) -> object:
+                return probe.core.load(x)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_a_pytest_fixture_with_arguments_is_not_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            @pytest.fixture(scope='module')
+            def load(x: str) -> object:
+                return probe.core.load(x)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_any_decorator_excludes_a_function_from_being_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            @probe.core.register
+            def load(x: str) -> object:
+                return probe.core.load(x)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 0
+
+
+def test_a_forward_with_a_keyword_parameter_is_still_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            def load(a: str, key: str) -> object:
+                return probe.core.load(a, key=key)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 1
+
+
+def test_a_forward_of_two_positionals_is_still_a_shim(project: Builder, run_check: Runner) -> None:
+    root = project(
+        {
+            'src/probe/mod.py': """
+            import probe.core
+            import pytest
+
+
+            def load(a: str, b: str) -> object:
+                return probe.core.load(a, b)
+            """
+        }
+    )
+    assert len(run_check(PASSTHROUGH, root)) == 1
+
+
 # --------------------------------------------------------------------------
 # check_migration_shim_consumers
 # --------------------------------------------------------------------------
@@ -475,7 +606,7 @@ def test_an_aliased_from_import_is_a_hit(project: Builder, run_check: Runner) ->
 
 
 def test_an_as_import_inside_a_function_is_a_hit(project: Builder, run_check: Runner) -> None:
-    """The litrev site was a fixture body, which the full-path-imports codemod
+    """The site that prompted this was a fixture body, which the full-path-imports codemod
     and ruff's ICN003 both walked past."""
     root = project(
         {
@@ -564,8 +695,8 @@ def test_a_from_import_in_a_module_is_a_hit(project: Builder, run_check: Runner)
 
 
 def test_a_from_import_inside_a_function_or_type_checking_block_is_a_hit(project: Builder, run_check: Runner) -> None:
-    """A from-import is one wherever it is written; the featlib sites included a
-    conftest fixture body."""
+    """A from-import is one wherever it is written; the sites that prompted the
+    check included a conftest fixture body."""
     root = project(
         {
             'src/probe/mod.py': """

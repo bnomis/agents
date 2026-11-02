@@ -10,6 +10,26 @@ pre-commit install
 
 If a hook fails, fix the underlying issue. Do not use `--no-verify`.
 
+### A rule a script can check is a hook
+
+A coding rule that only lives in a rules file is broken without anyone
+noticing: code written to it from memory drifts, and the drift surfaces
+hundreds of hits later, in an audit. So every rule a tool can check is
+enforced where the work is committed, not left to whoever writes the code:
+
+- Enable the linter rules that match the project's standards (ruff, mypy
+  strict) so they run on every commit.
+- Run the project's slower whole-tree checks (an audit sweep, a duplication
+  check) as a `pre-push` hook, failing on any unaccepted hit, and run the
+  same command in CI so a push that skipped the hook is still caught.
+- A check that needs a private repository in CI gets a read-only credential
+  (a deploy key held as a secret), not a skipped job.
+- When a project adopts a rule, add its check to the hooks in the same
+  change; a rule with no check is a finding in the next audit.
+
+Install both hook types after cloning: `pre-commit install --hook-type
+pre-commit --hook-type pre-push`.
+
 ## Branching
 
 Use feature branches (`feat/short-description`) unless told to use worktrees.
@@ -103,3 +123,9 @@ Leave uncommitted changes you did not make out of your commits. Mention one
 once, when you first notice it, and never again: not in status summaries,
 commit reports or "next step" messages. The user knows about their own working
 tree, and repeating it is noise.
+
+A change the user made by following this session's own instructions - a
+submodule pointer moved, a file regenerated, a step from a guide the session
+wrote - is part of the work, not their own unrelated change. Ask once whether
+to include it in the commit or push being made, rather than leaving it out
+without a word.

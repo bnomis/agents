@@ -73,7 +73,8 @@ consolidates what shares a cause, and orders the rest. Follow
      proposed title and place in the order;
    - each proposed group, with the shared cause in one sentence and the
      findings it absorbs;
-   - the proposed order, as a table.
+   - the proposed order, as the table in
+     [Showing the list](#showing-the-list).
    Ask the operator to confirm or adjust. Do not rewrite until they do.
 6. **Rewrite**, as confirmed:
    - move done items to the end of `DONE.md`, body unchanged, each followed
@@ -99,11 +100,40 @@ consolidates what shares a cause, and orders the rest. Follow
    which one it was.
 8. **Run the project's checks** on `TODO.md` and `DONE.md` (pre-commit hooks,
    any count checker).
-9. **Report**: the new order as a table, what moved to `DONE.md`, what was
+9. **Report**: the new order as the table in
+   [Showing the list](#showing-the-list), what moved to `DONE.md`, what was
    merged into what, which missing items were added, and anything stale. Ask
    whether to commit (`docs(todo): ...`). If a group's fix will change a
    spec or an artefact shape, say that the next step is `/todo-do`, which
    starts a spec for it.
+
+## Showing the list
+
+Whenever this skill shows the operator the list - the proposed order in step
+5, the new order in step 9, or the list on its own when asked - show it as a
+laid-out table, never as the raw `TODO.md` text. The operator reads the
+table to decide what to do next; the file is there for the detail.
+
+Head it with the file's full absolute path and the commit it reflects (or
+"uncommitted"). Then one row per item, in the file's order:
+
+| # | Item | Kind | Found | Next step | Size |
+|---|---|---|---|---|---|
+| 1 | <the item's title, shortened only if very long> | <defect, blocker, waste, feature, audit, deferred> | <date found; and the date of any later note> | <the command or action that moves it on: `/todo-do`, a spec, a task list, a run> | <small, or large and why> |
+
+In step 5, add a **Change** column saying what the review does to each row
+(kept, moved up or down, merged, corrected, new), and list the items leaving
+for `DONE.md` beneath the table.
+
+Where an item carries a list of its own - the findings of a consolidated
+item, the packages or files it covers, the measurements it records - show
+that list as a second, smaller table under the main one, headed with the
+item's number and title. Keep each dated figure with its date, as the item
+records it.
+
+Follow the tables with a sentence or two on anything the table cannot say:
+what the first item needs before it can start, or that the list is short
+because nothing else is open.
 
 ## Do not
 
