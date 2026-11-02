@@ -303,3 +303,28 @@ the step to `docs/setup.md`; registering it changes the installer, so decide
 that with the operator. No spec needed for the text fixes.
 
 Done: 2026-11-01 - branch `fix/checker-docs-and-statusline`: the `changed.py` docstring says when it skips, ruff and lockfile-drift hits get their own advice (tests in `test_changed.py`), the `audit.py` docstring gains `related` and the scoped marker, `docs/setup.md` says what else is read, and `bin/install-claude.py` registers the status line unless one is set, as the operator chose (tests in `tests/test_install_claude.py`).
+
+## Shared Python rules carry one project's choices
+
+Found on 2026-11-01 while writing the documentation site's rules page:
+
+- `claude/rules/python/coding-standards.md:151` names one project's module
+  path as an example of a CLI entry point, against `rule-scope.md`.
+- `claude/rules/python/logging.md:28` ends "the only structured log-line
+  prefix in this project", a fact about one project.
+- `claude/rules/python/coding-standards.md:109` and
+  `claude/rules/python/tools-and-libraries.md:14` prescribe `cappa` for
+  command-line parsing, while `claude/rules/python/argparse.md` sets
+  standards for argparse, and this repository's own scripts
+  (`bin/install-claude.py`, `audit.py`, `changed.py`) use argparse.
+
+Cause: these rules were brought in from a project and kept its specifics:
+its paths, its log format, and its choice of argument parser.
+
+Fix direction: make the first two generic (or move them into that
+project's own `claude/rules/`), and decide with the operator which parser
+the shared rules prescribe; then make `coding-standards.md`,
+`tools-and-libraries.md` and `argparse.md` agree, or scope one of them to
+projects that chose it.
+
+Done: 2026-11-01 - branch `docs/python-rules-cappa`: the operator chose cappa for every CLI; `coding-standards.md`, `tools-and-libraries.md` and `argparse.md` now agree (argparse only in unconverted code and standard-library-only scripts), the project path in `coding-standards.md` is generic, and `logging.md` no longer states one project's fact.

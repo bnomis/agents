@@ -4,29 +4,6 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## Shared Python rules carry one project's choices
-
-Found on 2026-11-01 while writing the documentation site's rules page:
-
-- `claude/rules/python/coding-standards.md:151` names one project's module
-  path as an example of a CLI entry point, against `rule-scope.md`.
-- `claude/rules/python/logging.md:28` ends "the only structured log-line
-  prefix in this project", a fact about one project.
-- `claude/rules/python/coding-standards.md:109` and
-  `claude/rules/python/tools-and-libraries.md:14` prescribe `cappa` for
-  command-line parsing, while `claude/rules/python/argparse.md` sets
-  standards for argparse, and this repository's own scripts
-  (`bin/install-claude.py`, `audit.py`, `changed.py`) use argparse.
-
-Cause: these rules were brought in from a project and kept its specifics:
-its paths, its log format, and its choice of argument parser.
-
-Fix direction: make the first two generic (or move them into that
-project's own `claude/rules/`), and decide with the operator which parser
-the shared rules prescribe; then make `coding-standards.md`,
-`tools-and-libraries.md` and `argparse.md` agree, or scope one of them to
-projects that chose it.
-
 ## Skill texts break the repository's own conventions
 
 Found on 2026-11-01 while writing the documentation site's skills page:

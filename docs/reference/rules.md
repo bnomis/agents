@@ -62,7 +62,7 @@ Every file here is path-scoped (see above).
 
 | File | Requires |
 |---|---|
-| `python/argparse.md` | A trailing comma in argparse calls so arguments format one per line. |
+| `python/argparse.md` | argparse only in unconverted code and standard-library-only scripts (every new CLI uses cappa), with a trailing comma in its calls so arguments format one per line. |
 | `python/asserts.md` | No `assert` in product code; raise an exception. Tests may assert. |
 | `python/coding-standards.md` | Python 3.14; ruff as configured; full type annotations with built-in generics and `\|` unions; no leading underscores; f-strings; alphabetical ordering of enum-like collections; nothing defined in `__init__.py`; `loguru` for logging. |
 | `python/dependencies.md` | Declare dependencies in `pyproject.toml` via `uv add`; commit `uv.lock` and never hand-edit it; no `pip install`. |
