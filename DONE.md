@@ -328,3 +328,28 @@ the shared rules prescribe; then make `coding-standards.md`,
 projects that chose it.
 
 Done: 2026-11-01 - branch `docs/python-rules-cappa`: the operator chose cappa for every CLI; `coding-standards.md`, `tools-and-libraries.md` and `argparse.md` now agree (argparse only in unconverted code and standard-library-only scripts), the project path in `coding-standards.md` is generic, and `logging.md` no longer states one project's fact.
+
+## Skill texts break the repository's own conventions
+
+Found on 2026-11-01 while writing the documentation site's skills page:
+
+- `claude/skills/auditme/SKILL.md:199` points at
+  `agents/skills/specdev/SKILL.md`; the skill lives at
+  `claude/skills/specdev/SKILL.md` (installed as
+  `~/.claude/skills/specdev/SKILL.md`).
+- The commit messages these skills prescribe are not in the
+  `type(scope): subject` form of `claude/rules/git-conventions.md`:
+  `claude/skills/specdev/SKILL.md:216` (`specdev: ...`),
+  `claude/skills/taskdev/SKILL.md:390` (`taskdev: ...`),
+  `claude/skills/testplan/SKILL.md:88` (`testplan: add plan-N`) and
+  `claude/skills/auditme/SKILL.md:251` (`auditme: add review-N`). The
+  `TODO.md` skills already use `docs(todo): ...`.
+
+Cause: the skill texts predate the commit conventions and the move of the
+skills under `claude/skills/`, and were not updated with them.
+
+Fix direction: fix the path, and give each skill a conventional message
+(for example `docs(specs): ...`, `docs(tasks): ...`, `docs(tests): ...`,
+`docs(audit): ...`). Text only; no spec needed.
+
+Done: 2026-11-02 - on `main`: `auditme` now points at `claude/skills/specdev/SKILL.md`, and the `specdev`, `taskdev`, `testplan` and `auditme` skills prescribe `docs(specs)`, `docs(tasks)`, `docs(tests)` and `docs(audit)` commit messages.
