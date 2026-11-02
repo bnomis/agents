@@ -21,6 +21,11 @@ what it is, in plain words, and where it comes from:
 - A table may carry the label in its own column, beside a column that says
   what it is.
 - Keep the label as well as the meaning, so the user can search for it.
+- After decoding it, call the thing by its plain name, not the label: give
+  the label once, in brackets beside the name ("the unused-dependency check
+  (D2 in the auditme checklist)"), and never alone as a heading or the
+  subject of a later sentence. A label decoded in one sentence and used bare
+  in the next is opaque again to a reader who skims.
 
 This applies to chat messages, commit messages and anything else written for
 the user to read. Inside a spec or review that defines the label, the
