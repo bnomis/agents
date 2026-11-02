@@ -116,6 +116,19 @@ Stop and consolidate, rather than patch, when:
 
 Name the fact every derivation is compensating for, and propose storing it.
 
+## Show the list after every change
+
+Whenever a skill or session changes `TODO.md` - adds, moves, merges,
+reorders or annotates an item - the message that reports the change ends
+with the list as it now stands, laid out as the table in
+[todo-review: Showing the list](SKILL.md#showing-the-list). Read the file
+again after writing it and build the table from what is there, not from the
+plan. A report that names the change without the list leaves the operator
+to open the file to see where things now stand.
+
+If the change is committed in a later turn, show the list again in the
+commit report, so the last message about the change carries it.
+
 ## Checks and commits
 
 - Run the project's checks on the file after editing it - `pre-commit run
