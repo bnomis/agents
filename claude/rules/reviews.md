@@ -67,6 +67,13 @@ without asking.
 - **Only call something a decision when the user has something to choose.**
   A choice already made is reported as one ("I chose X because Y; it is
   reversible"), not presented as a decision.
+- **Filter the decisions a subagent or spec raises before they reach the
+  user.** A point the product already settles (an existing setting, a
+  convention every similar feature follows) is described as how the product
+  does it, not offered as a choice. A point whose effect is small and whose
+  answer follows from what the user has already decided is made and reported.
+  Only what is left goes on the page; a page of minor or already-settled
+  questions costs the user a comment explaining why each one does not matter.
 
 ## Make it interactive
 
