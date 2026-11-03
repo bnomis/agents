@@ -76,8 +76,10 @@ Say which it is and why, in a sentence, before going on.
    line after the item's Fix direction:
    `Note YYYY-MM-DD: since <commit>, ... is at <line>.`
    Never rewrite the dated finding.
-6. Report, listing those notes, and ask whether to commit. The item move and
-   the notes go in the same commit as the fix.
+6. Report, listing those notes, then show the updated list
+   ([conventions.md: Show the list after every change](../todo-review/conventions.md#show-the-list-after-every-change)),
+   and ask whether to commit. The item move and the notes go in the same
+   commit as the fix.
 
 ## 3b. Large: start a spec
 
@@ -90,7 +92,8 @@ Say which it is and why, in a sentence, before going on.
 3. **The item stays in `TODO.md`.** Add one line to its body, after its
    Fix direction:
    `Spec: <path to spec>; tasks: <path to task list>.`
-   so the next reader sees it is in progress and where.
+   so the next reader sees it is in progress and where. Show the updated
+   list ([conventions.md: Show the list after every change](../todo-review/conventions.md#show-the-list-after-every-change)).
 4. When the task list's last task is done, move the item to `DONE.md` with
    a `Done:` line naming the spec and the task list. The task list's own
    documentation task is the usual place this happens.

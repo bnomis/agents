@@ -66,8 +66,9 @@ section in `AGENTS.md` or `CLAUDE.md` wins where it differs.
    Fix direction. One blank line after every heading.
 7. **Run the project's checks** on `TODO.md`.
 8. **Report** where it went and why there: new, joined, or consolidated,
-   and the neighbours it sits between. Ask whether to commit
-   (`docs(todo): ...`).
+   and the neighbours it sits between, then show the updated list
+   ([conventions.md: Show the list after every change](../todo-review/conventions.md#show-the-list-after-every-change)).
+   Ask whether to commit (`docs(todo): ...`).
 
 ## Do not
 

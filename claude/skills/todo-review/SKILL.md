@@ -105,7 +105,9 @@ consolidates what shares a cause, and orders the rest. Follow
    merged into what, which missing items were added, and anything stale. Ask
    whether to commit (`docs(todo): ...`). If a group's fix will change a
    spec or an artefact shape, say that the next step is `/todo-do`, which
-   starts a spec for it.
+   starts a spec for it. Whenever the review changes `TODO.md` again, or
+   commits it in a later turn, show the list again
+   ([conventions.md: Show the list after every change](conventions.md#show-the-list-after-every-change)).
 
 ## Showing the list
 
