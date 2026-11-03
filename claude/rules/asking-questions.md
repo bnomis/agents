@@ -26,6 +26,14 @@ message.
   reporting it. If X waits on the user, ask for it instead of announcing it.
   Ending a turn on "I'll do X" leaves the user to notice that X never ran and
   ask for it.
+- **Say why a prerequisite is needed.** When work needs something from the
+  user - a credential, a login, a network connection, an installed tool, a
+  file - say in the same sentence what the work uses it for, and why nothing
+  they already have would do: "the sync needs a token because GitHub's
+  GraphQL API refuses requests without one, even for public data", not "it
+  needs a token". Check the reason in the code or the service's documentation
+  first, not from memory. A bare "needs X" reads as an arbitrary demand, and
+  the user has to ask why before they can judge whether to provide it.
 
 ## Related
 
