@@ -87,6 +87,12 @@ document's Answers section.
   action, in its own panel above the first section with a line saying what
   it does; a button tucked into a toolbar and styled like an answer button
   goes unseen.
+- **Every item gets a recommendation, even when the spec proposes none.**
+  Where a spec or task leaves each item to the user with no default (a
+  keep-or-drop list, a set of verdicts), recommend one per item yourself,
+  each with its one-line reason, state the rule the recommendations follow,
+  and give the page its accept-all button. A page of bare choices makes the
+  user decide every item from nothing.
 - **Every answer saves as it is made**, to storage Claude can read back (the
   artifact's shared database, not the browser's). No save button and no
   final submit: the user should never have to click save, let alone more
