@@ -150,6 +150,24 @@ Each task should include:
 - **Definition of Done**: the project's own checks, named literally
 - **Notes**: dependencies, relevant file paths, implementation hints
 
+## Starting-point checks
+
+A list's first task often checks that the work has not started: that the
+names it adds do not exist yet, or that the files it changes are as the spec
+measured them. Each such check stops the list when it fires, so write it to
+fire only on the thing it guards against:
+
+- **New names:** search the package source, not the whole tree, and match
+  whole words (`grep -rnwE '<names>' src/<package>`). A test fixture or a
+  test-local constant whose name contains the new name, or reuses it in
+  another module, is not a clash.
+- **Measured data:** compare the data files the spec measured, by name or
+  extension, not the directories that also hold the code that reads them;
+  a loader changed by an earlier, expected change is not a drift.
+
+A check written wider than this stops an unattended queue for a false
+positive that someone then has to clear by hand.
+
 ## Task ordering
 
 Tasks should be in implementation order. Take into account:
