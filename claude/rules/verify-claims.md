@@ -48,6 +48,12 @@ merge, edit and delete while a session runs.
   describing the impact.
 - Never present "could matter, unchecked" as a conclusion: check it, or say
   it is the next step and do it.
+- Before filing a gap in another project, find out how that project is
+  actually used. A file for local development (a compose file, a dev
+  script) is not its deployment, and a one-line remark in another
+  project's document is a lead, not evidence. If the repository does not
+  say how it is used, ask before filing; never file the gap with a
+  "suspected" cause instead.
 
 ## Related
 
