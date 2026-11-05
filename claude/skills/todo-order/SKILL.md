@@ -140,7 +140,9 @@ has:
 
 Add the `Spec: <spec path>; tasks: <task list path>.` line to each item in
 `TODO.md` in the same commit as its task list (taskdev's rule on the
-baseline for `verify_bodies.py`).
+baseline for `verify_bodies.py`). Put it at the end of the item's body,
+after any notes and `###` findings: `verify_bodies.py` accepts text added
+after a body but reports one changed in its middle as altered.
 
 ## 6. Write the order file
 
@@ -166,10 +168,11 @@ Write `agents/tasks/order-<slug>.md` in the format `/rro` documents (its
    fixed place; `/rro` otherwise inserts one every `checkpoint every` lists
    and at the end.
 
-Check it with `/rro`'s own parser, run as the `/rro` command file says
-(its `next` subcommand on the order file): it must print a `RunList` step
-for row 1, not an error. Where the parser is not installed, say the file
-was not checked.
+Check it with `/rro`'s own parser (its `next` subcommand on the order
+file), through the parser's wrapper script where it has one, since the bare
+script may need that tool's own environment: it must print a step that runs
+row 1, not an error. Where the parser is not installed, say the file was
+not checked.
 
 ## 7. Finish
 
