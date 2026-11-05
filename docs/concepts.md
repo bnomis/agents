@@ -84,6 +84,7 @@ The skills keep their records in the repository they work on:
 |---|---|---|
 | `agents/specs/<slug>/spec.md` | `/specdev` | a spec, with its version, status and amendments |
 | `agents/tasks/<slug>/tasks-N.md` | `/taskdev` | a task list for a spec, run task by task |
+| `agents/tasks/order-<slug>.md` | `/todo-order` | an order of task lists, run by `/rro` |
 | `TODO.md` | `/todo-add`, `/todo-review`, `/todo-do` | open work only, in implementation order |
 | `DONE.md` | `/todo-do`, `/todo-review` | finished items, unchanged, each with a `Done:` line |
 

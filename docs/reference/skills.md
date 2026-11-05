@@ -39,6 +39,7 @@ Common behaviour:
 | [todo-add](#todo-add) | `/todo-add [description]` | File one verified, dated finding in `TODO.md`, in order |
 | [todo-review](#todo-review) | `/todo-review` | Re-check, consolidate and reorder the whole of `TODO.md` |
 | [todo-do](#todo-do) | `/todo-do [item title]` | Do the first (or named) item, or start a spec for it |
+| [todo-order](#todo-order) | `/todo-order <items> [order name]` | Turn chosen items into specs, task lists and an order file for `/rro` |
 | [note-add](#note-add) | `/note-add [note]` | Append a dated, self-explanatory note to `NOTES.md` |
 
 ### Git
@@ -202,6 +203,29 @@ shared cause (if it is, proposes `/todo-review` and stops). Then sizes it:
   LLM run (asks for provider and a cost estimate); commit.
 - Backs up real project artefacts before a run that rewrites them; a new
   defect found mid-run is filed with `/todo-add`, not fixed in place.
+
+## /todo-order {#todo-order}
+
+```text
+/todo-order <items> [order name]
+```
+
+`<items>` picks `TODO.md` items by position, counting `##` headings from 1,
+as numbers and ranges: `1-3,5,8`. Starts from the main checkout on a clean
+default branch level with its remote.
+
+- Re-checks each item as `/todo-do` does, sizes it, and plans a task list per
+  small item and one or more specs per large one, each in this repository.
+- Writes the specs with `/specdev`, then one review of all of them,
+  `agents/reviews/order-<slug>-specs.md`, with its page, naming every
+  prerequisite the operator must provide; stops until it is answered.
+- Writes a task list per spec with `/taskdev`. Each list's last task saves
+  its final test output where `/rro`'s merge gate reads it, and each item
+  gets its `Spec: ...; tasks: ...` line.
+- Writes `agents/tasks/order-<slug>.md`, taking the settings from the newest
+  order file or the project's rules, and checks it with `/rro`'s parser.
+- **Stops for:** a done, stale or shared-cause item; the specs' review; a
+  required setting nothing gives; commit. It never starts the order.
 
 ## /note-add {#note-add}
 
