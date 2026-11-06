@@ -81,3 +81,8 @@ section in `AGENTS.md` or `CLAUDE.md` wins where it differs.
   `TODO.md` if it has none, and point the finding repository's item at it.
   "It has no `TODO.md`" is never a reason to scatter one fix across its
   consumers.
+- Leave a finding unfiled because it fell outside a subagent's brief. When
+  findings are filed in a batch and one turns up in a repository no brief
+  covered (a shared tool, a sibling library), the session that ran the batch
+  files it there before reporting, and the finding repository's item points
+  at it rather than working around it (an accept marker hides the fault).
