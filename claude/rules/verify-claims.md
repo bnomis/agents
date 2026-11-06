@@ -29,6 +29,10 @@ merge, edit and delete while a session runs.
   is a lead, not a fact. Check it in the repository that actually holds the
   file (`git rev-parse --show-toplevel`); if it cannot be checked, say when it
   was observed, and never base a design choice on it.
+- That includes your own pending work. "X is still uncommitted" or "X waits
+  for Y" about something you left open turns ago claims the present state of
+  both X and Y; the user may have done X or fixed Y since. Check both before
+  saying either, in the same turn.
 - A queue or agent log records what was tried, not what was committed.
   Confirm a defect seen in a log in the committed state (`git show <commit>`
   or the file) before reporting it.
