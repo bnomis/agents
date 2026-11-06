@@ -40,6 +40,7 @@ Common behaviour:
 | [todo-review](#todo-review) | `/todo-review` | Re-check, consolidate and reorder the whole of `TODO.md` |
 | [todo-do](#todo-do) | `/todo-do [item title]` | Do the first (or named) item, or start a spec for it |
 | [todo-order](#todo-order) | `/todo-order <items> [order name]` | Turn chosen items into specs, task lists and an order file for `/rro` |
+| [survey](#survey) | `/survey [root]` | Survey every repository for unfinished plans, fixable failures, doable items and stale branches; file the findings |
 | [note-add](#note-add) | `/note-add [note]` | Append a dated, self-explanatory note to `NOTES.md` |
 
 ### Git
@@ -226,6 +227,35 @@ default branch level with its remote.
   order file or the project's rules, and checks it with `/rro`'s parser.
 - **Stops for:** a done, stale or shared-cause item; the specs' review; a
   required setting nothing gives; commit. It never starts the order.
+
+## /survey {#survey}
+
+```text
+/survey [root]
+```
+
+Answers, for every repository at and below the root: which specs and task
+lists are not implemented, which expected failures and known bugs could be
+fixed, which `TODO.md` items can be done now, and which branches and
+worktrees are stale.
+
+- **Runs:** `python3 ~/.claude/skills/survey/inventory.py <root>`, which
+  prints each repository's status, worktrees, branches (merged or not), task
+  lists with open tasks and specs not marked implemented. Then one read-only
+  subagent per large repository, or per group of small ones, reads
+  `TODO.md`, test markers, reviews and specs.
+- **Reports** under the five questions, after checking in the code every
+  finding it recommends acting on. Repository state is given with the time
+  it was checked.
+- **Files, on request:** each finding in the `TODO.md` of the repository
+  where its fix is made, by the `todo-add` conventions. A finding blocked on
+  an upstream release, people (labelling, native readers), data or a
+  deferred decision is filed as deferred; an item already fixed moves to
+  `DONE.md`.
+- **Hands over:** the changed files, a table of what was filed, and an
+  implementation order saying what can run in parallel.
+- **Stops for:** the request to file; commit (`docs(todo): ...`, one per
+  repository). It never deletes branches (that is `/cleanup`) or pushes.
 
 ## /note-add {#note-add}
 
