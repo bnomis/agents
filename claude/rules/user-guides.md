@@ -37,3 +37,10 @@ When a change affects user-visible behaviour (config keys, CLI flags,
 defaults, output format, install steps), update the user guide in the
 same commit. A PR that ships behaviour changes without doc updates
 isn't ready to merge.
+
+The same holds when the change came from elsewhere (an upstream library
+now writes a different value) and the work at hand fixes only its other
+effects. When fixing a stale value, search the docs for every copy of it
+and update each one in the same change. A stale example you have found
+is fixed, not reported as "left unchanged": a report that names it
+without fixing it leaves the user to ask why.
