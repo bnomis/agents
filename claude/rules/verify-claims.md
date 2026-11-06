@@ -52,6 +52,9 @@ merge, edit and delete while a session runs.
   describing the impact.
 - Never present "could matter, unchecked" as a conclusion: check it, or say
   it is the next step and do it.
+- That holds for a finding a subagent reports outside its brief: check it
+  before relaying it, then file it or drop it. Passing it on marked "not
+  checked" leaves the check to the user.
 - Before filing a gap in another project, find out how that project is
   actually used. A file for local development (a compose file, a dev
   script) is not its deployment, and a one-line remark in another
