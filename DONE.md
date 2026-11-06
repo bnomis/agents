@@ -353,3 +353,31 @@ Fix direction: fix the path, and give each skill a conventional message
 `docs(audit): ...`). Text only; no spec needed.
 
 Done: 2026-11-02 - on `main`: `auditme` now points at `claude/skills/specdev/SKILL.md`, and the `specdev`, `taskdev`, `testplan` and `auditme` skills prescribe `docs(specs)`, `docs(tasks)`, `docs(tests)` and `docs(audit)` commit messages.
+
+## spec-api-signature-drift compares a spec's method with a module-level function of the same name
+
+Found on 2026-11-06 in a sweep of another project: two of its
+`spec-api-signature-drift` hits were false. Each was a `@classmethod`
+`load(cls, ...)` written inside a `class` block in a spec's API section,
+reported as drifting from that project's one module-level `def load(path)`,
+an unrelated function in another module. The real classmethods matched the
+spec.
+
+Cause: `_DEF_LINE_RE` in
+`claude/skills/auditme/checks/auditme/rules/project_hygiene.py` allows
+leading whitespace, so `check_spec_api_signature_drift` reads a method
+indented inside a spec's `class` block as a `def`, and looks its bare name up
+in `_source_definitions`, which holds module-level definitions only. The
+rule's "a name with no module-level definition does not fire" refinement
+then does not apply, because a module-level function happens to share the
+name.
+
+Fix direction: skip a spec `def` that sits inside a `class` block (indented
+under a `class` line in the same fence), as the rule already skips methods on
+the source side; or, more ambitiously, compare it with the method of that
+class in the source. Add a test beside the existing refinements in
+`claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py`:
+a spec class with a `load` classmethod and an unrelated module-level `load`
+in the source does not fire. Small; no spec needed.
+
+Done: 2026-11-06 - branch `fix/spec-signature-class-methods`: `check_spec_api_signature_drift` skips a `def` indented under a `class` line in the same spec fence; tests `test_a_method_in_a_spec_class_block_does_not_fire` and `test_a_module_level_def_after_a_spec_class_block_still_fires`.
