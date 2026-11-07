@@ -166,7 +166,8 @@ Write `agents/tasks/order-<slug>.md` in the format `/rro` documents (its
    reserved stop with its task number, `-` for none; `Status` is `todo`.
    Add checkpoint rows only where the project's rules ask for them at a
    fixed place; `/rro` otherwise inserts one every `checkpoint every` lists
-   and at the end.
+   and at the end, skipping one that would leave fewer than `checkpoint
+   every` lists before the end.
 
 Check it with `/rro`'s own parser (its `next` subcommand on the order
 file), through the parser's wrapper script where it has one, since the bare
