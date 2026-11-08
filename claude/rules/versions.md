@@ -36,6 +36,23 @@ Pin each such dependency to an exact version in the environment, so an
 upgrade happens only as a deliberate change, and the check then fails loudly
 in every artifact made before it.
 
+### A model registry can change files under one version
+
+Some model libraries republish model files under an unchanged version number
+and fetch their newest index on every load by default. A version pin does not
+fix such files:
+
+- Load from a shared model directory without downloading: pass the library's
+  no-download option in every call, in committed code and in one-off probes
+  alike. One stray load with the defaults replaces the index every other
+  project checks its files against.
+- Pin the index or revision itself where the library allows it (an index URL
+  at a commit, a model revision), so a stray download fetches the same files.
+- When files and index disagree, find out which one changed before acting.
+  Restore the pinned index; do not download again on an error message's
+  advice, which installs whatever the registry serves now and changes the
+  identity of every saved output.
+
 ## When reviewing or planning
 
 A review or spec that says a version "is recorded" also says where it is
