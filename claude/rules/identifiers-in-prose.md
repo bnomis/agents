@@ -31,6 +31,27 @@ This applies to chat messages, commit messages and anything else written for
 the user to read. Inside a spec or review that defines the label, the
 definition is enough.
 
+## Name every file, directory, repository and environment by its path
+
+A role word - "the shared repo", "the venv", "the config", "the workspace",
+"the other project" - names nothing the user can find: a machine holds many of
+each, and the word means the one the agent has in mind. Each time a message
+names such a thing, give its full absolute path, or its repository's name
+beside the path inside it:
+
+| Opaque | Named |
+|---|---|
+| "the shared repo has an uncommitted change to `.pre-commit-config.yaml`" | "`/home/u/src/agents/.pre-commit-config.yaml` (the agents rules repository) has an uncommitted change: ruff-pre-commit `rev` moved from v0.17.1 to v0.17.4" |
+| "the shared venv lacks pytest" | "the agents repository's own venv, `/home/u/src/agents/.venv`, has no pytest" |
+| "your change leaves a ruff mismatch" | "`.pre-commit-config.yaml:4` pins ruff v0.17.4 while the venv runs 0.17.2 (from `uv.lock`)" |
+
+- Give the path every time the thing appears in a new message, as with
+  labels above: a message read alone must still lead to the file.
+- Say what changed, not only that something changed: the line, the old and
+  the new value.
+- Where two things share a role word (a workspace's own venv and a project's
+  venv), name both by path in the same sentence.
+
 ## Related
 
 - [reviews.md](reviews.md) - review documents name each item in plain words
