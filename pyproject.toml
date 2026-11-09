@@ -68,6 +68,7 @@ ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S112', 'S311']
 # throwaway repositories with it.
 "claude/skills/survey/inventory.py" = ["S603", "S607"]
 "claude/skills/survey/tests/*" = ["S101", "S603", "S607"]
+"claude/skills/test-log-review/tests/*" = ["S101"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

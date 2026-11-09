@@ -41,6 +41,7 @@ Common behaviour:
 | [todo-do](#todo-do) | `/todo-do [item title]` | Do the first (or named) item, or start a spec for it |
 | [todo-order](#todo-order) | `/todo-order <items> [order name]` | Turn chosen items into specs, task lists and an order file for `/rro` |
 | [survey](#survey) | `/survey [root]` | Survey every repository for unfinished plans, fixable failures, doable items and stale branches; file the findings |
+| [test-log-review](#test-log-review) | `/test-log-review [root] [--glob PATTERN]` | Trace the failures and warnings in every repository's newest pytest logs; review page; file the approved fixes |
 | [note-add](#note-add) | `/note-add [note]` | Append a dated, self-explanatory note to `NOTES.md` |
 
 ### Git
@@ -256,6 +257,34 @@ worktrees are stale.
   implementation order saying what can run in parallel.
 - **Stops for:** the request to file; commit (`docs(todo): ...`, one per
   repository). It never deletes branches (that is `/cleanup`) or pushes.
+
+## /test-log-review {#test-log-review}
+
+```text
+/test-log-review [root] [--glob PATTERN]
+```
+
+Reads the newest pytest log of each kind (a full run, a correctness run) in
+every repository at and below the root, and turns its failures and warnings
+into reviewed, filed work.
+
+- **Runs:** `python3 ~/.claude/skills/test-log-review/scan.py <root>`, which
+  prints each log's summary line, its `FAILED` and `ERROR` lines and its
+  warnings grouped by message, counting from pytest's own summary line. Then
+  read-only subagents trace each warning to its source: one for third-party
+  warnings shared across repositories, one per repository or group for the
+  rest.
+- **Reviews:** a review document and an interactive page built from
+  `page-template.html` and checked with `check-page.js`: real defects,
+  test-side fixes and third-party warnings to approve or flag, and decisions
+  for fixes that change output or upgrade a recorded dependency.
+- **Files, after the answers:** each approved fix in the `TODO.md` of the
+  repository where it is made, by the `todo-add` conventions, with any
+  correction a filing agent finds recorded in the review.
+- **Hands over:** an implementation order in waves, a shared-environment
+  change first and alone.
+- **Stops for:** the review's answers; commit (`docs(todo): ...`, one per
+  repository). It never runs the test suite or pushes.
 
 ## /note-add {#note-add}
 

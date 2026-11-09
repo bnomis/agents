@@ -1,0 +1,196 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&display=swap">
+<style>
+/* Layout: one reading column; summary, accept-all panel, then defects, decisions, fixes, filters. */
+:root{
+  --bg:#f6f7f5; --surface:#ffffff; --fg:#1d2320; --muted:#5b6660; --line:#d9ded9;
+  --accent:#2f6b57; --accent-soft:#e3efe9; --flag:#a8461f; --flag-soft:#f8e7df; --ok:#2f6b57;
+  --pass:#2f6b57; --code-bg:#eef1ee;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --fg:#e4e9e5; --muted:#9aa69f; --line:#303a35;
+  --accent:#7cc4a6; --accent-soft:#213a30; --flag:#f0956b; --flag-soft:#3d2519; --ok:#7cc4a6; --pass:#7cc4a6; --code-bg:#24302b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --fg:#e4e9e5; --muted:#9aa69f; --line:#303a35;
+  --accent:#7cc4a6; --accent-soft:#213a30; --flag:#f0956b; --flag-soft:#3d2519; --ok:#7cc4a6; --pass:#7cc4a6; --code-bg:#24302b; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+h1{font-family:var(--display);font-size:2rem;line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:1.05rem;text-transform:uppercase;letter-spacing:.06em;margin:0;color:var(--muted);font-weight:600}
+h3{font-size:1.05rem;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+.lede{display:flex;flex-direction:column;gap:10px}
+.meta{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.checks{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.92rem}
+.pill{font-family:var(--mono);font-size:.75rem;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--pass);align-self:start;white-space:nowrap}
+.accept{background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:16px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;justify-content:space-between}
+.accept p{flex:1 1 320px}
+.primary{font:600 .95rem var(--body);background:var(--accent);color:var(--bg);border:0;border-radius:6px;padding:10px 18px;cursor:pointer}
+.primary:focus-visible,.opt:focus-visible,.vbtn:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card.flagged{border-color:var(--flag)}
+.card.approved{border-color:var(--accent)}
+.head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.proj{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:4px;padding:0 6px;color:var(--muted)}
+.rec{font-size:.92rem}.rec b{color:var(--accent);font-weight:600}
+.bump{font-family:var(--mono);font-size:.75rem;color:var(--flag)}
+dl{margin:0;display:grid;grid-template-columns:8.5em 1fr;gap:4px 12px;font-size:.92rem}
+dt{color:var(--muted)} dd{margin:0;min-width:0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;text-align:left;font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{font-family:var(--mono);font-weight:500;min-width:1.6em}
+.opt .tag{font-family:var(--mono);font-size:.72rem;color:var(--accent);margin-left:6px}
+.verdict{display:flex;gap:8px;flex-wrap:wrap}
+.vbtn{font:500 .88rem var(--body);background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 14px;cursor:pointer}
+.vbtn.a[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.vbtn.f[aria-pressed="true"]{background:var(--flag);border-color:var(--flag);color:var(--bg)}
+textarea{width:100%;box-sizing:border-box;min-height:2.6em;resize:vertical;font:inherit;font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.saved{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-height:1em}
+@media (max-width:560px){dl{grid-template-columns:1fr}dt{margin-top:6px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <header class="lede">
+    <div class="meta" id="meta"></div>
+    <h1 id="heading"></h1>
+    <p id="lede"></p>
+  </header>
+
+  <div class="accept">
+    <p><strong>Accept all recommendations.</strong> Approves every item and picks the recommended option for every decision you have not answered yet. Answers you already gave stay as they are, and you can change any answer afterwards.</p>
+    <button class="primary" id="accept-all" type="button">Accept all recommendations</button>
+    <div class="status" id="status">Connecting to the answer store...</div>
+  </div>
+
+  <section><h2>Automatic checks</h2><div class="checks" id="checks"></div></section>
+  <section id="decisions"><h2>Decisions</h2></section>
+  <div id="sections"></div>
+</div>
+
+<script>
+// REVIEW-DATA-START
+// Fill from the review document. Item `sec` names one of SECTIONS' ids.
+// Each decision's opts: [key, label, consequence, recommended?]; exactly one recommended.
+const META = {title:'__TITLE__', doc:'agents/reviews/__DOC__.md', date:'YYYY-MM-DD', lede:'What was reviewed, and how to answer.'};
+const CHECKS = [ /* {status:'pass'|'fail'|'info'|'checked', text:'...'} */ ];
+const SECTIONS = [
+ {id:'defects', title:'Real defects (change output values)'},
+ {id:'ours', title:'Our code or tests, no output change'},
+ {id:'third', title:'Third-party warnings shared across projects'},
+];
+const DECISIONS = [ /* {id:'D1', title, what, bg, affects, why, opts:[['a','label','consequence',true],['b',...]]} */ ];
+const ITEMS = [ /* {n:1, sec:'defects', proj:'name', title, body, rec, bump?} */ ];
+// REVIEW-DATA-END
+
+const ID_RE = /^[A-Za-z0-9_\-.~:@+]+$/;
+const answers = {};            // id -> {verdict|choice, comment}
+let col = null;
+const $ = s => document.querySelector(s);
+const setStatus = t => { $('#status').textContent = t; };
+const itemId = n => 'item-' + String(n).padStart(2,'0');
+const decId = id => 'decision-' + id;
+
+function el(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})) { if (k==='class') e.className=v; else if (k.startsWith('on')) e.addEventListener(k.slice(2),v); else e.setAttribute(k,v); }
+  for (const k of kids) if (k!=null) e.append(k);
+  return e;
+}
+
+async function save(id){
+  if (!ID_RE.test(id)) throw new Error('invalid id ' + id);
+  const mark = document.querySelector(`[data-saved="${id}"]`);
+  if (!col) { if (mark) mark.textContent = 'not saved: answer store unavailable'; return; }
+  try {
+    await col.doc(id).set({...answers[id], updatedAt: new Date().toISOString()});
+    if (mark) mark.textContent = 'saved';
+  } catch (e) { if (mark) mark.textContent = 'not saved: ' + (e && e.message || 'error'); }
+}
+
+function commentBox(id){
+  let timer = null;
+  const ta = el('textarea', {id:'c-'+id, rows:'2', placeholder:'Comment (optional)', 'aria-label':'Comment'});
+  ta.value = (answers[id] && answers[id].comment) || '';
+  const flush = () => { clearTimeout(timer); timer=null; const v = ta.value; if (((answers[id]||{}).comment||'') === v) return; answers[id] = {...(answers[id]||{}), comment:v}; save(id); };
+  ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(flush, 900); });
+  ta.addEventListener('blur', flush);
+  return ta;
+}
+
+function render(){
+  for (const s of ['decisions', ...SECTIONS.map(x=>x.id)]) { const sec = document.getElementById(s); [...sec.querySelectorAll('.card')].forEach(c=>c.remove()); }
+  for (const d of DECISIONS) {
+    const id = decId(d.id), a = answers[id] || {};
+    const card = el('article', {class:'card' + (a.choice ? ' approved':''), id});
+    card.append(el('div',{class:'head'}, el('span',{class:'num'}, d.id), el('h3',{}, d.title)));
+    card.append(el('dl',{}, el('dt',{},'Decided'), el('dd',{},d.what), el('dt',{},'Background'), el('dd',{},d.bg), el('dt',{},'Affects'), el('dd',{},d.affects), el('dt',{},'Why recommended'), el('dd',{},d.why)));
+    const opts = el('div',{class:'opts', role:'group', 'aria-label':d.id+' options'});
+    for (const [k,label,cons,recd] of d.opts) {
+      const b = el('button',{class:'opt', type:'button', 'aria-pressed': String(a.choice===k), onclick:()=>{ answers[id] = {...(answers[id]||{}), choice:k}; render(); save(id); }},
+        el('span',{class:'k'},'('+k+')'), el('span',{}, el('strong',{},label), recd ? el('span',{class:'tag'},'recommended') : null, el('br'), el('span',{}, cons)));
+      opts.append(b);
+    }
+    card.append(opts, commentBox(id), el('div',{class:'saved','data-saved':id}));
+    $('#decisions').append(card);
+  }
+  for (const it of ITEMS) {
+    const id = itemId(it.n), a = answers[id] || {};
+    const card = el('article',{class:'card' + (a.verdict==='flag'?' flagged':a.verdict==='approve'?' approved':''), id});
+    card.append(el('div',{class:'head'}, el('span',{class:'num'}, '#'+it.n), el('span',{class:'proj'}, it.proj), el('h3',{}, it.title)));
+    card.append(el('p',{}, it.body));
+    card.append(el('p',{class:'rec'}, el('b',{},'Recommended: '), it.rec, it.bump ? el('span',{class:'bump'}, '  [' + it.bump + ']') : null));
+    const v = el('div',{class:'verdict'});
+    for (const [k,lab,cls] of [['approve','Approve','a'],['flag','Flag','f']])
+      v.append(el('button',{class:'vbtn '+cls, type:'button', 'aria-pressed':String(a.verdict===k), onclick:()=>{ answers[id] = {...(answers[id]||{}), verdict:k}; render(); save(id); }}, lab));
+    card.append(v, commentBox(id), el('div',{class:'saved','data-saved':id}));
+    document.getElementById(it.sec).append(card);
+  }
+}
+
+function renderStatic(){
+  document.title = META.title;
+  $('#meta').textContent = META.doc + ' \u00b7 ' + META.date;
+  $('#heading').textContent = META.title;
+  $('#lede').textContent = META.lede;
+  for (const c of CHECKS) $('#checks').append(el('span',{class:'pill'}, c.status), el('span',{}, c.text));
+  for (const s of SECTIONS) $('#sections').append(el('section',{id:s.id}, el('h2',{}, s.title)));
+}
+
+async function acceptAll(){
+  const changed = [];
+  for (const d of DECISIONS) { const id = decId(d.id); if (!(answers[id]||{}).choice) { answers[id] = {...(answers[id]||{}), choice: d.opts.find(o=>o[3])[0]}; changed.push(id); } }
+  for (const it of ITEMS) { const id = itemId(it.n); if (!(answers[id]||{}).verdict) { answers[id] = {...(answers[id]||{}), verdict:'approve'}; changed.push(id); } }
+  render();
+  for (const id of changed) await save(id);
+  setStatus(changed.length ? 'Accepted the recommendations for every unanswered item.' : 'Everything was already answered; nothing changed.');
+}
+
+$('#accept-all').addEventListener('click', acceptAll);
+renderStatic();
+render();
+
+(async () => {
+  const timer = setTimeout(() => setStatus('Answer store did not respond; answers will not be saved.'), 10000);
+  try {
+    const db = window.claude && await window.claude.use('db');
+    if (!db) { clearTimeout(timer); setStatus('Answer store unavailable (sign in to save answers).'); return; }
+    col = db.collection('answers');
+    let first = true;
+    col.onSnapshot(snap => {
+      clearTimeout(timer);
+      for (const d of snap.docs) { const x = d.data(); if (x) answers[d.id] = {...x}; }
+      if (first || !document.activeElement || document.activeElement.tagName !== 'TEXTAREA') render();
+      first = false;
+      setStatus('Answers save as you make them.');
+    }, err => { clearTimeout(timer); setStatus('Answer store error: ' + (err && err.message || err.code)); });
+  } catch (e) { clearTimeout(timer); setStatus('Answer store unavailable.'); }
+})();
+</script>
