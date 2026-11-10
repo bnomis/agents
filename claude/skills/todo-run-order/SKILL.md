@@ -1,20 +1,21 @@
 ---
-name: todo-order
+name: todo-run-order
 description: Turn chosen TODO.md items into a run order - re-check each item, write the specs it needs (one review for all of them), a task list per spec, and the order file that /rro runs
 when_to_use: |
     Use this skill whenever the user mentions:
+        - make a run order from the todo items
         - make an order from the todo items
         - specs and task lists for todo items 1-3
-        - plan these todo items as an order
-        - todo order
+        - plan these todo items as a run order
+        - todo run order
 
 allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Agent, Skill, Artifact, ArtifactData]
 ---
 
-# TODO order
+# TODO run order
 
 Invoke as:
-    /todo-order <items> [order name]
+    /todo-run-order <items> [run order name]
 
 Where:
 
@@ -22,7 +23,7 @@ Where:
   `##` headings from 1: a comma-separated list of numbers and ranges, such
   as `1-3,5,8`. The positions are the `#` column of the table the
   [todo-review](../todo-review/SKILL.md) skill shows.
-- `[order name]` names the order; without one, name it from the items'
+- `[run order name]` names the run order; without one, name it from the items'
   subjects in three or four words. Its slug (the
   [specdev](../specdev/SKILL.md) slugification) names the files below.
 
@@ -182,7 +183,7 @@ not checked.
    `Spec: ...; tasks: ...` lines are the only change to item bodies).
 2. Run the project's commit checks, then ask whether to commit the task
    lists, the indexes, `TODO.md` and the order file
-   (`docs(tasks): add the <order name> order`). Do not push unless asked.
+   (`docs(tasks): add the <run order name> run order`). Do not push unless asked.
 3. Report: the table of rows (list, what it waits for, its operator stops),
    the prerequisites still to provide, and the command that starts the
    order. Starting it is the operator's request, not a question here.

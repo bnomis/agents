@@ -39,7 +39,7 @@ Common behaviour:
 | [todo-add](#todo-add) | `/todo-add [description]` | File one verified, dated finding in `TODO.md`, in order |
 | [todo-review](#todo-review) | `/todo-review` | Re-check, consolidate and reorder the whole of `TODO.md` |
 | [todo-do](#todo-do) | `/todo-do [item title]` | Do the first (or named) item, or start a spec for it |
-| [todo-order](#todo-order) | `/todo-order <items> [order name]` | Turn chosen items into specs, task lists and an order file for `/rro` |
+| [todo-run-order](#todo-run-order) | `/todo-run-order <items> [run order name]` | Turn chosen items into specs, task lists and an order file for `/rro` |
 | [survey](#survey) | `/survey [root]` | Survey every repository for unfinished plans, fixable failures, doable items and stale branches; file the findings |
 | [test-log-review](#test-log-review) | `/test-log-review [root] [--glob PATTERN]` | Trace the failures and warnings in every repository's newest pytest logs; review page; file the approved fixes |
 | [note-add](#note-add) | `/note-add [note]` | Append a dated, self-explanatory note to `NOTES.md` |
@@ -206,10 +206,10 @@ shared cause (if it is, proposes `/todo-review` and stops). Then sizes it:
 - Backs up real project artefacts before a run that rewrites them; a new
   defect found mid-run is filed with `/todo-add`, not fixed in place.
 
-## /todo-order {#todo-order}
+## /todo-run-order {#todo-run-order}
 
 ```text
-/todo-order <items> [order name]
+/todo-run-order <items> [run order name]
 ```
 
 `<items>` picks `TODO.md` items by position, counting `##` headings from 1,
