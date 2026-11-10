@@ -134,6 +134,15 @@ Before publishing a review page:
   something the user can read comfortably, and asking first costs them a
   turn.
 
+## Acting on the answers
+
+An approved item is approval of the change it describes, not an instruction
+to run anything. Never start a run - a pipeline, training, extraction, sweep
+or any other long or GPU-bound job - unless the user explicitly says to start
+it now, even when an approved item is "rerun everything". Make the approved
+edits, checks and downloads, then stop: say the run is ready and give the
+command that starts it.
+
 ## When planning work
 
 A spec or task list with a human review step names the review document's
