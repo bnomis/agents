@@ -140,6 +140,7 @@ commit report, so the last message about the change carries it.
 
 ## Checks and commits
 
+- Just before writing `TODO.md` or `DONE.md`, check that `git log -1 --format=%h -- TODO.md DONE.md` and `git status -s` still match what the proposal was built on. Another session may have moved an item in the meantime; if anything moved, re-read and propose again rather than writing over it.
 - Run the project's checks on the file after editing it - `pre-commit run
   --files TODO.md DONE.md` and any count checker. A checker that reads
   committed history only (`doc-counts`, `audit-changed`) sees the change at
