@@ -21,6 +21,10 @@ does not already have. Deletes only what it has proved merged and clean,
 and never forces. Works on one repository and all of its worktrees; the
 remote is never changed.
 
+Only that repository: never extend the run to sibling repositories, a
+parent workspace or other repositories the session has touched unless the
+user names them.
+
 `repo-path` is any path inside the repository; default is the current
 directory. Resolve it with `git -C <repo-path> rev-parse --show-toplevel`
 and run every command below with `git -C <that path>`. If it is not a git

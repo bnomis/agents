@@ -19,6 +19,14 @@ Commits the uncommitted work, merges the current branch into `main` and
 pushes `main`. Follow [git-conventions.md](../../rules/git-conventions.md)
 for commit messages and hooks.
 
+**One repository: the one it was run in.** Look at, report on and act in
+only the repository of the working directory (or of the path the user
+gave). Do not check or mention sibling repositories, a parent workspace,
+or other repositories the session has touched, even ones holding this
+session's unpushed commits, unless the user names them. A recap rule that
+says to re-check every repository a report mentions applies to the
+repositories this command was run in; it is no reason to widen the scope.
+
 ## Workflow
 
 1. **Look** before touching anything:
