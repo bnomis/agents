@@ -47,6 +47,10 @@ merge, edit and delete while a session runs.
 
 ## Impact on another project
 
+A command the user runs in one repository (a review, a ship, a clean-up)
+stays in that repository: the checks below apply only where the user has
+asked about the other project, never as a reason to widen a command's scope.
+
 - When a finding's impact depends on a consumer in a sibling project, read
   the consumer's code and, where cheap, run it on the case in question before
   describing the impact.

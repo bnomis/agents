@@ -4,6 +4,15 @@ The shared rules for `todo-review`, `todo-add` and `todo-do`. **A project's
 own statement of these rules wins**: read `AGENTS.md` (or `CLAUDE.md`) for a
 section on `TODO.md` first, and follow it where it differs from this file.
 
+## One repository: the one the command was run in
+
+`todo-review`, `todo-add` and `todo-do` read, check and change only the
+repository of the working directory. Do not open, fetch, read or report on
+any other repository - a sibling project, a parent workspace, a subdirectory
+holding its own repository - unless the user names it. Where an item waits on
+another repository (a library release, a fix filed there), state the
+prerequisite as the item records it; do not check it there.
+
 ## The two files
 
 - **`TODO.md` holds open work only.** Everything in it is outstanding, so its
