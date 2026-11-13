@@ -27,6 +27,16 @@ Flag a library to the user if any of these are true:
 Note: slow release cadence alone is not a red flag. Some libraries are
 feature-complete. Look for *abandonment*, not *quietness*.
 
+## Pick a version the project's resolver will accept
+
+Before a spec or task names a version to pin, read the project's resolver
+settings for a release-age quarantine (uv's `exclude-newer`, pip's
+`--uploaded-prior-to`, a lock policy) and pin the newest release outside
+it, giving its release date. Run the resolver on the pin (`uv lock`) before
+handing the spec over. The newest release on the registry is often inside
+the window, and a pin the resolver cannot see stops the first task that
+installs it.
+
 ## Datasets, lexicons and models: check the licence for the use
 
 A dataset, lexicon, corpus or model the user is asked to fetch, or that a
