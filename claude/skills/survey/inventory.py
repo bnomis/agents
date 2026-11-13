@@ -18,7 +18,7 @@ each one it prints, as Markdown:
   first `## ` heading) carries a `**Superseded:**` line; a list with no
   status at all is reported when any of its checkboxes is unticked;
 - each spec `agents/specs/<name>/spec.md` whose first status is not
-  implemented, done, superseded, archived or a historical record, with
+  implemented, done, superseded, archived, frozen or a historical record, with
   whether it has a task-list directory of the same name.
 
 A status is read from a `**Status:** <value>` line or from a table row whose
@@ -40,7 +40,7 @@ STATUS_RE = re.compile(r'^(?:\*\*Status:\*\*\s*(?P<line>.*)|\|\s*\*\*Status\*\*\
 CHECKBOX_RE = re.compile(r'^\s*[-*+]\s+\[(?P<mark>[ xX])\]\s')
 DONE_TASK_RE = re.compile(r'^(done|complete|superseded)', re.IGNORECASE)
 SUPERSEDED_LIST_RE = re.compile(r'^\*\*Superseded:\*\*')
-DONE_SPEC_RE = re.compile(r'implemented|done|superseded|historical|complete|index|archived', re.IGNORECASE)
+DONE_SPEC_RE = re.compile(r'implemented|done|superseded|historical|complete|index|archived|frozen', re.IGNORECASE)
 
 
 def statuses(text_lines: list[str]) -> list[str]:

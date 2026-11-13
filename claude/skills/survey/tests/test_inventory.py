@@ -88,6 +88,14 @@ def test_spec_status(repo: pathlib.Path) -> None:
     ]
 
 
+def test_frozen_spec_is_finished(repo: pathlib.Path) -> None:
+    specs = repo / 'agents' / 'specs'
+    (specs / 'probe').mkdir(parents=True)
+    (specs / 'probe' / 'spec.md').write_text('# Spec\n\n**Status:** Frozen - kept as a record\n', encoding='utf-8')
+
+    assert inventory.open_specs(repo) == []
+
+
 def test_task_list_status_in_a_table_row_is_read(repo: pathlib.Path) -> None:
     tasks = repo / 'agents' / 'tasks' / 'probe'
     tasks.mkdir(parents=True)

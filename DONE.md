@@ -415,3 +415,21 @@ table-row `Draft` is; a checkbox-only task list with an unticked box is
 listed, one with every box ticked is not. Small; no spec needed.
 
 Done: 2026-11-13 - branch `fix/survey-status-forms`: `inventory.py` reads a status from a `**Status:**` line or a `| **Status** |` table row (`statuses`), reports a task list with no status when a checkbox is unticked, and counts `archived` as a finished spec; tests `test_task_list_status_in_a_table_row_is_read`, `test_checkbox_only_task_list_is_reported_when_a_box_is_unticked` and `test_spec_status_in_a_table_row`.
+
+## The survey inventory lists a frozen spec as unimplemented
+
+Found on 2026-11-13 by a survey of one project, run after the table-row and
+checkbox status fix. A spec whose status reads `Frozen` (a plan kept as a
+record, its work finished) is still listed as a spec not marked implemented,
+so the survey reports a false lead.
+
+Cause: `DONE_SPEC_RE` in `claude/skills/survey/inventory.py` lists the words
+that mean a spec is finished (implemented, done, superseded, historical,
+complete, index, archived), and `frozen` is not among them. The module
+docstring's list of finished words has the same gap.
+
+Fix direction: small, no spec. Add `frozen` to `DONE_SPEC_RE` and to the
+docstring, and add a `probe` case with a `Frozen` status beside
+`test_spec_status` in `claude/skills/survey/tests/test_inventory.py`.
+
+Done: 2026-11-13 - branch `fix/survey-frozen-status`: `DONE_SPEC_RE` and the module docstring in `claude/skills/survey/inventory.py` count `frozen` as a finished spec; test `test_frozen_spec_is_finished`.
