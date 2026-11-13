@@ -88,6 +88,32 @@ def test_spec_status(repo: pathlib.Path) -> None:
     ]
 
 
+def test_task_list_status_in_a_table_row_is_read(repo: pathlib.Path) -> None:
+    tasks = repo / 'agents' / 'tasks' / 'probe'
+    tasks.mkdir(parents=True)
+    (tasks / 'tasks-1.md').write_text('# Tasks\n\n## Task 1\n\n| **Status** | done |\n\n## Task 2\n\n| **Status** | todo |\n', encoding='utf-8')
+
+    assert inventory.open_task_lists(repo) == ['agents/tasks/probe/tasks-1.md: 1/2 done; open: todo']
+
+
+def test_checkbox_only_task_list_is_reported_when_a_box_is_unticked(repo: pathlib.Path) -> None:
+    tasks = repo / 'agents' / 'tasks' / 'probe'
+    tasks.mkdir(parents=True)
+    (tasks / 'tasks-1.md').write_text('# Tasks\n\n## Task 1\n\n- [x] one\n- [ ] two\n', encoding='utf-8')
+    (tasks / 'tasks-2.md').write_text('# Tasks\n\n## Task 1\n\n- [x] one\n- [X] two\n', encoding='utf-8')
+
+    assert inventory.open_task_lists(repo) == ['agents/tasks/probe/tasks-1.md: 1/2 boxes ticked; no status lines']
+
+
+def test_spec_status_in_a_table_row(repo: pathlib.Path) -> None:
+    specs = repo / 'agents' / 'specs'
+    for name, status in [('built', 'Implemented'), ('draft', 'Draft'), ('old', 'Archived - replaced by built')]:
+        (specs / name).mkdir(parents=True)
+        (specs / name / 'spec.md').write_text(f'# Spec\n\n| Field | Value |\n|---|---|\n| **Status** | {status} |\n', encoding='utf-8')
+
+    assert inventory.open_specs(repo) == ['agents/specs/draft/spec.md: status "Draft"; no task list']
+
+
 def test_report_flags_locked_unmerged_worktree(tmp_path: pathlib.Path, repo: pathlib.Path) -> None:
     worktree = repo / '.claude' / 'worktrees' / 'side'
     run(repo, 'worktree', 'add', '-b', 'side', str(worktree))

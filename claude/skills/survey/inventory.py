@@ -13,12 +13,16 @@ each one it prints, as Markdown:
 - each local branch other than the default: commits ahead of and behind the
   default branch, and whether it is merged (by ancestry, or by `git cherry`
   finding every commit's patch already there, as after a rebase merge);
-- each task list under `agents/tasks/` with a task `**Status:**` that is
-  not done, complete or superseded, unless the list's own header (above its
-  first `## ` heading) carries a `**Superseded:**` line;
-- each spec `agents/specs/<name>/spec.md` whose first `**Status:**` line is
-  not implemented, done, superseded or a historical record, with whether it
-  has a task-list directory of the same name.
+- each task list under `agents/tasks/` with a task status that is not
+  done, complete or superseded, unless the list's own header (above its
+  first `## ` heading) carries a `**Superseded:**` line; a list with no
+  status at all is reported when any of its checkboxes is unticked;
+- each spec `agents/specs/<name>/spec.md` whose first status is not
+  implemented, done, superseded, archived or a historical record, with
+  whether it has a task-list directory of the same name.
+
+A status is read from a `**Status:** <value>` line or from a table row whose
+first cell is `**Status**`: `| **Status** | <value> |`.
 
 It reads only; it changes nothing. A squash-merged branch shows as unmerged:
 `/cleanup` has the stronger test.
@@ -32,10 +36,20 @@ import subprocess
 import sys
 
 SKIP_DIRS = frozenset({'.claude', '.git', '.tox', '.venv', '__pycache__', 'node_modules', 'site-packages', 'venv'})
-STATUS_RE = re.compile(r'^\*\*Status:\*\*\s*(.*)$')
+STATUS_RE = re.compile(r'^(?:\*\*Status:\*\*\s*(?P<line>.*)|\|\s*\*\*Status\*\*\s*\|(?P<cell>[^|]*)\|.*)$')
+CHECKBOX_RE = re.compile(r'^\s*[-*+]\s+\[(?P<mark>[ xX])\]\s')
 DONE_TASK_RE = re.compile(r'^(done|complete|superseded)', re.IGNORECASE)
 SUPERSEDED_LIST_RE = re.compile(r'^\*\*Superseded:\*\*')
-DONE_SPEC_RE = re.compile(r'implemented|done|superseded|historical|complete|index', re.IGNORECASE)
+DONE_SPEC_RE = re.compile(r'implemented|done|superseded|historical|complete|index|archived', re.IGNORECASE)
+
+
+def statuses(text_lines: list[str]) -> list[str]:
+    """Every status in `text_lines`, from `**Status:**` lines and `| **Status** |` table rows, in order."""
+    found: list[str] = []
+    for match in map(STATUS_RE.match, text_lines):
+        if match:
+            found.append((match.group('line') if match.group('line') is not None else match.group('cell')).strip())
+    return found
 
 
 def git(repo: pathlib.Path, *args: str) -> str:
@@ -102,7 +116,7 @@ def worktrees(repo: pathlib.Path) -> list[dict[str, str]]:
 
 
 def open_task_lists(repo: pathlib.Path) -> list[str]:
-    """Task lists with a `**Status:**` header that is not done, as 'path: done/total (open statuses)'."""
+    """Task lists with a status that is not done, or with no status and an unticked box, as 'path: progress'."""
     lines: list[str] = []
     for path in sorted((repo / 'agents' / 'tasks').glob('**/*.md')):
         if path.name == 'index.md':
@@ -111,12 +125,18 @@ def open_task_lists(repo: pathlib.Path) -> list[str]:
         header = text_lines[: next((i for i, line in enumerate(text_lines) if line.startswith('## ')), len(text_lines))]
         if any(SUPERSEDED_LIST_RE.match(line) for line in header):
             continue
-        statuses = [m.group(1).strip() for m in map(STATUS_RE.match, text_lines) if m]
-        open_ = [status for status in statuses if not DONE_TASK_RE.match(status)]
+        found = statuses(text_lines)
+        if not found:
+            marks = [m.group('mark') for m in map(CHECKBOX_RE.match, text_lines) if m]
+            ticked = sum(mark != ' ' for mark in marks)
+            if ticked < len(marks):
+                lines.append(f'{path.relative_to(repo)}: {ticked}/{len(marks)} boxes ticked; no status lines')
+            continue
+        open_ = [status for status in found if not DONE_TASK_RE.match(status)]
         if open_:
             kinds = sorted({status.split()[0].lower() if status else '(empty)' for status in open_})
-            done = len(statuses) - len(open_)
-            lines.append(f'{path.relative_to(repo)}: {done}/{len(statuses)} done; open: {", ".join(kinds)}')
+            done = len(found) - len(open_)
+            lines.append(f'{path.relative_to(repo)}: {done}/{len(found)} done; open: {", ".join(kinds)}')
     return lines
 
 
@@ -126,10 +146,7 @@ def open_specs(repo: pathlib.Path) -> list[str]:
     tasks = repo / 'agents' / 'tasks'
     for path in sorted((repo / 'agents' / 'specs').glob('*/spec.md')):
         name = path.parent.name
-        status = next(
-            (m.group(1).strip() for m in map(STATUS_RE.match, path.read_text(encoding='utf-8').splitlines()) if m),
-            '',
-        )
+        status = next(iter(statuses(path.read_text(encoding='utf-8').splitlines())), '')
         if DONE_SPEC_RE.search(status):
             continue
         task_note = 'has a task list' if (tasks / name).is_dir() else 'no task list'
