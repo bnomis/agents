@@ -45,3 +45,17 @@ the section without any error.
   command line is this session's, and kill that PID alone.
 - While a background run is going, do not change, stash or check out any
   file it can read. Wait for it, or work in a separate worktree.
+
+## Starting a long run
+
+Before starting a run that loads a model or works through a corpus and will
+outlast the foreground limit:
+
+- Check for an accelerator (`nvidia-smi`, or the project's device probe) and,
+  if the tool has a device option, run on it. A tool's CPU default suits tests
+  and small trials, not a measurement over whole corpora, which on CPU can take
+  hours that the GPU does in minutes.
+- Give the user an ETA from dated timings of earlier runs before starting, not
+  only when asked.
+- Where results can depend on the device, every run to be compared with this
+  one uses the same device; say which in the hand-over.
