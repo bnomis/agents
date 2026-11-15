@@ -100,7 +100,10 @@ consolidates what shares a cause, and orders the rest. Follow
    which one it was.
 8. **Run the project's checks** on `TODO.md` and `DONE.md` (pre-commit hooks,
    any count checker).
-9. **Report**: the new order as the table in
+9. **Report**: the closing message always carries the table, read from the
+   file as it now stands, even when the operator chose to leave the file
+   unchanged; a table shown only in the step 5 proposal does not count. Give
+   the new order as the table in
    [Showing the list](#showing-the-list), what moved to `DONE.md`, what was
    merged into what, which missing items were added, and anything stale. Ask
    whether to commit (`docs(todo): ...`). If a group's fix will change a
