@@ -334,7 +334,7 @@ source, its `types` classes' source and its `test_files`.
 
 ## Task 9: The T1 and T2 briefs, version 1
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Briefs; Content hash, the note the brief carries); Decisions 1 and 2
@@ -345,16 +345,16 @@ input and output format and `**Brief version:** 1`.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: each of the T1 and T2 briefs contains its question's text as it stands in `claude/skills/auditme/SKILL.md` and has exactly one `**Brief version:** 1` line (the existing every-registered-brief test then covers both). Run them and see them fail
-- [ ] Write `T1.md`: the input (a batch of candidates with `reasons`, `tests`, `callers`, `test_files`, `private`); the question; the thresholds (covered when a listed `direct` test calls it, or, for a candidate with `private: true`, a `caller` test reaches it; an unconditionally skipped or `xfail` test does not count; read `test_files` for calls the map could not follow); the output (one JSON line per candidate with `id`, `findings` as `{"missing": ["test case"]}` or `{"missing": []}`, and a `reason` naming the covering test's id, every candidate present)
-- [ ] Write `T2.md`: the input (`params`, `returns`, `types`, `pairs`, `tests`, `test_files`); the question; the thresholds (covered when a test with `property: true` calls it directly; flagged only when the reason states a property the domain supports - a round trip with a `pairs` entry, idempotence, an output invariant, a simpler oracle, a bound - and with none statable not flagged, the reason saying why; whether the project declares hypothesis does not change the verdict); the output (`findings` as `{"missing": ["property test"]}` or `{"missing": []}`, with `id` and `reason`, every candidate present)
-- [ ] In both: a test in a file that imports neither the module nor a caller's module does not re-plan a candidate, and `--rejudge` covers it; a threshold the brief does not settle is reported in the reply, not decided
-- [ ] In both, repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: each of the T1 and T2 briefs contains its question's text as it stands in `claude/skills/auditme/SKILL.md` and has exactly one `**Brief version:** 1` line (the existing every-registered-brief test then covers both). Run them and see them fail
+- [x] Write `T1.md`: the input (a batch of candidates with `reasons`, `tests`, `callers`, `test_files`, `private`); the question; the thresholds (covered when a listed `direct` test calls it, or, for a candidate with `private: true`, a `caller` test reaches it; an unconditionally skipped or `xfail` test does not count; read `test_files` for calls the map could not follow); the output (one JSON line per candidate with `id`, `findings` as `{"missing": ["test case"]}` or `{"missing": []}`, and a `reason` naming the covering test's id, every candidate present)
+- [x] Write `T2.md`: the input (`params`, `returns`, `types`, `pairs`, `tests`, `test_files`); the question; the thresholds (covered when a test with `property: true` calls it directly; flagged only when the reason states a property the domain supports - a round trip with a `pairs` entry, idempotence, an output invariant, a simpler oracle, a bound - and with none statable not flagged, the reason saying why; whether the project declares hypothesis does not change the verdict); the output (`findings` as `{"missing": ["property test"]}` or `{"missing": []}`, with `id` and `reason`, every candidate present)
+- [x] In both: a test in a file that imports neither the module nor a caller's module does not re-plan a candidate, and `--rejudge` covers it; a threshold the brief does not settle is reported in the reply, not decided
+- [x] In both, repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Neither brief names a project, path or review other than this repository's own
+- [x] The new tests pass
+- [x] Neither brief names a project, path or review other than this repository's own
 
 **Definition of Done:**
 
