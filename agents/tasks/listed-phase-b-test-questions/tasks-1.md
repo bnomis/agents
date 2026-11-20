@@ -225,7 +225,7 @@ candidate's `callers` (package functions reaching it within `depth`) and its
 
 ## Task 6: The T1 lister and its content hash
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (T1 registration and payload); Implementation (Scope; T1 candidates; Content hash); Error handling (no test tree); Decisions 1 and 2
@@ -238,21 +238,21 @@ source and its `test_files`.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_t1_candidates.py`, on a fixture project with `src/pkg/` and `src/tests/`: a branchy function is a candidate with id `src/pkg/mod.py::name`, its reasons, its direct and caller tests (each `TestRef` as a dict) and its `test_files`; a function in a test file, a `conftest.py`, a `test_*.py` or `*_test.py` or under a `tests` directory is never a candidate; an `@typing.overload` stub and a def under `if TYPE_CHECKING:` are not; `private` is `is_private`'s answer; a project with no test tree lists candidates with empty `tests`; adding a test to the mirrored test file changes the hash, and editing a test file that imports neither the module nor a caller's module does not; a second call returns the same candidates, order and hashes; `--depth` reaches the lister. Run them and see them fail
-- [ ] Implement the lister beside A4's, reusing `_audit_roots`, `module_dotted`, `_type_checking_linenos` and `is_private` from `core.py` and `build_test_map` from `testmap.py`
-- [ ] Compute the hash as the spec's Content hash section says: sha256 over the candidate's source, then each `test_files` file's full text in path order, NUL-separated
-- [ ] Register it as `T1` with the brief path `claude/skills/auditme/phaseb/briefs/T1.md` (written in Task 9)
-- [ ] Extend `claude/skills/auditme/tests/phaseb/test_cli.py` with one case: `phaseb.py candidates <fixture> --question T1` prints one JSON line per candidate
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_t1_candidates.py`, on a fixture project with `src/pkg/` and `src/tests/`: a branchy function is a candidate with id `src/pkg/mod.py::name`, its reasons, its direct and caller tests (each `TestRef` as a dict) and its `test_files`; a function in a test file, a `conftest.py`, a `test_*.py` or `*_test.py` or under a `tests` directory is never a candidate; an `@typing.overload` stub and a def under `if TYPE_CHECKING:` are not; `private` is `is_private`'s answer; a project with no test tree lists candidates with empty `tests`; adding a test to the mirrored test file changes the hash, and editing a test file that imports neither the module nor a caller's module does not; a second call returns the same candidates, order and hashes; `--depth` reaches the lister. Run them and see them fail
+- [x] Implement the lister beside A4's, reusing `_audit_roots`, `module_dotted`, `_type_checking_linenos` and `is_private` from `core.py` and `build_test_map` from `testmap.py`
+- [x] Compute the hash as the spec's Content hash section says: sha256 over the candidate's source, then each `test_files` file's full text in path order, NUL-separated
+- [x] Register it as `T1` with the brief path `claude/skills/auditme/phaseb/briefs/T1.md` (written in Task 9)
+- [x] Extend `claude/skills/auditme/tests/phaseb/test_cli.py` with one case: `phaseb.py candidates <fixture> --question T1` prints one JSON line per candidate
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
+- [x] The new tests pass
+- [x] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
