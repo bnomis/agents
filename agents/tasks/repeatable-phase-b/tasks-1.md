@@ -317,7 +317,7 @@ per-question fan-out as now, marked `(sampled)`.
 
 ## Task 9: Whole-tree checks, deduplication, and close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -327,23 +327,23 @@ every check the change can reach, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Hoist anything the `phaseb` modules duplicate from the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define (the `Raises:` section parser especially, which `error_handling.py` already has as `raises_section_names`), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
-- [ ] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` from the repository root and check it exits 0, and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] Hoist anything the `phaseb` modules duplicate from the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define (the `Raises:` section parser especially, which `error_handling.py` already has as `raises_section_names`), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
+- [x] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` from the repository root and check it exits 0, and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
+- [x] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/repeatable-phase-b/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/repeatable-phase-b/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
 
 **Notes:**
 
