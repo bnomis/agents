@@ -244,7 +244,7 @@ a `PhaseBError`, whose message goes to stderr.
 
 ## Task 7: The A4 brief, version 1
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Briefs); Decisions D1
@@ -256,20 +256,20 @@ read the version from it.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: every registered question's brief file exists and has exactly one `**Brief version:** N` line with N a positive integer; the A4 brief contains the A4 question text as it stands in `SKILL.md`; a brief without a version line makes `plan` raise `PhaseBError`. Run them and see them fail
-- [ ] Write the brief: the reviewer's input (a batch file of candidates with `raises`, `callees` and `unresolved`), the question, the thresholds (domain errors only; each class named separately, a base not covering a subclass; an error only from a callable passed in is not owed; D1, with the constant named in the reason; read every listed callee and every unresolved call), the output (one JSON line per candidate with `id`, `missing`, `extra`, `reason`, sorted names, every candidate present), and the rule that a threshold the brief does not settle is reported in the reply, not decided
-- [ ] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
-- [ ] Have `plan` read the brief version from the registered brief and write it into `plan.json`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: every registered question's brief file exists and has exactly one `**Brief version:** N` line with N a positive integer; the A4 brief contains the A4 question text as it stands in `SKILL.md`; a brief without a version line makes `plan` raise `PhaseBError`. Run them and see them fail
+- [x] Write the brief: the reviewer's input (a batch file of candidates with `raises`, `callees` and `unresolved`), the question, the thresholds (domain errors only; each class named separately, a base not covering a subclass; an error only from a callable passed in is not owed; D1, with the constant named in the reason; read every listed callee and every unresolved call), the output (one JSON line per candidate with `id`, `missing`, `extra`, `reason`, sorted names, every candidate present), and the rule that a threshold the brief does not settle is reported in the reply, not decided
+- [x] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
+- [x] Have `plan` read the brief version from the registered brief and write it into `plan.json`
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] The brief names no project, path or review from the pilot
+- [x] The new tests pass
+- [x] The brief names no project, path or review from the pilot
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
