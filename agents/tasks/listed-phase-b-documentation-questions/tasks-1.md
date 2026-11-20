@@ -276,7 +276,7 @@ corpus's top-level imports.
 
 ## Task 7: The Doc1, Doc2, Doc4 and Doc5 briefs, version 1
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Briefs; Skill changes, Doc5's predicate); Decision 3
@@ -288,21 +288,21 @@ thresholds, the input and output format, the env-variable security rule, and
 
 **Subtasks:**
 
-- [ ] In `claude/skills/auditme/SKILL.md`'s Phase B checklist, change Doc5's predicate to "Drift between `docs/` or `README.md` and `src/`" (decision 3), so the Doc5 brief quotes the widened question
-- [ ] Extend `claude/skills/auditme/tests/phaseb/test_briefs.py`: each Doc brief exists with exactly one `**Brief version:** 1` line; each contains its question's text as it stands in `SKILL.md`; Doc4 and Doc5 name the `drift` key, Doc1 and Doc2 the `stale` and `missing` keys. Run them and see them fail
-- [ ] Write each brief's thresholds exactly as the spec's Briefs section lists them, including what is not drift and, for Doc4 and Doc5, how an `(unresolved)` candidate is judged
-- [ ] Output: one JSON line per candidate with `id`, its findings keys and `reason`, every candidate present; a threshold the brief does not settle is reported in the reply, not decided
-- [ ] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
+- [x] In `claude/skills/auditme/SKILL.md`'s Phase B checklist, change Doc5's predicate to "Drift between `docs/` or `README.md` and `src/`" (decision 3), so the Doc5 brief quotes the widened question
+- [x] Extend `claude/skills/auditme/tests/phaseb/test_briefs.py`: each Doc brief exists with exactly one `**Brief version:** 1` line; each contains its question's text as it stands in `SKILL.md`; Doc4 and Doc5 name the `drift` key, Doc1 and Doc2 the `stale` and `missing` keys. Run them and see them fail
+- [x] Write each brief's thresholds exactly as the spec's Briefs section lists them, including what is not drift and, for Doc4 and Doc5, how an `(unresolved)` candidate is judged
+- [x] Output: one JSON line per candidate with `id`, its findings keys and `reason`, every candidate present; a threshold the brief does not settle is reported in the reply, not decided
+- [x] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No brief names a project, path or review from any real run
+- [x] The new tests pass
+- [x] No brief names a project, path or review from any real run
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
