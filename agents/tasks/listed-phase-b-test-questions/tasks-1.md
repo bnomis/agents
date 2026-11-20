@@ -118,7 +118,7 @@ payload uses it here and the architecture-questions spec reuses it.
 
 ## Task 3: The test tree index: test files, imports and direct tests
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`TestRef`, `build_test_map`); Implementation (Scope; Finding the tests, direct route); Error handling
@@ -131,21 +131,21 @@ fixture it requests.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_testmap.py`, on a fixture project with `src/pkg/` and `src/tests/`: a test calling `pkg.mod.load` after `from pkg.mod import load` gives a `direct` ref with the test's id (`src/tests/test_mod.py::test_load`), path and lines; a method `test_*` in a `Test*` class is found, with the id `path::TestProbe.test_load`; a test that requests a fixture calling `load`, defined in the same file or in a `conftest.py` above it, gives a `direct` ref; a test decorated with `given` imported from `hypothesis` has `property: true`, and one without has `false`; a same-named `load` called in a test file that imports neither the module nor the name adds no ref; a test call the resolver cannot follow is left out without an error; a project with neither `src/tests/` nor `tests/` gives an empty map; a test file or audited source file that does not parse raises `PhaseBError` naming the file; refs for a function come back sorted by id. Run them and see them fail
-- [ ] Add `TestRef` with the spec's fields and docstring, and the test tree walk: every `test_*.py` and `*_test.py` under `src/tests/` and `tests/`
-- [ ] Implement the direct route with the shared call resolver from `core.py`, starting from each test file's imports, so a bare name match is never evidence
-- [ ] Re-export the module's public names where `phaseb/__init__.py` lists the package's names
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_testmap.py`, on a fixture project with `src/pkg/` and `src/tests/`: a test calling `pkg.mod.load` after `from pkg.mod import load` gives a `direct` ref with the test's id (`src/tests/test_mod.py::test_load`), path and lines; a method `test_*` in a `Test*` class is found, with the id `path::TestProbe.test_load`; a test that requests a fixture calling `load`, defined in the same file or in a `conftest.py` above it, gives a `direct` ref; a test decorated with `given` imported from `hypothesis` has `property: true`, and one without has `false`; a same-named `load` called in a test file that imports neither the module nor the name adds no ref; a test call the resolver cannot follow is left out without an error; a project with neither `src/tests/` nor `tests/` gives an empty map; a test file or audited source file that does not parse raises `PhaseBError` naming the file; refs for a function come back sorted by id. Run them and see them fail
+- [x] Add `TestRef` with the spec's fields and docstring, and the test tree walk: every `test_*.py` and `*_test.py` under `src/tests/` and `tests/`
+- [x] Implement the direct route with the shared call resolver from `core.py`, starting from each test file's imports, so a bare name match is never evidence
+- [x] Re-export the module's public names where `phaseb/__init__.py` lists the package's names
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Each test file is parsed once per `build_test_map` call
-- [ ] Hypothesis is recognised by the name `given` imported from `hypothesis`; nothing imports hypothesis
+- [x] The new tests pass
+- [x] Each test file is parsed once per `build_test_map` call
+- [x] Hypothesis is recognised by the name `given` imported from `hypothesis`; nothing imports hypothesis
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
