@@ -30,7 +30,7 @@ requires.
 
 ## Task 1: Hoist the call resolver into `core.py` with a `class_methods` flag
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Module location (the shared resolver, amendment 1.1)
@@ -45,21 +45,21 @@ with `True`.
 
 **Subtasks:**
 
-- [ ] Starting-point check: `grep -rnwE 'phaseb|PhaseBError|class_methods' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# call resolver` heading, on `ast.parse` trees of a two-module fixture package `pkg`: a same-module call, a dotted call through an import, a call through a package `__init__.py` re-export, and a `self.method()` call each resolve to the defining function's dotted name; an attribute call on a local instance resolves to `None`; `Probe.load()` (a classmethod of a class `pkg` defines) resolves to `None` by default and to `pkg.mod.Probe.load` with `class_methods=True`, both when `Probe` is defined in the same module and when it is imported by name. Run them and see them fail
-- [ ] Add the helper to `claude/skills/auditme/checks/auditme/core.py` with a docstring that names the `class_methods` flag and why the rule leaves it off
-- [ ] Replace the inner `resolve`, the alias loop and their inputs in `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`) with calls to the helper at its default
+- [x] Starting-point check: `grep -rnwE 'phaseb|PhaseBError|class_methods' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# call resolver` heading, on `ast.parse` trees of a two-module fixture package `pkg`: a same-module call, a dotted call through an import, a call through a package `__init__.py` re-export, and a `self.method()` call each resolve to the defining function's dotted name; an attribute call on a local instance resolves to `None`; `Probe.load()` (a classmethod of a class `pkg` defines) resolves to `None` by default and to `pkg.mod.Probe.load` with `class_methods=True`, both when `Probe` is defined in the same module and when it is imported by name. Run them and see them fail
+- [x] Add the helper to `claude/skills/auditme/checks/auditme/core.py` with a docstring that names the `class_methods` flag and why the rule leaves it off
+- [x] Replace the inner `resolve`, the alias loop and their inputs in `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`) with calls to the helper at its default
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
-- [ ] `check_raises_section_drift` passes no `class_methods` argument
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
+- [x] `check_raises_section_drift` passes no `class_methods` argument
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
