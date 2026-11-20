@@ -4,6 +4,28 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
+## `raises-section-drift` misses errors reached through a section-less wrapper or a `Class.method()` call
+
+Found on 2026-11-20 in a review of this file: the open request in
+`claude/skills/auditme/requests.md`, raised the same day by an audit whose
+Phase B A4 found by hand `Raises:` omissions the rule exists to catch, is
+recorded in no `TODO.md` item. While it is open the next audit cannot start
+(`claude/skills/auditme/SKILL.md`, the mechanical sweep's check that the
+`## Open` section is empty). The rule in
+`claude/skills/auditme/checks/auditme/rules/error_handling.py` was last
+changed on 2026-11-01.
+
+Cause: `check_raises_section_drift` follows a callee one level, through its
+declared `Raises:` section, so a wrapper with no section contributes
+nothing; and it does not resolve `<ClassName>.<method>(...)` calls.
+
+Fix direction: as the request proposes, with its fixtures and its catch-up
+run on each project with the shared hooks before the entry is deleted. The
+`Class.method()` gap becomes the rule passing `class_methods=True` to the
+shared resolver once Task 1 of `agents/tasks/repeatable-phase-b/tasks-1.md`
+has moved it into `core.py`; the section-less wrapper gap is separate work.
+The request entry stays the detailed record; this item tracks the work.
+
 ## Put the Phase B questions that find most onto the listed path
 
 Found on 2026-11-20 while writing `agents/specs/repeatable-phase-b/spec.md`
