@@ -125,7 +125,7 @@ listers can import them. A rename and a move only: no behaviour changes.
 
 ## Task 3: `capture_hits` and the `architecture.py` skeleton
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`capture_hits`, candidate ids); Error handling; Implementation (Sites the sweep already reports)
@@ -141,21 +141,21 @@ owning rule's hit.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# capture_hits` heading, on a fixture project with `src/pkg/`: one rule's hits come back as `(rule, path, line)` triples; an accepted hit is included; `_EMITTED` holds the same entries after the call as before it; nothing reaches stdout; a check that raises gives `PhaseBError` whose message names the check. Run them and see them fail
-- [ ] Implement `capture_hits` in `claude/skills/auditme/checks/auditme/phaseb/architecture.py` with the signature and docstring in the spec's API, generalising the capture in the `run_check` fixture in `claude/skills/auditme/tests/conftest.py`; leave that fixture as it is
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# shared` heading: a file under an audit root that does not parse raises `PhaseBError` naming it; the site counter numbers two sites in one qualname `#1` and `#2` in order of appearance, and a site added in another function leaves them unchanged; module-level code has the qualname `<module>`. Run them and see them fail
-- [ ] Create `phaseb/architecture.py` with those helpers, and import it wherever the earlier lists import their lister modules so its registrations run (follow `phaseb/__init__.py` as the earlier lists left it)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# capture_hits` heading, on a fixture project with `src/pkg/`: one rule's hits come back as `(rule, path, line)` triples; an accepted hit is included; `_EMITTED` holds the same entries after the call as before it; nothing reaches stdout; a check that raises gives `PhaseBError` whose message names the check. Run them and see them fail
+- [x] Implement `capture_hits` in `claude/skills/auditme/checks/auditme/phaseb/architecture.py` with the signature and docstring in the spec's API, generalising the capture in the `run_check` fixture in `claude/skills/auditme/tests/conftest.py`; leave that fixture as it is
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# shared` heading: a file under an audit root that does not parse raises `PhaseBError` naming it; the site counter numbers two sites in one qualname `#1` and `#2` in order of appearance, and a site added in another function leaves them unchanged; module-level code has the qualname `<module>`. Run them and see them fail
+- [x] Create `phaseb/architecture.py` with those helpers, and import it wherever the earlier lists import their lister modules so its registrations run (follow `phaseb/__init__.py` as the earlier lists left it)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `capture_hits` returns accepted hits as well as unaccepted ones
-- [ ] No lister is registered yet, so `claude/skills/auditme/tests/phaseb/test_briefs.py` passes unchanged
+- [x] The new tests pass
+- [x] `capture_hits` returns accepted hits as well as unaccepted ones
+- [x] No lister is registered yet, so `claude/skills/auditme/tests/phaseb/test_briefs.py` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
