@@ -358,8 +358,8 @@ input and output format and `**Brief version:** 1`.
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -370,7 +370,7 @@ input and output format and `**Brief version:** 1`.
 
 ## Task 10: `SKILL.md`: T1 and T2 listed
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Skill changes)
@@ -380,21 +380,21 @@ on the listed path, and record T2's candidate rule as a refinement.
 
 **Subtasks:**
 
-- [ ] In section 4, Interpretive review, add T1 and T2 to the questions with a lister, in the form the documentation-questions list left, so they lose `(sampled)`
-- [ ] Under "Refining a predicate", add a dated entry (the date of the commit) recording T2's candidate rule as the predicate's reading of "well-defined domains", naming `is_t2_candidate` and the module that holds it
-- [ ] Say that the first audit after this change judges every T1 and T2 candidate as new, and that its findings are coverage, not drift
-- [ ] Add `test_testmap.py`, `test_t1_candidates.py` and `test_t2_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] In section 4, Interpretive review, add T1 and T2 to the questions with a lister, in the form the documentation-questions list left, so they lose `(sampled)`
+- [x] Under "Refining a predicate", add a dated entry (the date of the commit) recording T2's candidate rule as the predicate's reading of "well-defined domains", naming `is_t2_candidate` and the module that holds it
+- [x] Say that the first audit after this change judges every T1 and T2 candidate as new, and that its findings are coverage, not drift
+- [x] Add `test_testmap.py`, `test_t1_candidates.py` and `test_t2_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] `grep -n 'T1\|T2' claude/skills/auditme/SKILL.md` shows neither marked `(sampled)`
-- [ ] The T1 and T2 question texts in the Phase B checklist are unchanged, so Task 9's verbatim tests still pass
+- [x] `grep -n 'T1\|T2' claude/skills/auditme/SKILL.md` shows neither marked `(sampled)`
+- [x] The T1 and T2 question texts in the Phase B checklist are unchanged, so Task 9's verbatim tests still pass
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
