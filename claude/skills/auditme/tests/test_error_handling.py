@@ -2105,3 +2105,244 @@ def test_class_lineage_terminates_on_a_cycle() -> None:
 
 def test_class_lineage_of_an_unknown_name_is_itself() -> None:
     assert auditme.rules.error_handling.class_lineage('Nope', {}) == {'Nope'}
+
+
+# --- raises-section-drift: Class.method() calls -----------------------------
+
+PROBE_CLASS = """import probe.errors
+
+
+class Probe:
+    {decorator}
+    def load({params}) -> int:
+        \"\"\"Load it.
+
+        Raises:
+            ParseError: bad input.
+        \"\"\"
+{body}"""
+
+PROBE_RAISES = '        raise probe.errors.ParseError(path)\n'
+PROBE_GUARDED = '        if strict:\n            raise probe.errors.ParseError(path)\n        return 0\n'
+PROBE_RUN = """
+
+def run(path: str) -> int:
+    \"\"\"Run it.
+
+    Raises:
+        FetchError: nothing to run.
+    \"\"\"
+    if not path:
+        raise probe.errors.FetchError('empty')
+{call}
+"""
+PROBE_IMPORT_CALLER = 'import probe.errors\nimport probe.conf\nfrom probe.conf import Probe\n' + PROBE_RUN
+PROBE_OMITS = [('src/probe/use.py', 'run: Raises: omits ParseError, declared by probe.conf.Probe.load')]
+PROBE_OMITS_LOCAL = [('src/probe/use.py', 'run: Raises: omits ParseError, declared by probe.use.Probe.load')]
+
+
+def probe_class(decorator: str = '@classmethod', params: str = 'cls, path: str', body: str = PROBE_RAISES) -> str:
+    return PROBE_CLASS.format(decorator=decorator, params=params, body=body)
+
+
+def class_call_drift(project: Builder, run_check: Runner, files: dict[str, str]) -> list[tuple[str, str]]:
+    root = project({'src/probe/errors.py': ERRORS, **files})
+    return sorted((hit['path'], hit['variant']) for hit in run_check(RAISES_DRIFT, root) if hit['rule'] == 'raises-section-drift')
+
+
+def test_a_class_method_call_on_a_class_in_the_same_module_is_a_hit(project: Builder, run_check: Runner) -> None:
+    caller = probe_class() + PROBE_RUN.format(call='    return Probe.load(path)')
+    assert class_call_drift(project, run_check, {'src/probe/use.py': caller}) == PROBE_OMITS_LOCAL
+
+
+def test_a_class_method_call_on_an_imported_class_is_a_hit(project: Builder, run_check: Runner) -> None:
+    files = {'src/probe/conf.py': probe_class(), 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call='    return Probe.load(path)')}
+    assert class_call_drift(project, run_check, files) == PROBE_OMITS
+
+
+def test_a_handler_around_a_class_method_call_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    call = '    try:\n        return Probe.load(path)\n    except probe.errors.ParseError:\n        return 0'
+    files = {'src/probe/conf.py': probe_class(), 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call=call)}
+    assert class_call_drift(project, run_check, files) == []
+
+
+def test_a_classmethod_guarded_by_an_unset_optional_argument_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    conf = probe_class(params='cls, path: str, strict: bool = False', body=PROBE_GUARDED)
+    files = {'src/probe/conf.py': conf, 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call='    return Probe.load(path)')}
+    assert class_call_drift(project, run_check, files) == []
+
+
+def test_a_classmethod_with_the_guarding_argument_supplied_positionally_is_a_hit(project: Builder, run_check: Runner) -> None:
+    conf = probe_class(params='cls, strict: bool = False', body=PROBE_GUARDED)
+    files = {'src/probe/conf.py': conf, 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call='    return Probe.load(True)')}
+    assert class_call_drift(project, run_check, files) == PROBE_OMITS
+
+
+def test_a_staticmethod_with_the_guarding_argument_supplied_is_a_hit(project: Builder, run_check: Runner) -> None:
+    conf = probe_class(decorator='@staticmethod', params='path: str, strict: bool = False', body=PROBE_GUARDED)
+    files = {'src/probe/conf.py': conf, 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call='    return Probe.load(path, True)')}
+    assert class_call_drift(project, run_check, files) == PROBE_OMITS
+
+
+def test_a_staticmethod_guarded_by_an_unset_optional_argument_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    conf = probe_class(decorator='@staticmethod', params='path: str, strict: bool = False', body=PROBE_GUARDED)
+    files = {'src/probe/conf.py': conf, 'src/probe/use.py': PROBE_IMPORT_CALLER.format(call='    return Probe.load(path)')}
+    assert class_call_drift(project, run_check, files) == []
+
+
+# --- raises-section-drift: section-less callees -----------------------------
+
+INNER = """import probe.errors
+
+
+def perform() -> int:
+    \"\"\"Do it.
+
+    Raises:
+        ProbeError: always.
+    \"\"\"
+    raise probe.errors.ProbeError('x')
+"""
+WRAP_HEAD = 'import probe.errors\nimport probe.inner\n\n\n'
+SUBJECT = """import probe.errors
+import probe.wrap
+
+
+def run(path: str) -> int:
+    \"\"\"Run it.
+
+    Raises:
+{raises}
+    \"\"\"
+{call}
+"""
+WRAP_OMITS = 'run: Raises: omits ProbeError, '
+VIA_WRAPPER = f'{WRAP_OMITS}declared by probe.inner.perform via probe.wrap.wrapper'
+
+
+def wrapper_file(name: str = 'wrapper', callee: str = 'probe.inner.perform()', body: str | None = None) -> str:
+    body = body if body is not None else f'    return {callee}'
+    return f'{WRAP_HEAD}def {name}() -> int:\n    """Defer to the callee."""\n{body}\n'
+
+
+def subject_file(call: str = '    return probe.wrap.wrapper()', raises: str = '        ValueError: never.', head: str = '') -> str:
+    return head + SUBJECT.format(raises=raises, call=call)
+
+
+def sectionless_hits(project: Builder, run_check: Runner, files: dict[str, str]) -> list[dict]:
+    root = project({'src/probe/errors.py': ERRORS, 'src/probe/inner.py': INNER, **files})
+    return [hit for hit in run_check(RAISES_DRIFT, root) if hit['rule'] == 'raises-section-drift' and hit['path'] == 'src/probe/use.py']
+
+
+def sectionless_variants(project: Builder, run_check: Runner, files: dict[str, str]) -> list[str]:
+    return sorted(hit['variant'] for hit in sectionless_hits(project, run_check, files))
+
+
+def test_a_section_less_wrapper_passes_the_callee_error_through(project: Builder, run_check: Runner) -> None:
+    files = {'src/probe/wrap.py': wrapper_file(), 'src/probe/use.py': subject_file()}
+    hits = sectionless_hits(project, run_check, files)
+    assert [hit['variant'] for hit in hits] == [VIA_WRAPPER]
+    assert hits[0]['related'] == ['src/probe/inner.py', 'src/probe/wrap.py']
+
+
+def test_a_declared_error_or_its_base_covers_the_wrapper_error(project: Builder, run_check: Runner) -> None:
+    body = "    raise probe.errors.ParseError('x')"
+    for declared in ('ProbeError', 'ParseError'):
+        files = {'src/probe/wrap.py': wrapper_file(body=body), 'src/probe/use.py': subject_file(raises=f'        {declared}: always.')}
+        assert sectionless_variants(project, run_check, files) == []
+    files = {'src/probe/wrap.py': wrapper_file(), 'src/probe/use.py': subject_file(raises='        ProbeError: always.')}
+    assert sectionless_variants(project, run_check, files) == []
+
+
+def test_a_handler_around_the_wrapper_call_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    call = '    try:\n        return probe.wrap.wrapper()\n    except probe.errors.ProbeError:\n        return 0'
+    files = {'src/probe/wrap.py': wrapper_file(), 'src/probe/use.py': subject_file(call=call)}
+    assert sectionless_variants(project, run_check, files) == []
+
+
+def test_a_handler_inside_the_wrapper_is_not_a_hit(project: Builder, run_check: Runner) -> None:
+    body = '    try:\n        return probe.inner.perform()\n    except probe.errors.ProbeError:\n        return 0'
+    files = {'src/probe/wrap.py': wrapper_file(body=body), 'src/probe/use.py': subject_file()}
+    assert sectionless_variants(project, run_check, files) == []
+
+
+def test_a_wrapper_that_re_raises_is_a_hit(project: Builder, run_check: Runner) -> None:
+    body = '    try:\n        return probe.inner.perform()\n    except probe.errors.ProbeError:\n        raise'
+    files = {'src/probe/wrap.py': wrapper_file(body=body), 'src/probe/use.py': subject_file()}
+    assert sectionless_variants(project, run_check, files) == [VIA_WRAPPER]
+
+
+def test_a_raise_in_the_wrapper_is_named_as_raised_by_it(project: Builder, run_check: Runner) -> None:
+    files = {'src/probe/wrap.py': wrapper_file(body="    raise probe.errors.ProbeError('x')"), 'src/probe/use.py': subject_file()}
+    assert sectionless_variants(project, run_check, files) == [f'{WRAP_OMITS}raised by probe.wrap.wrapper']
+
+
+def test_two_wrappers_are_followed_and_listed_in_call_order(project: Builder, run_check: Runner) -> None:
+    wrap = (
+        'import probe.inner\nimport probe.wrap\n\n\n'
+        'def outer() -> int:\n    """Defer."""\n    return probe.wrap.inner()\n\n\n'
+        'def inner() -> int:\n    """Defer."""\n    return probe.inner.perform()\n'
+    )
+    files = {'src/probe/wrap.py': wrap, 'src/probe/use.py': subject_file(call='    return probe.wrap.outer()')}
+    assert sectionless_variants(project, run_check, files) == [
+        f'{WRAP_OMITS}declared by probe.inner.perform via probe.wrap.outer, probe.wrap.inner',
+    ]
+
+
+def test_three_wrappers_are_past_the_depth_bound(project: Builder, run_check: Runner) -> None:
+    wrap = (
+        'import probe.inner\nimport probe.wrap\n\n\n'
+        'def one() -> int:\n    """Defer."""\n    return probe.wrap.two()\n\n\n'
+        'def two() -> int:\n    """Defer."""\n    return probe.wrap.three()\n\n\n'
+        'def three() -> int:\n    """Defer."""\n    return probe.inner.perform()\n'
+    )
+    files = {'src/probe/wrap.py': wrap, 'src/probe/use.py': subject_file(call='    return probe.wrap.one()')}
+    assert sectionless_variants(project, run_check, files) == []
+
+
+def test_a_cycle_of_section_less_callees_ends(project: Builder, run_check: Runner) -> None:
+    wrap = (
+        'import probe.inner\nimport probe.wrap\n\n\n'
+        'def a() -> int:\n    """Defer."""\n    return probe.wrap.b()\n\n\n'
+        'def b() -> int:\n    """Defer."""\n    probe.wrap.a()\n    return probe.inner.perform()\n'
+    )
+    files = {'src/probe/wrap.py': wrap, 'src/probe/use.py': subject_file(call='    return probe.wrap.a()')}
+    assert sectionless_variants(project, run_check, files) == [f'{WRAP_OMITS}declared by probe.inner.perform via probe.wrap.a, probe.wrap.b']
+
+
+GUARDED_LOAD = """import probe.errors
+
+
+def load(path: str, strict: bool = False) -> int:
+    \"\"\"Load it.
+
+    Raises:
+        ProbeError: when strict.
+    \"\"\"
+    if strict:
+        raise probe.errors.ProbeError(path)
+    return 0
+"""
+
+
+def test_the_unset_optional_guard_applies_inside_a_wrapper(project: Builder, run_check: Runner) -> None:
+    for argument, expected in (("'x'", []), ("'x', strict=True", [f'{WRAP_OMITS}declared by probe.load.load via probe.wrap.wrapper'])):
+        wrap = wrapper_file(callee=f'probe.load.load({argument})').replace('import probe.inner', 'import probe.load')
+        files = {'src/probe/load.py': GUARDED_LOAD, 'src/probe/wrap.py': wrap, 'src/probe/use.py': subject_file()}
+        assert sectionless_variants(project, run_check, files) == expected
+
+
+def test_a_declared_error_reached_through_a_wrapper_is_not_an_extra(project: Builder, run_check: Runner) -> None:
+    call = '    try:\n        probe.inner.perform()\n    except probe.errors.ProbeError:\n        pass\n    return probe.wrap.wrapper()'
+    files = {
+        'src/probe/wrap.py': wrapper_file(),
+        'src/probe/use.py': subject_file(call=call, raises='        ProbeError: always.', head='import probe.inner\n'),
+    }
+    assert sectionless_variants(project, run_check, files) == []
+
+
+def test_a_marker_accepts_a_wrapper_hit(project: Builder, run_check: Runner) -> None:
+    caller = subject_file().replace('def run(path: str) -> int:', 'def run(path: str) -> int:  # auditme: accept[raises-section-drift] wrapper is internal')
+    files = {'src/probe/wrap.py': wrapper_file(), 'src/probe/use.py': caller}
+    hits = sectionless_hits(project, run_check, files)
+    assert [(hit['accepted'], hit['accepted_reason']) for hit in hits] == [(True, 'wrapper is internal')]

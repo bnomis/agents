@@ -5,6 +5,7 @@ import collections
 import contextlib
 import pathlib
 import re
+import typing
 from collections import defaultdict
 from typing import Iterable, Mapping
 
@@ -2427,6 +2428,10 @@ def unset_optional_guard(
     return all(visit(statement, False) for statement in func.body) and found
 
 
+SECTIONLESS_DEPTH: typing.Final = 3
+"""How many calls deep the rule follows from a subject; the A4 lister's `--depth` default."""
+
+
 def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag a `Raises:` section that disagrees with the domain errors reaching
     the caller (A4).
@@ -2444,11 +2449,14 @@ def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> N
     A domain error is an exception class the swept package defines - positive
     evidence, so `sqlite3.Error` (tail `Error`) and a third-party `*Error` are
     not one - and never a builtin (`STDLIB_ERRORS`). Subclasses follow the package's own class tree: catching
-    or declaring a base covers its subclasses. Callees are followed one level,
-    through the callee's declared section, not its body, and only within the
-    package being swept: a module function called by its dotted path (or a
-    name imported from a package module), a same-module function, or a method
-    called on `self`, following re-exports such as a package `__init__.py`'s
+    or declaring a base covers its subclasses. A callee with a `Raises:`
+    section is followed through that declared section, not its body; a callee
+    with no section is followed into its own raises and callees, up to
+    `SECTIONLESS_DEPTH` calls deep. Only calls within the package being swept
+    resolve: a module function called by its dotted path (or a name imported
+    from a package module), a same-module function, a method called on
+    `self`, or `<ClassName>.<method>(...)` for a class the package defines,
+    following re-exports such as a package `__init__.py`'s
     `from pkg.mod import name`. A call the check cannot resolve contributes
     nothing, which is why an extra needs a catching handler: without one, the
     declared error may arrive through such a call.
@@ -2473,6 +2481,14 @@ def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> N
     catches and re-raises on one branch still reaches the subject's callers;
     a def never called contributes nothing. A raise inside a def, lambda or
     class defined in a handler does not make that handler re-raise.
+
+    Extension (2026-11-20): both resolution gaps in the request "`raises-section-drift`
+    should follow pass-through callees and `Class.method()` calls" in
+    `claude/skills/auditme/requests.md` are closed. A `<ClassName>.<method>(...)`
+    call resolves like a call on `self`, and a callee with no `Raises:` section
+    is followed into its own raises and callees up to `SECTIONLESS_DEPTH`
+    calls deep, with the chain named in the hit's variant. Omission hits grow;
+    an extra declaration is reported only if it still never reaches the caller.
     """
     modules: dict[str, tuple[pathlib.Path, ast.Module, list[str]]] = {}
     for path in _all_py_files(src_root):
@@ -2516,6 +2532,64 @@ def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> N
         lineage = {name} | ancestors(name)
         return any(_level_catches(level, lineage) for level in around)
 
+    module_of = {qualname: module for module, qualname, _cls, _node in functions}
+
+    def is_bound(site: ast.Call, callee: str) -> bool:
+        callee_node = node_of[callee]
+        on_name = isinstance(site.func, ast.Attribute) and isinstance(site.func.value, ast.Name)
+        return on_name and (
+            site.func.value.id == 'self' or (known[callee] is not None and any(ast.unparse(d) == 'classmethod' for d in callee_node.decorator_list))
+        )
+
+    def declared_reach(site: ast.Call, callee: str, around: tuple[HandlerLevel, ...]) -> list[str]:
+        """The domain errors a callee's section declares that reach past `around` and the call's unset guards."""
+        bound = is_bound(site, callee)
+        return [
+            name
+            for name in sorted(declared_by[callee])
+            if is_domain(name) and not caught(name, around) and not unset_optional_guard(node_of[callee], name, parents, site, bound)
+        ]
+
+    def escapes(qualname: str, hop: int, chain: tuple[str, ...]) -> dict[str, set[tuple[str, ...]]]:
+        """The domain errors leaving the section-less function `qualname`, each with the chains it leaves through.
+
+        A chain lists the functions it passes through, outermost first, and ends with
+        the function whose section declares the error, or with `''` after the function that raises it.
+        """
+        found: dict[str, set[tuple[str, ...]]] = defaultdict(set)
+        on_path = (*chain, qualname)
+        module = module_of[qualname]
+        for site, around in nested_call_sites(node_of[qualname]):
+            if isinstance(site, ast.Raise):
+                name = _raised_name(site)
+                if name and is_domain(name) and not caught(name, around):
+                    found[name].add((qualname, ''))
+                continue
+            if hop >= SECTIONLESS_DEPTH:
+                continue
+            callee = resolve_call(site, module, known[qualname], bindings_of[module], known, aliases, class_methods=True)
+            if callee is None or callee in on_path:
+                continue
+            if 'Raises:' in (ast.get_docstring(node_of[callee]) or ''):
+                for name in declared_reach(site, callee, around):
+                    found[name].add((qualname, callee))
+                continue
+            for name, chains in escapes(callee, hop + 1, on_path).items():
+                if not caught(name, around):
+                    found[name].update((qualname, *inner) for inner in chains)
+        return found
+
+    def describe(chain: tuple[str, ...]) -> str:
+        if chain == ('',):
+            return 'raised here'
+        *wrappers, last = chain
+        if last == '':
+            *wrappers, raiser = wrappers
+            source = f'raised by {raiser}'
+        else:
+            source = f'declared by {last}'
+        return f'{source} via {", ".join(wrappers)}' if wrappers else source
+
     for module, qualname, cls, node in functions:
         doc = ast.get_docstring(node) or ''
         if 'Raises:' not in doc:
@@ -2524,24 +2598,23 @@ def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> N
         path, tree, lines = modules[module]
         imported = bindings_of[module]
 
-        reached: dict[str, set[str]] = defaultdict(set)
+        reached: dict[str, set[tuple[str, ...]]] = defaultdict(set)
         for site, around in nested_call_sites(node):
             if isinstance(site, ast.Raise):
                 name = _raised_name(site)
                 if name and is_domain(name) and not caught(name, around):
-                    reached[name].add('')
+                    reached[name].add(('',))
                 continue
-            callee = resolve_call(site, module, cls, imported, known, aliases)
+            callee = resolve_call(site, module, cls, imported, known, aliases, class_methods=True)
             if callee is None or callee == qualname:
                 continue
-            callee_node = node_of.get(callee)
-            bound = isinstance(site.func, ast.Attribute) and isinstance(site.func.value, ast.Name) and site.func.value.id == 'self'
-            for name in declared_by[callee]:
-                if not is_domain(name) or caught(name, around):
-                    continue
-                if callee_node is not None and unset_optional_guard(callee_node, name, parents, site, bound):
-                    continue
-                reached[name].add(callee)
+            if 'Raises:' in (ast.get_docstring(node_of[callee]) or ''):
+                for name in declared_reach(site, callee, around):
+                    reached[name].add((callee,))
+                continue
+            for name, chains in escapes(callee, 1, (qualname,)).items():
+                if not caught(name, around):
+                    reached[name].update(chains)
 
         rel = _relpath(path, scope)
         accept = _accept_reason(lines, node.lineno, rule='raises-section-drift')
@@ -2549,12 +2622,12 @@ def check_raises_section_drift(scope: pathlib.Path, src_root: pathlib.Path) -> N
         for name in sorted(reached):
             if name in declared or ancestors(name) & declared:
                 continue
-            callees = sorted(callee for callee in reached[name] if callee)
-            source = 'raised here' if '' in reached[name] else f'declared by {callees[0]}'
+            chains = reached[name]
+            on_chains = {function for chain in chains for function in chain if function}
             _emit(
-                related=[_relpath(path_of[callee], scope) for callee in callees if path_of[callee] != path],
+                related=sorted({_relpath(path_of[function], scope) for function in on_chains if path_of[function] != path}),
                 rule='raises-section-drift',
-                variant=f'{node.name}: Raises: omits {name}, {source}',
+                variant=f'{node.name}: Raises: omits {name}, {describe(min(chains, key=lambda chain: (len(chain), chain)))}',
                 path=rel,
                 line=node.lineno,
                 evidence=evidence,
