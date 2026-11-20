@@ -46,7 +46,7 @@ repository:
 
 | # | Task list | Waits for | Stops for you | Status |
 |---|---|---|---|---|
-| 1 | `repeatable-phase-b/tasks-1.md` | - | - | running |
+| 1 | `repeatable-phase-b/tasks-1.md` | - | - | merged 8548019 |
 | 2 | `raises-section-resolution/tasks-1.md` | 1 | - | todo |
 | 3 | `listed-phase-b-documentation-questions/tasks-1.md` | 1 | - | todo |
 | 4 | `listed-phase-b-test-questions/tasks-1.md` | 3 | - | todo |
