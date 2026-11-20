@@ -47,7 +47,7 @@ hoists what they duplicate.
 
 ## Task 1: Prerequisite check, and hoist `corpus_definitions` into `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Module location (prerequisite; `core.py`); API (`corpus_definitions`); Error handling (syntax errors skipped; no sweep rule added)
@@ -62,24 +62,24 @@ it at the default.
 
 **Subtasks:**
 
-- [ ] Prerequisite check, from the repository root: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If either fails, stop as `blocked`, naming the unmerged prerequisite `agents/tasks/repeatable-phase-b/tasks-1.md` and which check failed
-- [ ] Starting-point check: `grep -rnwE 'corpus_definitions|docrefs|DocSection|DocTarget|CorpusIndex|read_sections|resolve_name' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# corpus definitions` heading, on a fixture project with `src/pkg/`: at the default, a module-level `def` is keyed by its bare name, a method and a class are not, and a file with a syntax error is skipped; with `classes=True`, a class is keyed by its name and a method by its bare name, each with its node and path; a name defined in two modules has two entries. Run them and see them fail
-- [ ] Add `corpus_definitions` to `claude/skills/auditme/checks/auditme/core.py`, carrying `_source_definitions`' docstring (corpus-wide, module-level by default, and why) and saying what `classes=True` adds and that only the Phase B listers set it
-- [ ] `_corpus_py_files` lives in `rules/state_and_effects.py`, and `core.py` imports nothing from `rules/`: move `_corpus_py_files` (and anything it needs that `core.py` lacks) into `core.py` and import it back into `state_and_effects.py` and `project_hygiene.py` under the same name, rather than adding a `core` to `rules` import
-- [ ] Remove `_source_definitions` and have `check_spec_api_signature_drift` call `corpus_definitions(scope, src_root)` with no `classes` argument; update the `_source_definitions` references in its docstring
+- [x] Prerequisite check, from the repository root: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If either fails, stop as `blocked`, naming the unmerged prerequisite `agents/tasks/repeatable-phase-b/tasks-1.md` and which check failed
+- [x] Starting-point check: `grep -rnwE 'corpus_definitions|docrefs|DocSection|DocTarget|CorpusIndex|read_sections|resolve_name' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# corpus definitions` heading, on a fixture project with `src/pkg/`: at the default, a module-level `def` is keyed by its bare name, a method and a class are not, and a file with a syntax error is skipped; with `classes=True`, a class is keyed by its name and a method by its bare name, each with its node and path; a name defined in two modules has two entries. Run them and see them fail
+- [x] Add `corpus_definitions` to `claude/skills/auditme/checks/auditme/core.py`, carrying `_source_definitions`' docstring (corpus-wide, module-level by default, and why) and saying what `classes=True` adds and that only the Phase B listers set it
+- [x] `_corpus_py_files` lives in `rules/state_and_effects.py`, and `core.py` imports nothing from `rules/`: move `_corpus_py_files` (and anything it needs that `core.py` lacks) into `core.py` and import it back into `state_and_effects.py` and `project_hygiene.py` under the same name, rather than adding a `core` to `rules` import
+- [x] Remove `_source_definitions` and have `check_spec_api_signature_drift` call `corpus_definitions(scope, src_root)` with no `classes` argument; update the `_source_definitions` references in its docstring
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py`, `claude/skills/auditme/tests/test_project_hygiene.py` and `claude/skills/auditme/tests/test_state_and_effects.py` passes unchanged
-- [ ] `check_spec_api_signature_drift` passes no `classes` argument
-- [ ] `core.py` imports nothing from `auditme.rules`
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py`, `claude/skills/auditme/tests/test_project_hygiene.py` and `claude/skills/auditme/tests/test_state_and_effects.py` passes unchanged
+- [x] `check_spec_api_signature_drift` passes no `classes` argument
+- [x] `core.py` imports nothing from `auditme.rules`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
