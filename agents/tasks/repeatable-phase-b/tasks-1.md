@@ -141,7 +141,7 @@ source.
 
 ## Task 4: The ledger: read, merge and dismiss
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`read_ledger`, `merge_verdicts`); Error handling; Implementation (A review's findings); Decisions D3
@@ -153,19 +153,19 @@ while the findings are unchanged, and record a dismissal.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_ledger.py`: a missing ledger reads as empty; a ledger with an unparseable line, or a line missing a `Verdict` field, raises `PhaseBError`, as does a path that is a directory; a merge writes the new verdicts and keeps current ones it was not given; a merge drops an entry whose id is not among the candidates; a new verdict with the same findings as a dismissed one keeps the dismissal, and one with different findings drops it; dismissing an id records `YYYY-MM-DD: <reason>` and makes `flagged` false; dismissing an id the ledger does not hold raises `PhaseBError`; a write that fails leaves the old ledger file intact. Run them and see them fail
-- [ ] Implement `read_ledger`, `merge_verdicts` (returning a `MergeResult` with the counts written, kept and dropped) and a `dismiss_verdict` function, writing through a temporary file in the same directory and `os.replace`
-- [ ] Write one verdict per line, sorted by id, so a ledger diff shows only the verdicts that changed
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_ledger.py`: a missing ledger reads as empty; a ledger with an unparseable line, or a line missing a `Verdict` field, raises `PhaseBError`, as does a path that is a directory; a merge writes the new verdicts and keeps current ones it was not given; a merge drops an entry whose id is not among the candidates; a new verdict with the same findings as a dismissed one keeps the dismissal, and one with different findings drops it; dismissing an id records `YYYY-MM-DD: <reason>` and makes `flagged` false; dismissing an id the ledger does not hold raises `PhaseBError`; a write that fails leaves the old ledger file intact. Run them and see them fail
+- [x] Implement `read_ledger`, `merge_verdicts` (returning a `MergeResult` with the counts written, kept and dropped) and a `dismiss_verdict` function, writing through a temporary file in the same directory and `os.replace`
+- [x] Write one verdict per line, sorted by id, so a ledger diff shows only the verdicts that changed
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No code path treats a ledger that exists but cannot be read as empty
+- [x] The new tests pass
+- [x] No code path treats a ledger that exists but cannot be read as empty
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
