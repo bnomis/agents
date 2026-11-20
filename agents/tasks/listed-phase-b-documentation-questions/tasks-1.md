@@ -202,7 +202,7 @@ ambiguous. Nothing resolves by resemblance.
 
 ## Task 5: The Doc4 and Doc5 listers
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** Implementation (Documents and names; Doc4 and Doc5 candidates); Decisions 2 and 3; Error handling
@@ -215,25 +215,26 @@ ambiguous tokens, each with the spec's id, span, payload and hash.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a proposed spec is not listed for Doc4 and an implemented one is; a root `README.md` is listed for Doc5 beside `docs/guide.md`; a pair's id is `<doc>::<heading path>::<target id>` and its payload holds the target and each line naming it; editing the target's source changes its pair's hash and not a pair in an unrelated section; editing a block of the section that names the target changes the hash, and editing a block that does not name it does not; a section with an undefined name gets `<doc>::<heading path>::(unresolved)` holding the token, its line and any definitions found, and that candidate vanishes once the name is defined; an ambiguous name goes into the `(unresolved)` candidate with both definitions; an unreadable listed document raises `PhaseBError`; candidates and hashes are the same on a second call. Run them and see them fail
-- [ ] Discover documents with `_spec_markdown_files` (imported, not copied), filtered as the spec says
-- [ ] Hash a pair as the spec's Doc4 and Doc5 candidates section says: sha256, NUL-separated, over each block (paragraph, list item, table row or fence) naming the target, once, in line order, then the target's source (`ast.get_source_segment` with decorators for a def or class, the statement for a field or option call, a file's bytes, a directory's sorted tracked entries); hash an `(unresolved)` candidate over the section's text and the sorted tokens
-- [ ] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc4.md`, `Doc5.md`, written in Task 7) and batch size 24
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a proposed spec is not listed for Doc4 and an implemented one is; a root `README.md` is listed for Doc5 beside `docs/guide.md`; a pair's id is `<doc>::<heading path>::<target id>` and its payload holds the target and each line naming it; editing the target's source changes its pair's hash and not a pair in an unrelated section; editing a block of the section that names the target changes the hash, and editing a block that does not name it does not; a section with an undefined name gets `<doc>::<heading path>::(unresolved)` holding the token, its line and any definitions found, and that candidate vanishes once the name is defined; an ambiguous name goes into the `(unresolved)` candidate with both definitions; an unreadable listed document raises `PhaseBError`; candidates and hashes are the same on a second call. Run them and see them fail
+- [x] Discover documents with `_spec_markdown_files` (imported, not copied), filtered as the spec says
+- [x] Hash a pair as the spec's Doc4 and Doc5 candidates section says: sha256, NUL-separated, over each block (paragraph, list item, table row or fence) naming the target, once, in line order, then the target's source (`ast.get_source_segment` with decorators for a def or class, the statement for a field or option call, a file's bytes, a directory's sorted tracked entries); hash an `(unresolved)` candidate over the section's text and the sorted tokens
+- [x] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc4.md`, `Doc5.md`, written in Task 7) and batch size 24
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No sweep rule is added: `claude/skills/auditme/tests/registry-order.txt` is unchanged
+- [x] The new tests pass
+- [x] No sweep rule is added: `claude/skills/auditme/tests/registry-order.txt` is unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
 - Depends on Tasks 2, 3 and 4
 - Model the registration and candidate shape on the A4 lister in the same module
+- `Doc4.md` and `Doc5.md` exist as one-line placeholders (a version line only) because `test_briefs.py` requires every registered brief to exist; Task 7 replaces them
 
 ---
 
