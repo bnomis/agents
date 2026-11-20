@@ -263,7 +263,7 @@ source and its `test_files`.
 
 ## Task 7: `is_t2_candidate`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`is_t2_candidate`); Implementation (T2 candidates, rules 1-4); Decisions 3; Settings (lister constants)
@@ -276,19 +276,19 @@ effect in its own body, and a branch, loop or comprehension.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_t2_candidates.py`: a function over `int` returning `int` with an `if` is a candidate, as is one over a frozen `Probe` dataclass the package defines, one over `str` and `bytes`, one over `list[int] | None`, a `Literal[...]`, a package `Enum`, `NamedTuple` and `TypedDict` of such types, and a `staticmethod`; a function taking `pathlib.Path`, a non-frozen dataclass, a frozen dataclass with a `pathlib.Path` field, or an unannotated parameter is not; nor one returning `None`, with no parameters, `async`, a generator, or a method that is not a `staticmethod`; nor one calling `write_text`, `open`, `print`, `now` or a `random` or `subprocess` function, using `global` or `nonlocal`, or assigning to a parameter's attribute or subscript; nor one without a branch, loop or comprehension in its own body (one in a nested def does not count). Run them and see them fail
-- [ ] Implement `is_t2_candidate` with the spec's signature and docstring; keep the type set and the extra call names as module constants beside it, extending `_SIDE_EFFECT_CALL_NAMES` imported from `auditme.core`, not copying it
-- [ ] Follow package types' fields recursively, stopping on a type already being checked
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_t2_candidates.py`: a function over `int` returning `int` with an `if` is a candidate, as is one over a frozen `Probe` dataclass the package defines, one over `str` and `bytes`, one over `list[int] | None`, a `Literal[...]`, a package `Enum`, `NamedTuple` and `TypedDict` of such types, and a `staticmethod`; a function taking `pathlib.Path`, a non-frozen dataclass, a frozen dataclass with a `pathlib.Path` field, or an unannotated parameter is not; nor one returning `None`, with no parameters, `async`, a generator, or a method that is not a `staticmethod`; nor one calling `write_text`, `open`, `print`, `now` or a `random` or `subprocess` function, using `global` or `nonlocal`, or assigning to a parameter's attribute or subscript; nor one without a branch, loop or comprehension in its own body (one in a nested def does not count). Run them and see them fail
+- [x] Implement `is_t2_candidate` with the spec's signature and docstring; keep the type set and the extra call names as module constants beside it, extending `_SIDE_EFFECT_CALL_NAMES` imported from `auditme.core`, not copying it
+- [x] Follow package types' fields recursively, stopping on a type already being checked
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `_SIDE_EFFECT_CALL_NAMES` is defined only in `core.py`
+- [x] The new tests pass
+- [x] `_SIDE_EFFECT_CALL_NAMES` is defined only in `core.py`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
