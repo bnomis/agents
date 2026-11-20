@@ -41,7 +41,7 @@ repository root. Tests use neutral fixture names (`probe`, `Probe`,
 
 ## Task 1: Check the prerequisite and resolve `Class.method()` calls
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Prerequisite; Implementation (Resolution); Testing (`Probe.load()`)
@@ -53,22 +53,22 @@ repository root. Tests use neutral fixture names (`probe`, `Probe`,
 
 **Subtasks:**
 
-- [ ] Prerequisite check: `grep -n 'class_methods' claude/skills/auditme/checks/auditme/core.py` prints the shared resolver's signature, and `grep -n 'class_methods' claude/skills/auditme/checks/auditme/rules/error_handling.py` prints nothing. If either fails, stop as `blocked`, naming the missing prerequisite: Task 1 of `agents/tasks/repeatable-phase-b/tasks-1.md` (the shared call resolver with `class_methods` in `core.py`) has not merged
-- [ ] Starting-point check: `grep -nw 'SECTIONLESS_DEPTH\|escapes' claude/skills/auditme/checks/auditme/rules/error_handling.py` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# --- raises-section-drift: Class.method() calls` heading after the existing `raises-section-drift` sections, on the `probe` fixtures (`ProbeError` in `errors.py`): a classmethod `Probe.load` declaring and raising `ProbeError`, called `Probe.load(path)` by a caller with no handler and no entry, gives one hit with variant `... declared by probe.conf.Probe.load`, both with `Probe` defined in the caller's module and with `Probe` imported by name from `probe.conf`; a handler catching `ProbeError` around the call gives none; a classmethod whose only raise sits under `if strict:` (an optional argument), called `Probe.load(path)`, gives none (`bound` true); a `@staticmethod` with the same guard, called with an argument in the guarded position, gives a hit (`bound` false). Run them and see the tests that expect a hit fail
-- [ ] In `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`), pass `class_methods=True` to the resolver
-- [ ] Set `bound` for a `<ClassName>.<method>(...)` call: true when the method is decorated `@classmethod`, false for `@staticmethod` or an undecorated method; a `self.` call keeps `bound` true. `cls.<method>()` and inherited methods stay unresolved
-- [ ] Run the existing tests; if any existing test's expected hits change, stop as `blocked` naming it
+- [x] Prerequisite check: `grep -n 'class_methods' claude/skills/auditme/checks/auditme/core.py` prints the shared resolver's signature, and `grep -n 'class_methods' claude/skills/auditme/checks/auditme/rules/error_handling.py` prints nothing. If either fails, stop as `blocked`, naming the missing prerequisite: Task 1 of `agents/tasks/repeatable-phase-b/tasks-1.md` (the shared call resolver with `class_methods` in `core.py`) has not merged
+- [x] Starting-point check: `grep -nw 'SECTIONLESS_DEPTH\|escapes' claude/skills/auditme/checks/auditme/rules/error_handling.py` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# --- raises-section-drift: Class.method() calls` heading after the existing `raises-section-drift` sections, on the `probe` fixtures (`ProbeError` in `errors.py`): a classmethod `Probe.load` declaring and raising `ProbeError`, called `Probe.load(path)` by a caller with no handler and no entry, gives one hit with variant `... declared by probe.conf.Probe.load`, both with `Probe` defined in the caller's module and with `Probe` imported by name from `probe.conf`; a handler catching `ProbeError` around the call gives none; a classmethod whose only raise sits under `if strict:` (an optional argument), called `Probe.load(path)`, gives none (`bound` true); a `@staticmethod` with the same guard, called with an argument in the guarded position, gives a hit (`bound` false). Run them and see the tests that expect a hit fail
+- [x] In `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`), pass `class_methods=True` to the resolver
+- [x] Set `bound` for a `<ClassName>.<method>(...)` call: true when the method is decorated `@classmethod`, false for `@staticmethod` or an undecorated method; a `self.` call keeps `bound` true. `cls.<method>()` and inherited methods stay unresolved
+- [x] Run the existing tests; if any existing test's expected hits change, stop as `blocked` naming it
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_get_container_default.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_get_container_default.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
