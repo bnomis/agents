@@ -193,7 +193,7 @@ candidate's `callers` (package functions reaching it within `depth`) and its
 
 ## Task 5: `t1_reasons`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`t1_reasons`); Implementation (T1 candidates); Implementation (Tests: T1 reasons)
@@ -204,18 +204,18 @@ candidate's `callers` (package functions reaching it within `depth`) and its
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_t1_candidates.py`: an `if` (and an `elif`) gives `if`; a `try` with an `except` handler (and a `try`/`except*`) gives `try`; a `match` gives `match`; an assignment to `self.state` where another method of the class tests `self.state` in an `if`, a `match` subject or a comparison gives `state`; a conditional expression, a comprehension filter, an `assert`, a `try`/`finally` alone, an assignment to an attribute no other method tests, and an `if` inside a nested def give no reason; reasons come back in a fixed order without repeats. Run them and see them fail
-- [ ] Implement `t1_reasons` with the spec's signature and docstring, in the module that holds the listers (Task 1 read which)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_t1_candidates.py`: an `if` (and an `elif`) gives `if`; a `try` with an `except` handler (and a `try`/`except*`) gives `try`; a `match` gives `match`; an assignment to `self.state` where another method of the class tests `self.state` in an `if`, a `match` subject or a comparison gives `state`; a conditional expression, a comprehension filter, an `assert`, a `try`/`finally` alone, an assignment to an attribute no other method tests, and an `if` inside a nested def give no reason; reasons come back in a fixed order without repeats. Run them and see them fail
+- [x] Implement `t1_reasons` with the spec's signature and docstring, in the module that holds the listers (Task 1 read which)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `t1_reasons` walks with `_walk_within_scope` imported from `auditme.core`, not a copy
+- [x] The new tests pass
+- [x] `t1_reasons` walks with `_walk_within_scope` imported from `auditme.core`, not a copy
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
