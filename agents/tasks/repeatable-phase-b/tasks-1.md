@@ -70,7 +70,7 @@ with `True`.
 
 ## Task 2: The `phaseb` package, its error and its data model
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`Candidate`, `Verdict`, `register_question`, `list_candidates`); Error handling (`PhaseBError`)
@@ -82,19 +82,19 @@ place to register a lister and its brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`: `Verdict.flagged` is true when any findings list is non-empty, false when all are empty, and false when `dismissed` is set; `register_question` records a lister and its brief path; `list_candidates` on an unregistered question raises `PhaseBError`; a registered lister's candidates come back sorted by id. Run them and see them fail
-- [ ] Add `phaseb/__init__.py` with `PhaseBError` and an `__all__`
-- [ ] Add the dataclasses with the spec's fields and docstrings, and `register_question`, `list_candidates` and a way to read a question's brief path, in `phaseb/candidates.py`; re-export the public names from `phaseb/__init__.py`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`: `Verdict.flagged` is true when any findings list is non-empty, false when all are empty, and false when `dismissed` is set; `register_question` records a lister and its brief path; `list_candidates` on an unregistered question raises `PhaseBError`; a registered lister's candidates come back sorted by id. Run them and see them fail
+- [x] Add `phaseb/__init__.py` with `PhaseBError` and an `__all__`
+- [x] Add the dataclasses with the spec's fields and docstrings, and `register_question`, `list_candidates` and a way to read a question's brief path, in `phaseb/candidates.py`; re-export the public names from `phaseb/__init__.py`
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `Candidate` and `Verdict` are frozen and carry every field the spec's API lists
+- [x] The new tests pass
+- [x] `Candidate` and `Verdict` are frozen and carry every field the spec's API lists
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
