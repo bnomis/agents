@@ -313,7 +313,7 @@ thresholds, the input and output format, the env-variable security rule, and
 
 ## Task 8: `SKILL.md`: listed Doc questions and sampled cadence
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Skill changes); Decisions 1, 2 and 3
@@ -325,24 +325,24 @@ audit, with the review template and completion gate to match.
 
 **Subtasks:**
 
-- [ ] In section 4, Interpretive review, name the listed questions (A4, Doc1, Doc2, Doc4, Doc5) and state the sampled cadence: every audit runs a sampled question on the files changed since the previous review's `**Commit:**`, using the diff base `checks/changed.py` resolves; every third audit, counted from the first audit after this change ships, and any audit with no previous `**Commit:**`, runs it on the whole tree
-- [ ] Beside Doc5's predicate (widened in Task 7), say the first audit's README findings are catch-up
-- [ ] In the Convergence section, say a sampled question's new site goes under "Coverage (sampled)" and is never marked "missed by" a review, and the rule applies in full to listed questions
-- [ ] In the Review template, add a `**Commit:**` line (the audited `HEAD`) and, beside each sampled question, its mode (changed files since a named commit, or full)
-- [ ] In the Completion gate, require a current verdict per candidate for every listed question and that every sampled question ran in its cadence's mode
-- [ ] Say the next audit after this change judges every Doc candidate, that its findings in unchanged code are catch-up, and that its Convergence note names the newly listed questions
-- [ ] Add the new test files to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] In section 4, Interpretive review, name the listed questions (A4, Doc1, Doc2, Doc4, Doc5) and state the sampled cadence: every audit runs a sampled question on the files changed since the previous review's `**Commit:**`, using the diff base `checks/changed.py` resolves; every third audit, counted from the first audit after this change ships, and any audit with no previous `**Commit:**`, runs it on the whole tree
+- [x] Beside Doc5's predicate (widened in Task 7), say the first audit's README findings are catch-up
+- [x] In the Convergence section, say a sampled question's new site goes under "Coverage (sampled)" and is never marked "missed by" a review, and the rule applies in full to listed questions
+- [x] In the Review template, add a `**Commit:**` line (the audited `HEAD`) and, beside each sampled question, its mode (changed files since a named commit, or full)
+- [x] In the Completion gate, require a current verdict per candidate for every listed question and that every sampled question ran in its cadence's mode
+- [x] Say the next audit after this change judges every Doc candidate, that its findings in unchanged code are catch-up, and that its Convergence note names the newly listed questions
+- [x] Add the new test files to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] `SKILL.md` names each listed question and the sampled cadence as the spec states them
-- [ ] Nothing in `SKILL.md` names a project, path or review from any real run
+- [x] `SKILL.md` names each listed question and the sampled cadence as the spec states them
+- [x] Nothing in `SKILL.md` names a project, path or review from any real run
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes (each brief still quotes its question verbatim)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes (each brief still quotes its question verbatim)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
