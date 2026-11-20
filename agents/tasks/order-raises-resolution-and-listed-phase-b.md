@@ -49,5 +49,5 @@ repository:
 | 1 | `repeatable-phase-b/tasks-1.md` | - | - | merged 8548019 |
 | 2 | `raises-section-resolution/tasks-1.md` | 1 | - | merged f1a24f4, after serial rerun |
 | 3 | `listed-phase-b-documentation-questions/tasks-1.md` | 1 | - | merged c10a5cc |
-| 4 | `listed-phase-b-test-questions/tasks-1.md` | 3 | - | todo |
+| 4 | `listed-phase-b-test-questions/tasks-1.md` | 3 | - | running |
 | 5 | `listed-phase-b-architecture-questions/tasks-1.md` | 4 | - | todo |
