@@ -240,7 +240,7 @@ ambiguous tokens, each with the spec's id, span, payload and hash.
 
 ## Task 6: The Doc1 and Doc2 listers
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Doc1 and Doc2 candidates); Error handling (`pyproject.toml`, `.pre-commit-config.yaml`, `git ls-files`)
@@ -253,19 +253,19 @@ corpus's top-level imports.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, under a new `# Doc1 and Doc2` heading: a Doc1 candidate's id is `AGENTS.md::<heading path>` and its payload holds each named path with its resolution and the tree; a section with neither path nor fence is not listed; a new tracked directory changes Doc1's hash and an untracked one does not; Doc2 matches a token to a PEP 503-normalised name from each of `project.dependencies`, `project.optional-dependencies`, `dependency-groups` and `build-system.requires`, to a `- id:` hook in `.pre-commit-config.yaml`, and to a top-level module the corpus imports, and lists a token matching none; editing `.pre-commit-config.yaml` changes Doc2's hash; an unparseable `pyproject.toml`, an unreadable `.pre-commit-config.yaml` and a failing `git ls-files` each raise `PhaseBError`; a missing `pyproject.toml` or hook file is not an error. Run them and see them fail
-- [ ] Build the tree from `git ls-files -z`, reusing Task 4's tracked-file reader; read `pyproject.toml` with `tomllib`; hash as the spec says (Doc1: section text, then tree; Doc2: section text, canonical JSON of the tables, then the hook file's bytes)
-- [ ] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc1.md`, `Doc2.md`) and batch size 12
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, under a new `# Doc1 and Doc2` heading: a Doc1 candidate's id is `AGENTS.md::<heading path>` and its payload holds each named path with its resolution and the tree; a section with neither path nor fence is not listed; a new tracked directory changes Doc1's hash and an untracked one does not; Doc2 matches a token to a PEP 503-normalised name from each of `project.dependencies`, `project.optional-dependencies`, `dependency-groups` and `build-system.requires`, to a `- id:` hook in `.pre-commit-config.yaml`, and to a top-level module the corpus imports, and lists a token matching none; editing `.pre-commit-config.yaml` changes Doc2's hash; an unparseable `pyproject.toml`, an unreadable `.pre-commit-config.yaml` and a failing `git ls-files` each raise `PhaseBError`; a missing `pyproject.toml` or hook file is not an error. Run them and see them fail
+- [x] Build the tree from `git ls-files -z`, reusing Task 4's tracked-file reader; read `pyproject.toml` with `tomllib`; hash as the spec says (Doc1: section text, then tree; Doc2: section text, canonical JSON of the tables, then the hook file's bytes)
+- [x] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc1.md`, `Doc2.md`) and batch size 12
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No code path treats a file that exists but cannot be read or parsed as absent
+- [x] The new tests pass
+- [x] No code path treats a file that exists but cannot be read or parsed as absent
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
