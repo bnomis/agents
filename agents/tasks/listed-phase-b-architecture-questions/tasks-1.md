@@ -167,7 +167,7 @@ owning rule's hit.
 
 ## Task 4: The A11 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A11 candidates; Sites the sweep already reports, A11 row; Briefs, A11); API (A11 ids)
@@ -180,20 +180,20 @@ spec gives, and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A11`, on a fixture `pkg` with a `Mode` enum and a `Literal` alias: a chain on `mode == Mode.FAST` / `Mode.SLOW` is a candidate with id `<path>::<qualname>::if:mode#1`; a chain using `is`, `in` and a tuple of constants is one; a single `if` with no `else` is not; a chain head that is the sole `orelse` of another `if` is not listed separately; a chain whose tests name two subjects is not; an `if flag:` / `else` where `flag = mode == 'a'` in the same function is one; a `match` is one with id `::match:<subject>#1`; `annotation` and `type_source` are filled from a parameter annotation naming `Mode` and null for an unannotated subject; a three-arm string chain the `assert-never-missing` rule flags is dropped, and so is one whose hit carries an accept comment; the id survives an unrelated edit above the site; an edit inside the chain changes the hash and one outside does not. Run them and see them fail
-- [ ] Implement the lister in `phaseb/architecture.py` with `if_chain` and a subject test that accepts a name or dotted attribute compared by `==`, `is` or `in` with string constants, attribute constants or tuples of them; anchor on the chain's first `if` and drop through `capture_hits` with `check_assert_never_missing`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A11.md`: the A11 question verbatim from `SKILL.md`, the input format, the output (one JSON line per candidate with `id`, `findings`, `reason`), the A11 thresholds from the spec's Briefs section, the rule that an unsettled threshold is reported and never decided, the rule never to list environment variables (`env`, `printenv`, `set`) or print an env file, and `**Brief version:** 1`
-- [ ] Register `A11` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A11`, on a fixture `pkg` with a `Mode` enum and a `Literal` alias: a chain on `mode == Mode.FAST` / `Mode.SLOW` is a candidate with id `<path>::<qualname>::if:mode#1`; a chain using `is`, `in` and a tuple of constants is one; a single `if` with no `else` is not; a chain head that is the sole `orelse` of another `if` is not listed separately; a chain whose tests name two subjects is not; an `if flag:` / `else` where `flag = mode == 'a'` in the same function is one; a `match` is one with id `::match:<subject>#1`; `annotation` and `type_source` are filled from a parameter annotation naming `Mode` and null for an unannotated subject; a three-arm string chain the `assert-never-missing` rule flags is dropped, and so is one whose hit carries an accept comment; the id survives an unrelated edit above the site; an edit inside the chain changes the hash and one outside does not. Run them and see them fail
+- [x] Implement the lister in `phaseb/architecture.py` with `if_chain` and a subject test that accepts a name or dotted attribute compared by `==`, `is` or `in` with string constants, attribute constants or tuples of them; anchor on the chain's first `if` and drop through `capture_hits` with `check_assert_never_missing`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A11.md`: the A11 question verbatim from `SKILL.md`, the input format, the output (one JSON line per candidate with `id`, `findings`, `reason`), the A11 thresholds from the spec's Briefs section, the rule that an unsettled threshold is reported and never decided, the rule never to list environment variables (`env`, `printenv`, `set`) or print an env file, and `**Brief version:** 1`
+- [x] Register `A11` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `claude/skills/auditme/tests/phaseb/test_briefs.py` passes for `A11`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A11` exits 0
+- [x] The new tests pass, and `claude/skills/auditme/tests/phaseb/test_briefs.py` passes for `A11`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A11` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
