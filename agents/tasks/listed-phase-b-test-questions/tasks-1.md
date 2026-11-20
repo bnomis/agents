@@ -299,7 +299,7 @@ effect in its own body, and a branch, loop or comprehension.
 
 ## Task 8: The T2 lister, `pairs`, `types` and its content hash
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (T2 registration and payload); Implementation (T2 candidates, `pairs`; Content hash)
@@ -311,20 +311,20 @@ source, its `types` classes' source and its `test_files`.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_t2_candidates.py`, on a fixture project with `src/pkg/` and `src/tests/`: a candidate's `params` are `[{name, annotation}]` with the annotation's source text, `returns` likewise, and `types` lists each package class its annotations name (directly or through a field) as `{id, path, start, end}`; `parse_probe` and `format_probe` list each other in `pairs`, as do `encode`/`decode`, `to_x`/`from_x` and `dumps`/`loads`, and an unrelated candidate has no pair; a test file is never a candidate; a test decorated with hypothesis `given` calling the candidate appears in `tests` with `property: true`; adding a field to `Probe` changes the hash of a candidate over it, as does adding a test to the mirrored test file; a second call returns the same candidates, order and hashes. Run them and see them fail
-- [ ] Implement the lister beside T1's, building the package type map once per call and reusing `build_test_map` and the `test_files` helper from `testmap.py`
-- [ ] Compute the hash as the spec says: sha256 over the candidate's source, then each `types` class's source in id order, then each `test_files` file's full text in path order, NUL-separated
-- [ ] Register it as `T2` with the brief path `claude/skills/auditme/phaseb/briefs/T2.md` (written in Task 9)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_t2_candidates.py`, on a fixture project with `src/pkg/` and `src/tests/`: a candidate's `params` are `[{name, annotation}]` with the annotation's source text, `returns` likewise, and `types` lists each package class its annotations name (directly or through a field) as `{id, path, start, end}`; `parse_probe` and `format_probe` list each other in `pairs`, as do `encode`/`decode`, `to_x`/`from_x` and `dumps`/`loads`, and an unrelated candidate has no pair; a test file is never a candidate; a test decorated with hypothesis `given` calling the candidate appears in `tests` with `property: true`; adding a field to `Probe` changes the hash of a candidate over it, as does adding a test to the mirrored test file; a second call returns the same candidates, order and hashes. Run them and see them fail
+- [x] Implement the lister beside T1's, building the package type map once per call and reusing `build_test_map` and the `test_files` helper from `testmap.py`
+- [x] Compute the hash as the spec says: sha256 over the candidate's source, then each `types` class's source in id order, then each `test_files` file's full text in path order, NUL-separated
+- [x] Register it as `T2` with the brief path `claude/skills/auditme/phaseb/briefs/T2.md` (written in Task 9)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
+- [x] The new tests pass
+- [x] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
