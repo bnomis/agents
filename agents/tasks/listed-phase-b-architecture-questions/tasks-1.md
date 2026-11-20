@@ -87,7 +87,7 @@ public `is_broad_handler`, without changing either rule's output.
 
 ## Task 2: Public envelope helpers and the A20 read index in `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Hoists)
@@ -101,20 +101,20 @@ listers can import them. A rename and a move only: no behaviour changes.
 
 **Subtasks:**
 
-- [ ] Rename the four `error_handling.py` names and every use of them: `grep -rnE '_FILESYSTEM_TOUCHING_CALLS|_translator_envelopes|_handler_translates|_callable_short_name' claude tests` prints nothing afterwards
-- [ ] Move the four read-index functions to `claude/skills/auditme/checks/auditme/core.py` beside `_audit_roots` (the documentation-questions list already moved `_corpus_py_files` there and imports it back into `rules/state_and_effects.py`: rename it in place and drop that re-import rather than moving it again), as `corpus_py_files`, `dotted_read`, `sys_modules_key` and `reads_by_module_and_name`; have the A20 rules in `rules/state_and_effects.py` (`check_mutable_module_level_exported` and `check_mutable_members_in_immutable_wrapper`, or whichever call the index) and `rules/project_hygiene.py` (which imports `_corpus_py_files` from `state_and_effects`) import them from `core.py`
-- [ ] Update the docstring in `core.py` that names `_corpus_py_files`
-- [ ] `grep -rnE '_corpus_py_files|_dotted_read|_sys_modules_key|_reads_by_module_and_name' claude tests` prints nothing
+- [x] Rename the four `error_handling.py` names and every use of them: `grep -rnE '_FILESYSTEM_TOUCHING_CALLS|_translator_envelopes|_handler_translates|_callable_short_name' claude tests` prints nothing afterwards
+- [x] Move the four read-index functions to `claude/skills/auditme/checks/auditme/core.py` beside `_audit_roots` (the documentation-questions list already moved `_corpus_py_files` there and imports it back into `rules/state_and_effects.py`: rename it in place and drop that re-import rather than moving it again), as `corpus_py_files`, `dotted_read`, `sys_modules_key` and `reads_by_module_and_name`; have the A20 rules in `rules/state_and_effects.py` (`check_mutable_module_level_exported` and `check_mutable_members_in_immutable_wrapper`, or whichever call the index) and `rules/project_hygiene.py` (which imports `_corpus_py_files` from `state_and_effects`) import them from `core.py`
+- [x] Update the docstring in `core.py` that names `_corpus_py_files`
+- [x] `grep -rnE '_corpus_py_files|_dotted_read|_sys_modules_key|_reads_by_module_and_name' claude tests` prints nothing
 
 **Acceptance Criteria:**
 
-- [ ] Every existing test in `test_core.py`, `test_state_and_effects.py`, `test_error_handling.py` and `test_project_hygiene.py` passes unchanged
-- [ ] No moved or renamed name is defined in two places
+- [x] Every existing test in `test_core.py`, `test_state_and_effects.py`, `test_error_handling.py` and `test_project_hygiene.py` passes unchanged
+- [x] No moved or renamed name is defined in two places
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_project_hygiene.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_project_hygiene.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
