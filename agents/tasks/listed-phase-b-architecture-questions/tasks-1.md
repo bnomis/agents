@@ -204,7 +204,7 @@ spec gives, and the version-1 brief.
 
 ## Task 5: The A19 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A19 candidates; Sites the sweep already reports, A19 row; Briefs, A19); API (A19 ids)
@@ -216,20 +216,20 @@ version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A19`: an `except Exception` that logs at `warning` and returns a default is a candidate with id `<path>::<qualname>::except#1`, with `log_calls` holding `warning: <text>`; a bare `except:` is one; an `except ValueError` that calls `logger.exception(` is one, and so are `log`, `_logger`, `LOGGER`, `logging`, `loguru.logger` and `self.logger`; an `except ValueError` that logs at `error` is not; a handler on a `silent-broad-except`, `broad-except-wrong-level` or `logger-exception-graceful-degradation` hit is dropped, including a hit on the function's last `return` when the handler falls through, accepted or not; at module level the hash is the `try` statement's source; an edit in the enclosing function changes the hash and one in another function does not. Run them and see them fail
-- [ ] Implement the lister with `is_broad_handler` and `capture_hits` on the three owning rules, anchoring on the handler's lines and, for a handler that falls through, the function's last `return`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A19.md` as Task 4's brief, with the A19 question verbatim from `SKILL.md` and the A19 thresholds from the spec, and `**Brief version:** 1`
-- [ ] Register `A19` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A19`: an `except Exception` that logs at `warning` and returns a default is a candidate with id `<path>::<qualname>::except#1`, with `log_calls` holding `warning: <text>`; a bare `except:` is one; an `except ValueError` that calls `logger.exception(` is one, and so are `log`, `_logger`, `LOGGER`, `logging`, `loguru.logger` and `self.logger`; an `except ValueError` that logs at `error` is not; a handler on a `silent-broad-except`, `broad-except-wrong-level` or `logger-exception-graceful-degradation` hit is dropped, including a hit on the function's last `return` when the handler falls through, accepted or not; at module level the hash is the `try` statement's source; an edit in the enclosing function changes the hash and one in another function does not. Run them and see them fail
+- [x] Implement the lister with `is_broad_handler` and `capture_hits` on the three owning rules, anchoring on the handler's lines and, for a handler that falls through, the function's last `return`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A19.md` as Task 4's brief, with the A19 question verbatim from `SKILL.md` and the A19 thresholds from the spec, and `**Brief version:** 1`
+- [x] Register `A19` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A19`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A19` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A19`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A19` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
