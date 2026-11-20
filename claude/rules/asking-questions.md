@@ -11,6 +11,11 @@ message.
   description of what happens if each is chosen. A yes/no question gets `Yes`
   and `No` options. Put the recommended option first and mark it
   `(Recommended)`.
+- **No option picked is no answer.** A reply of "No preference", an empty
+  answer or a dismissed dialog does not hand the choice to you. Do not act on
+  the recommended option: say that no option came back and ask again, or stop.
+  Only words from the user that leave it to you ("you choose", "whatever you
+  think") delegate the choice.
 - **One request at a time.** A message asks the user for one thing: a question,
   or a task such as reviewing a page or answering decisions on it. Never add a
   second ("answer the page; and shall I commit?"). Wait for the reply, then
