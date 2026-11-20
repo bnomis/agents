@@ -167,7 +167,7 @@ shortest chain.
 
 ## Task 4: Whole-tree checks, deduplication, and close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec; After this ships
@@ -178,26 +178,26 @@ log, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Hoist anything the new code duplicates to a single owner: grep `claude/skills/auditme/checks/` for each literal collection, constant and one-line helper Tasks 1 and 2 added (a decorator-name test for `@classmethod` / `@staticmethod`, a `Raises:`-section test, a chain formatter), and import rather than copy. Choose the owner from the existing import graph; prefer `core.py`, which `error_handling.py` already imports, over adding a new edge
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` and `CHECKS` in `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt claude/skills/auditme/checks/auditme/registry.py` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented` in `agents/specs/raises-section-resolution/spec.md`
-- [ ] Run `pre-commit run --all-files` and `pre-commit run auditme-all --hook-stage manual --all-files`; fix what they report
-- [ ] Run the final full test run, saving it to the order's test log relative to the main checkout (the list runs in a worktree):
+- [x] Hoist anything the new code duplicates to a single owner: grep `claude/skills/auditme/checks/` for each literal collection, constant and one-line helper Tasks 1 and 2 added (a decorator-name test for `@classmethod` / `@staticmethod`, a `Raises:`-section test, a chain formatter), and import rather than copy. Choose the owner from the existing import graph; prefer `core.py`, which `error_handling.py` already imports, over adding a new edge
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` and `CHECKS` in `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt claude/skills/auditme/checks/auditme/registry.py` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented` in `agents/specs/raises-section-resolution/spec.md`
+- [x] Run `pre-commit run --all-files` and `pre-commit run auditme-all --hook-stage manual --all-files`; fix what they report
+- [x] Run the final full test run, saving it to the order's test log relative to the main checkout (the list runs in a worktree):
       `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/raises-section-resolution/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`
       The pass line `all selected test directories passed` is printed only when pytest exits 0
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper added by this list is defined twice under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
-- [ ] `$MAIN/logs/rro/raises-section-resolution/tasks-1/final-tests.log` ends with `all selected test directories passed`
+- [x] No literal collection or helper added by this list is defined twice under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
+- [x] `$MAIN/logs/rro/raises-section-resolution/tasks-1/final-tests.log` ends with `all selected test directories passed`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] The final test command above exits 0 and prints `all selected test directories passed`
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] The final test command above exits 0 and prints `all selected test directories passed`
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
