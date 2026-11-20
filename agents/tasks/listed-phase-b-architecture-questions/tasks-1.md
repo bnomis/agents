@@ -46,7 +46,7 @@ run from the repository root. Tests use neutral fixture names (`pkg`,
 
 ## Task 1: Prerequisites, then hoist `if_chain` and `is_broad_handler`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Prerequisites; API (`if_chain`, `IfChain`, `is_broad_handler`); Implementation (Hoists)
@@ -59,23 +59,23 @@ public `is_broad_handler`, without changing either rule's output.
 
 **Subtasks:**
 
-- [ ] Prerequisite check, before any edit: `grep -n '^\*\*Status:\*\*' agents/specs/repeatable-phase-b/spec.md agents/specs/listed-phase-b-documentation-questions/spec.md agents/specs/listed-phase-b-test-questions/spec.md` prints `implemented` for all three; `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0; and `grep -nw 'def is_private' claude/skills/auditme/checks/auditme/core.py` prints one line. If any fails, stop as `blocked` and name which
-- [ ] Starting-point check: `grep -rnwE 'capture_hits|if_chain|IfChain|is_broad_handler|translator_envelopes|handler_translates|callable_short_name|FILESYSTEM_TOUCHING_CALLS|corpus_py_files|dotted_read|sys_modules_key|reads_by_module_and_name' claude/skills/auditme/checks` prints nothing, and `claude/skills/auditme/checks/auditme/phaseb/architecture.py` does not exist; if either fails, stop as `blocked` and name what it found (the underscored names do not match a whole-word search, so the existing private helpers do not fire it)
-- [ ] Tests first in `claude/skills/auditme/tests/test_state_and_effects.py`, under a new `# if_chain` heading, on `ast.parse` trees: a three-arm `if/elif/elif` on one name returns its subject, its three tests and `orelse` None; one ending in `else` returns that body as `orelse`; a chain whose second test names another subject returns None; a test the `subject_of` callable rejects returns None. Run them and see them fail
-- [ ] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# is_broad_handler` heading: true for a bare `except:`, `except Exception`, `except BaseException`, and a tuple holding either; false for `except ValueError` and a tuple of narrow types. Run them and see them fail
-- [ ] Add the frozen `IfChain` dataclass (`subject: str`, `tests: list[ast.expr]`, `orelse: list[ast.stmt] | None`) and `if_chain` to `claude/skills/auditme/checks/auditme/rules/state_and_effects.py`, and have `check_assert_never_missing` call it with `_extract_string_eq_var`, keeping its walk over every `If` node, its three-arm minimum and its `assert_never` test
-- [ ] Add `is_broad_handler` to `claude/skills/auditme/checks/auditme/rules/error_handling.py` and replace the handler-type test in `check_silent_broad_except` and `check_broad_except_wrong_level` with it
+- [x] Prerequisite check, before any edit: `grep -n '^\*\*Status:\*\*' agents/specs/repeatable-phase-b/spec.md agents/specs/listed-phase-b-documentation-questions/spec.md agents/specs/listed-phase-b-test-questions/spec.md` prints `implemented` for all three; `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0; and `grep -nw 'def is_private' claude/skills/auditme/checks/auditme/core.py` prints one line. If any fails, stop as `blocked` and name which
+- [x] Starting-point check: `grep -rnwE 'capture_hits|if_chain|IfChain|is_broad_handler|translator_envelopes|handler_translates|callable_short_name|FILESYSTEM_TOUCHING_CALLS|corpus_py_files|dotted_read|sys_modules_key|reads_by_module_and_name' claude/skills/auditme/checks` prints nothing, and `claude/skills/auditme/checks/auditme/phaseb/architecture.py` does not exist; if either fails, stop as `blocked` and name what it found (the underscored names do not match a whole-word search, so the existing private helpers do not fire it)
+- [x] Tests first in `claude/skills/auditme/tests/test_state_and_effects.py`, under a new `# if_chain` heading, on `ast.parse` trees: a three-arm `if/elif/elif` on one name returns its subject, its three tests and `orelse` None; one ending in `else` returns that body as `orelse`; a chain whose second test names another subject returns None; a test the `subject_of` callable rejects returns None. Run them and see them fail
+- [x] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# is_broad_handler` heading: true for a bare `except:`, `except Exception`, `except BaseException`, and a tuple holding either; false for `except ValueError` and a tuple of narrow types. Run them and see them fail
+- [x] Add the frozen `IfChain` dataclass (`subject: str`, `tests: list[ast.expr]`, `orelse: list[ast.stmt] | None`) and `if_chain` to `claude/skills/auditme/checks/auditme/rules/state_and_effects.py`, and have `check_assert_never_missing` call it with `_extract_string_eq_var`, keeping its walk over every `If` node, its three-arm minimum and its `assert_never` test
+- [x] Add `is_broad_handler` to `claude/skills/auditme/checks/auditme/rules/error_handling.py` and replace the handler-type test in `check_silent_broad_except` and `check_broad_except_wrong_level` with it
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `test_state_and_effects.py` and `test_error_handling.py` passes unchanged
-- [ ] Each helper stays in its rule module: neither serves more than one rule module or reads the whole corpus, so the spec's Hoists rule keeps it out of `core.py`
+- [x] The new tests pass
+- [x] Every existing test in `test_state_and_effects.py` and `test_error_handling.py` passes unchanged
+- [x] Each helper stays in its rule module: neither serves more than one rule module or reads the whole corpus, so the spec's Hoists rule keeps it out of `core.py`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
