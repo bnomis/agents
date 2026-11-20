@@ -279,7 +279,7 @@ spec gives; and the version-1 brief.
 
 ## Task 7: The A17 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A17 candidates; Sites the sweep already reports, A17 row; Briefs, A17); API (A17 ids); Decisions 1 and 3
@@ -291,20 +291,20 @@ an empty one's reach-ins, the hash the spec gives, and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A17`: `src/pkg/__init__.py` with `__all__ = ['Probe']` is a candidate whose id is the path alone, with `consumers` listing a read of `Probe` from another package as `path: line text`; a read from `tests/` is left out of `consumers` and out of the hash; a `[project.scripts]` target in `pyproject.toml` is a consumer; an empty `__init__.py` lists `reach_ins` for each outside read of a submodule; an `__init__.py` with an `empty-init-while-siblings-export` hit on line 1 is dropped; a consumer line a `migration-shim-consumer` hit names is removed from `consumers`; moving a consumer's reading line leaves the hash unchanged; an edit to the `__init__.py` changes it. Run them and see them fail
-- [ ] Implement the lister with `is_dunder_all_assignment`, `reads_by_module_and_name` from `core.py`, `tomllib` for `pyproject.toml`, and `capture_hits` on `check_empty_init_with_exporting_siblings` and `check_migration_shim_consumers`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A17.md` as Task 4's brief, with the A17 question verbatim from `SKILL.md`, the A17 thresholds from the spec (a bypass to a submodule `is_private` marks private, decision 1; a test-tree read is not a consumer, decision 3), and `**Brief version:** 1`
-- [ ] Register `A17` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A17`: `src/pkg/__init__.py` with `__all__ = ['Probe']` is a candidate whose id is the path alone, with `consumers` listing a read of `Probe` from another package as `path: line text`; a read from `tests/` is left out of `consumers` and out of the hash; a `[project.scripts]` target in `pyproject.toml` is a consumer; an empty `__init__.py` lists `reach_ins` for each outside read of a submodule; an `__init__.py` with an `empty-init-while-siblings-export` hit on line 1 is dropped; a consumer line a `migration-shim-consumer` hit names is removed from `consumers`; moving a consumer's reading line leaves the hash unchanged; an edit to the `__init__.py` changes it. Run them and see them fail
+- [x] Implement the lister with `is_dunder_all_assignment`, `reads_by_module_and_name` from `core.py`, `tomllib` for `pyproject.toml`, and `capture_hits` on `check_empty_init_with_exporting_siblings` and `check_migration_shim_consumers`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A17.md` as Task 4's brief, with the A17 question verbatim from `SKILL.md`, the A17 thresholds from the spec (a bypass to a submodule `is_private` marks private, decision 1; a test-tree read is not a consumer, decision 3), and `**Brief version:** 1`
+- [x] Register `A17` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A17`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A17` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A17`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A17` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
