@@ -208,7 +208,7 @@ run's output batch by batch, reporting each problem and the batches to retry.
 
 ## Task 6: The command line, `checks/phaseb.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (command line); Settings; Error handling (exit codes)
@@ -221,19 +221,19 @@ a `PhaseBError`, whose message goes to stderr.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`, running the script as a subprocess on a fixture project: `candidates` prints one JSON line per candidate; `plan` writes batches and `plan.json` and prints how many candidates were planned and how many reused; `check` exits 0 on a complete run and 1 on one with a missing id, naming the batch; `merge` writes `agents/audit-reviews/ledger/A4.jsonl`, and a second `plan` with unchanged code plans nothing; `report` prints the open findings, split into new (judged in the last merge) and carried, and leaves out a dismissed one; `dismiss` records the reason; an unknown `--question` exits 2 with the message on stderr. Run them and see them fail
-- [ ] Implement the script with `argparse`, as a thin layer over the package
-- [ ] Mark the file executable, as `audit.py` is
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`, running the script as a subprocess on a fixture project: `candidates` prints one JSON line per candidate; `plan` writes batches and `plan.json` and prints how many candidates were planned and how many reused; `check` exits 0 on a complete run and 1 on one with a missing id, naming the batch; `merge` writes `agents/audit-reviews/ledger/A4.jsonl`, and a second `plan` with unchanged code plans nothing; `report` prints the open findings, split into new (judged in the last merge) and carried, and leaves out a dismissed one; `dismiss` records the reason; an unknown `--question` exits 2 with the message on stderr. Run them and see them fail
+- [x] Implement the script with `argparse`, as a thin layer over the package
+- [x] Mark the file executable, as `audit.py` is
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every option has the default the spec's Settings table gives
+- [x] The new tests pass
+- [x] Every option has the default the spec's Settings table gives
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
