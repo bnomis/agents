@@ -315,7 +315,7 @@ an empty one's reach-ins, the hash the spec gives, and the version-1 brief.
 
 ## Task 8: `SKILL.md`: A11, A19, A1 and A17 are listed
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Skill changes); Settings
@@ -326,21 +326,21 @@ site a sweep rule for the same question reports is not judged in Phase B.
 
 **Subtasks:**
 
-- [ ] Add A11, A19, A1 and A17 to the listed questions where section 4 names them, in the layout the documentation-questions and test-questions lists left, and remove `(sampled)` from them wherever `SKILL.md` marks it
-- [ ] In section 4, say that a site a sweep rule for the same question reports, accepted or not, is not judged in Phase B, and is judged as new once the hit is fixed
-- [ ] Say that `--question` accepts the four and `--depth` applies to A4 only, where `SKILL.md` describes the options
-- [ ] Add `test_architecture_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] Add A11, A19, A1 and A17 to the listed questions where section 4 names them, in the layout the documentation-questions and test-questions lists left, and remove `(sampled)` from them wherever `SKILL.md` marks it
+- [x] In section 4, say that a site a sweep rule for the same question reports, accepted or not, is not judged in Phase B, and is judged as new once the hit is fixed
+- [x] Say that `--question` accepts the four and `--depth` applies to A4 only, where `SKILL.md` describes the options
+- [x] Add `test_architecture_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] No Phase B question text in `SKILL.md` changes, so each brief still holds its question verbatim and `test_briefs.py` passes
-- [ ] Nothing in `SKILL.md` names a project
+- [x] No Phase B question text in `SKILL.md` changes, so each brief still holds its question verbatim and `test_briefs.py` passes
+- [x] Nothing in `SKILL.md` names a project
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
