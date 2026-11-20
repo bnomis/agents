@@ -30,7 +30,7 @@ requires.
 
 ## Task 1: Hoist the call resolver into `core.py` with a `class_methods` flag
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Module location (the shared resolver, amendment 1.1)
@@ -45,21 +45,21 @@ with `True`.
 
 **Subtasks:**
 
-- [ ] Starting-point check: `grep -rnwE 'phaseb|PhaseBError|class_methods' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# call resolver` heading, on `ast.parse` trees of a two-module fixture package `pkg`: a same-module call, a dotted call through an import, a call through a package `__init__.py` re-export, and a `self.method()` call each resolve to the defining function's dotted name; an attribute call on a local instance resolves to `None`; `Probe.load()` (a classmethod of a class `pkg` defines) resolves to `None` by default and to `pkg.mod.Probe.load` with `class_methods=True`, both when `Probe` is defined in the same module and when it is imported by name. Run them and see them fail
-- [ ] Add the helper to `claude/skills/auditme/checks/auditme/core.py` with a docstring that names the `class_methods` flag and why the rule leaves it off
-- [ ] Replace the inner `resolve`, the alias loop and their inputs in `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`) with calls to the helper at its default
+- [x] Starting-point check: `grep -rnwE 'phaseb|PhaseBError|class_methods' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# call resolver` heading, on `ast.parse` trees of a two-module fixture package `pkg`: a same-module call, a dotted call through an import, a call through a package `__init__.py` re-export, and a `self.method()` call each resolve to the defining function's dotted name; an attribute call on a local instance resolves to `None`; `Probe.load()` (a classmethod of a class `pkg` defines) resolves to `None` by default and to `pkg.mod.Probe.load` with `class_methods=True`, both when `Probe` is defined in the same module and when it is imported by name. Run them and see them fail
+- [x] Add the helper to `claude/skills/auditme/checks/auditme/core.py` with a docstring that names the `class_methods` flag and why the rule leaves it off
+- [x] Replace the inner `resolve`, the alias loop and their inputs in `check_raises_section_drift` (`claude/skills/auditme/checks/auditme/rules/error_handling.py`) with calls to the helper at its default
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
-- [ ] `check_raises_section_drift` passes no `class_methods` argument
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
+- [x] `check_raises_section_drift` passes no `class_methods` argument
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -70,7 +70,7 @@ with `True`.
 
 ## Task 2: The `phaseb` package, its error and its data model
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`Candidate`, `Verdict`, `register_question`, `list_candidates`); Error handling (`PhaseBError`)
@@ -82,19 +82,19 @@ place to register a lister and its brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`: `Verdict.flagged` is true when any findings list is non-empty, false when all are empty, and false when `dismissed` is set; `register_question` records a lister and its brief path; `list_candidates` on an unregistered question raises `PhaseBError`; a registered lister's candidates come back sorted by id. Run them and see them fail
-- [ ] Add `phaseb/__init__.py` with `PhaseBError` and an `__all__`
-- [ ] Add the dataclasses with the spec's fields and docstrings, and `register_question`, `list_candidates` and a way to read a question's brief path, in `phaseb/candidates.py`; re-export the public names from `phaseb/__init__.py`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`: `Verdict.flagged` is true when any findings list is non-empty, false when all are empty, and false when `dismissed` is set; `register_question` records a lister and its brief path; `list_candidates` on an unregistered question raises `PhaseBError`; a registered lister's candidates come back sorted by id. Run them and see them fail
+- [x] Add `phaseb/__init__.py` with `PhaseBError` and an `__all__`
+- [x] Add the dataclasses with the spec's fields and docstrings, and `register_question`, `list_candidates` and a way to read a question's brief path, in `phaseb/candidates.py`; re-export the public names from `phaseb/__init__.py`
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `Candidate` and `Verdict` are frozen and carry every field the spec's API lists
+- [x] The new tests pass
+- [x] `Candidate` and `Verdict` are frozen and carry every field the spec's API lists
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -105,7 +105,7 @@ place to register a lister and its brief.
 
 ## Task 3: The A4 lister and the content hash
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A4 candidates; Content hash); Decisions D2
@@ -118,19 +118,19 @@ source.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_a4_candidates.py`, on a fixture project with `src/pkg/`: a function with a `Raises:` section is a candidate with id `src/pkg/mod.py::name` and its lines; a method's id is `path::Class.method`; a function without one is not; each D2 stub shape (`...`, `pass`, a docstring alone, `raise NotImplementedError`) is not; a callee two calls deep appears in `callees` at depth 3 and not at depth 1; a `Probe.load()` call resolves into `callees`; a call on a local instance appears in `unresolved` with its `path:line` and source text; editing a callee's body changes the caller's hash, and editing an unrelated function does not; candidates come back in the same order and with the same hashes on a second call. Run them and see them fail
-- [ ] Implement the lister in `phaseb/candidates.py`, using Task 1's resolver with `class_methods=True` and the roots `audit.py` uses (`_audit_roots` and `_extra_roots` in `claude/skills/auditme/checks/auditme/core.py`, rather than repeating their logic)
-- [ ] Register it as `A4` with the brief path `claude/skills/auditme/phaseb/briefs/A4.md` (the file is written in Task 7; the lister does not read it)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_a4_candidates.py`, on a fixture project with `src/pkg/`: a function with a `Raises:` section is a candidate with id `src/pkg/mod.py::name` and its lines; a method's id is `path::Class.method`; a function without one is not; each D2 stub shape (`...`, `pass`, a docstring alone, `raise NotImplementedError`) is not; a callee two calls deep appears in `callees` at depth 3 and not at depth 1; a `Probe.load()` call resolves into `callees`; a call on a local instance appears in `unresolved` with its `path:line` and source text; editing a callee's body changes the caller's hash, and editing an unrelated function does not; candidates come back in the same order and with the same hashes on a second call. Run them and see them fail
+- [x] Implement the lister in `phaseb/candidates.py`, using Task 1's resolver with `class_methods=True` and the roots `audit.py` uses (`_audit_roots` and `_extra_roots` in `claude/skills/auditme/checks/auditme/core.py`, rather than repeating their logic)
+- [x] Register it as `A4` with the brief path `claude/skills/auditme/phaseb/briefs/A4.md` (the file is written in Task 7; the lister does not read it)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] The hash is computed exactly as the spec's Content hash section says: the candidate's source, then each listed callee's source in id order, NUL-separated
+- [x] The new tests pass
+- [x] The hash is computed exactly as the spec's Content hash section says: the candidate's source, then each listed callee's source in id order, NUL-separated
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -141,7 +141,7 @@ source.
 
 ## Task 4: The ledger: read, merge and dismiss
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`read_ledger`, `merge_verdicts`); Error handling; Implementation (A review's findings); Decisions D3
@@ -153,19 +153,19 @@ while the findings are unchanged, and record a dismissal.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_ledger.py`: a missing ledger reads as empty; a ledger with an unparseable line, or a line missing a `Verdict` field, raises `PhaseBError`, as does a path that is a directory; a merge writes the new verdicts and keeps current ones it was not given; a merge drops an entry whose id is not among the candidates; a new verdict with the same findings as a dismissed one keeps the dismissal, and one with different findings drops it; dismissing an id records `YYYY-MM-DD: <reason>` and makes `flagged` false; dismissing an id the ledger does not hold raises `PhaseBError`; a write that fails leaves the old ledger file intact. Run them and see them fail
-- [ ] Implement `read_ledger`, `merge_verdicts` (returning a `MergeResult` with the counts written, kept and dropped) and a `dismiss_verdict` function, writing through a temporary file in the same directory and `os.replace`
-- [ ] Write one verdict per line, sorted by id, so a ledger diff shows only the verdicts that changed
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_ledger.py`: a missing ledger reads as empty; a ledger with an unparseable line, or a line missing a `Verdict` field, raises `PhaseBError`, as does a path that is a directory; a merge writes the new verdicts and keeps current ones it was not given; a merge drops an entry whose id is not among the candidates; a new verdict with the same findings as a dismissed one keeps the dismissal, and one with different findings drops it; dismissing an id records `YYYY-MM-DD: <reason>` and makes `flagged` false; dismissing an id the ledger does not hold raises `PhaseBError`; a write that fails leaves the old ledger file intact. Run them and see them fail
+- [x] Implement `read_ledger`, `merge_verdicts` (returning a `MergeResult` with the counts written, kept and dropped) and a `dismiss_verdict` function, writing through a temporary file in the same directory and `os.replace`
+- [x] Write one verdict per line, sorted by id, so a ledger diff shows only the verdicts that changed
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No code path treats a ledger that exists but cannot be read as empty
+- [x] The new tests pass
+- [x] No code path treats a ledger that exists but cannot be read as empty
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -175,7 +175,7 @@ while the findings are unchanged, and record a dismissal.
 
 ## Task 5: Planning batches and checking a run
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`plan_batches`, `check_run`); Error handling (retries, not judged)
@@ -186,18 +186,18 @@ run's output batch by batch, reporting each problem and the batches to retry.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: a candidate with a current verdict (same hash and brief version) is not planned; one with no verdict, a changed hash or an older brief version is; `rejudge=True` plans every candidate; batches keep id order and hold `size` candidates except the last; the written `plan.json` holds the question, brief path, brief version and each batch's ids; `check_run` reports a batch with no output file, an unparseable line, a missing id, a duplicate id and an unexpected id, each against its batch, lists exactly those batches to retry, and reports nothing for a complete run; `check_run` on a directory without `plan.json` raises `PhaseBError`. Run them and see them fail
-- [ ] Implement `plan_batches`, a writer for the batch files and `plan.json`, `check_run` and its `RunCheck` result, and a reader that turns a checked run's output into `Verdict` objects stamped with each candidate's hash, the plan's brief version and today's date
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: a candidate with a current verdict (same hash and brief version) is not planned; one with no verdict, a changed hash or an older brief version is; `rejudge=True` plans every candidate; batches keep id order and hold `size` candidates except the last; the written `plan.json` holds the question, brief path, brief version and each batch's ids; `check_run` reports a batch with no output file, an unparseable line, a missing id, a duplicate id and an unexpected id, each against its batch, lists exactly those batches to retry, and reports nothing for a complete run; `check_run` on a directory without `plan.json` raises `PhaseBError`. Run them and see them fail
+- [x] Implement `plan_batches`, a writer for the batch files and `plan.json`, `check_run` and its `RunCheck` result, and a reader that turns a checked run's output into `Verdict` objects stamped with each candidate's hash, the plan's brief version and today's date
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `check_run` raises nothing for a reviewer's malformed output; it reports it
+- [x] The new tests pass
+- [x] `check_run` raises nothing for a reviewer's malformed output; it reports it
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -208,7 +208,7 @@ run's output batch by batch, reporting each problem and the batches to retry.
 
 ## Task 6: The command line, `checks/phaseb.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (command line); Settings; Error handling (exit codes)
@@ -221,19 +221,19 @@ a `PhaseBError`, whose message goes to stderr.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`, running the script as a subprocess on a fixture project: `candidates` prints one JSON line per candidate; `plan` writes batches and `plan.json` and prints how many candidates were planned and how many reused; `check` exits 0 on a complete run and 1 on one with a missing id, naming the batch; `merge` writes `agents/audit-reviews/ledger/A4.jsonl`, and a second `plan` with unchanged code plans nothing; `report` prints the open findings, split into new (judged in the last merge) and carried, and leaves out a dismissed one; `dismiss` records the reason; an unknown `--question` exits 2 with the message on stderr. Run them and see them fail
-- [ ] Implement the script with `argparse`, as a thin layer over the package
-- [ ] Mark the file executable, as `audit.py` is
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`, running the script as a subprocess on a fixture project: `candidates` prints one JSON line per candidate; `plan` writes batches and `plan.json` and prints how many candidates were planned and how many reused; `check` exits 0 on a complete run and 1 on one with a missing id, naming the batch; `merge` writes `agents/audit-reviews/ledger/A4.jsonl`, and a second `plan` with unchanged code plans nothing; `report` prints the open findings, split into new (judged in the last merge) and carried, and leaves out a dismissed one; `dismiss` records the reason; an unknown `--question` exits 2 with the message on stderr. Run them and see them fail
+- [x] Implement the script with `argparse`, as a thin layer over the package
+- [x] Mark the file executable, as `audit.py` is
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every option has the default the spec's Settings table gives
+- [x] The new tests pass
+- [x] Every option has the default the spec's Settings table gives
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -244,7 +244,7 @@ a `PhaseBError`, whose message goes to stderr.
 
 ## Task 7: The A4 brief, version 1
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Briefs); Decisions D1
@@ -256,20 +256,20 @@ read the version from it.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: every registered question's brief file exists and has exactly one `**Brief version:** N` line with N a positive integer; the A4 brief contains the A4 question text as it stands in `SKILL.md`; a brief without a version line makes `plan` raise `PhaseBError`. Run them and see them fail
-- [ ] Write the brief: the reviewer's input (a batch file of candidates with `raises`, `callees` and `unresolved`), the question, the thresholds (domain errors only; each class named separately, a base not covering a subclass; an error only from a callable passed in is not owed; D1, with the constant named in the reason; read every listed callee and every unresolved call), the output (one JSON line per candidate with `id`, `missing`, `extra`, `reason`, sorted names, every candidate present), and the rule that a threshold the brief does not settle is reported in the reply, not decided
-- [ ] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
-- [ ] Have `plan` read the brief version from the registered brief and write it into `plan.json`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: every registered question's brief file exists and has exactly one `**Brief version:** N` line with N a positive integer; the A4 brief contains the A4 question text as it stands in `SKILL.md`; a brief without a version line makes `plan` raise `PhaseBError`. Run them and see them fail
+- [x] Write the brief: the reviewer's input (a batch file of candidates with `raises`, `callees` and `unresolved`), the question, the thresholds (domain errors only; each class named separately, a base not covering a subclass; an error only from a callable passed in is not owed; D1, with the constant named in the reason; read every listed callee and every unresolved call), the output (one JSON line per candidate with `id`, `missing`, `extra`, `reason`, sorted names, every candidate present), and the rule that a threshold the brief does not settle is reported in the reply, not decided
+- [x] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
+- [x] Have `plan` read the brief version from the registered brief and write it into `plan.json`
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] The brief names no project, path or review from the pilot
+- [x] The new tests pass
+- [x] The brief names no project, path or review from the pilot
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -280,7 +280,7 @@ read the version from it.
 
 ## Task 8: `SKILL.md`: listed questions in Phase B
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Skill changes; A review's findings)
@@ -291,23 +291,23 @@ per-question fan-out as now, marked `(sampled)`.
 
 **Subtasks:**
 
-- [ ] In section 4, Interpretive review, add the listed-question path: `plan`, one reviewer per batch with the question's brief, `check`, up to two retries of a failing batch by fresh reviewers, `merge`, `report`; and name the questions with a lister (A4)
-- [ ] Say that a listed question's findings are its flagged ledger verdicts, new or carried; that a carried finding is not a regression and is never marked "missed by" a review; and that a finding the operator dismisses on the review page is recorded with `phaseb.py dismiss`
-- [ ] Say that every other question is sampled and marked `(sampled)` in the review, and that a new site in a sampled question is coverage, not drift
-- [ ] In the Convergence section, say the rule applies in full to listed questions
-- [ ] In the completion gate, add: every listed question has a current verdict for every candidate, or the review names each id not judged
-- [ ] Say that putting a question on the listed path (its lister, brief and tests) is a skill change made between audits, never during one
-- [ ] Add the `phaseb` tests to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] In section 4, Interpretive review, add the listed-question path: `plan`, one reviewer per batch with the question's brief, `check`, up to two retries of a failing batch by fresh reviewers, `merge`, `report`; and name the questions with a lister (A4)
+- [x] Say that a listed question's findings are its flagged ledger verdicts, new or carried; that a carried finding is not a regression and is never marked "missed by" a review; and that a finding the operator dismisses on the review page is recorded with `phaseb.py dismiss`
+- [x] Say that every other question is sampled and marked `(sampled)` in the review, and that a new site in a sampled question is coverage, not drift
+- [x] In the Convergence section, say the rule applies in full to listed questions
+- [x] In the completion gate, add: every listed question has a current verdict for every candidate, or the review names each id not judged
+- [x] Say that putting a question on the listed path (its lister, brief and tests) is a skill change made between audits, never during one
+- [x] Add the `phaseb` tests to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] `SKILL.md` names `phaseb.py`'s subcommands with the paths Task 6 wrote
-- [ ] Nothing in `SKILL.md` names a project, path or review from the pilot
+- [x] `SKILL.md` names `phaseb.py`'s subcommands with the paths Task 6 wrote
+- [x] Nothing in `SKILL.md` names a project, path or review from the pilot
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
@@ -317,7 +317,7 @@ per-question fan-out as now, marked `(sampled)`.
 
 ## Task 9: Whole-tree checks, deduplication, and close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -327,23 +327,23 @@ every check the change can reach, and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Hoist anything the `phaseb` modules duplicate from the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define (the `Raises:` section parser especially, which `error_handling.py` already has as `raises_section_names`), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
-- [ ] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` from the repository root and check it exits 0, and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented`
+- [x] Hoist anything the `phaseb` modules duplicate from the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define (the `Raises:` section parser especially, which `error_handling.py` already has as `raises_section_names`), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
+- [x] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` from the repository root and check it exits 0, and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented`
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
+- [x] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/repeatable-phase-b/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/repeatable-phase-b/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
 
 **Notes:**
 
