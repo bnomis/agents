@@ -1,7 +1,7 @@
 # Listed Phase B test questions
 
 **Version:** 1.2
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-11-20
 
 Puts the auditme Phase B test questions T1 and T2 on the listed path of

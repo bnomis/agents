@@ -404,7 +404,7 @@ on the listed path, and record T2's candidate rule as a refinement.
 
 ## Task 11: Whole-tree checks, deduplication, close the spec and save the test log
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -415,26 +415,26 @@ final full test run to the order's test log in the main checkout.
 
 **Subtasks:**
 
-- [ ] Hoist anything `testmap.py` and the T1 and T2 listers duplicate from the rule modules, `core.py` or the A4 and documentation listers to a single owner: grep the tree for each literal collection, constant and one-line helper the new code defines (the test-file name patterns, the import-binding reading, the type-checking and overload filters especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A helper `phaseb/` uses from a rule module moves to `core.py`, the rule importing it from there, with that rule's tests passing unchanged; a move that would need an existing test changed stops as `blocked`, naming the test
-- [ ] Confirm no helper moved to `core.py` stays defined twice: `grep -rn 'def _walk_within_scope\|^_SIDE_EFFECT_CALL_NAMES\|def is_dunder_all_assignment\|def is_private' claude/skills/auditme/checks` shows each in `core.py` only
-- [ ] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question T1` and `... --question T2` from the repository root and check each exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-test-questions/spec.md`
-- [ ] Run the final full test run and save it to the order's test log in the main checkout (the list runs in a worktree), printing the pass line only on exit 0:
+- [x] Hoist anything `testmap.py` and the T1 and T2 listers duplicate from the rule modules, `core.py` or the A4 and documentation listers to a single owner: grep the tree for each literal collection, constant and one-line helper the new code defines (the test-file name patterns, the import-binding reading, the type-checking and overload filters especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A helper `phaseb/` uses from a rule module moves to `core.py`, the rule importing it from there, with that rule's tests passing unchanged; a move that would need an existing test changed stops as `blocked`, naming the test
+- [x] Confirm no helper moved to `core.py` stays defined twice: `grep -rn 'def _walk_within_scope\|^_SIDE_EFFECT_CALL_NAMES\|def is_dunder_all_assignment\|def is_private' claude/skills/auditme/checks` shows each in `core.py` only
+- [x] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question T1` and `... --question T2` from the repository root and check each exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys (a repository with no audit root prints none)
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-test-questions/spec.md`
+- [x] Run the final full test run and save it to the order's test log in the main checkout (the list runs in a worktree), printing the pass line only on exit 0:
       `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-test-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
-- [ ] The test log ends with `all selected test directories passed`
+- [x] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
+- [x] The test log ends with `all selected test directories passed`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] The final test run above exits 0 and its log ends with the pass line
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] The final test run above exits 0 and its log ends with the pass line
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
