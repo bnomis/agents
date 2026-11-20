@@ -127,7 +127,7 @@ not given. A4 keeps 48, so its behaviour does not change.
 
 ## Task 3: `docrefs.py`: sections and code-shaped names
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`DocSection`, `read_sections`); Implementation (Documents and names); Error handling (unreadable document); Settings (constants)
@@ -139,19 +139,19 @@ outside fences) and records each code-shaped name with its line.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`: nested headings give a `heading_path` joined by ` > `; a repeated heading path gets `#2`; a `#` line inside a fence is not a heading; each name shape is kept (a path holding `/`, a path ending in each listed extension, `--name`, an identifier with `_`, `.` or an inner capital, a token with a trailing `(...)` dropped) and each is dropped (a token with a space or `<`, a path starting `/` or `~`, a plain lowercase word, a plain capitalised word); a `def` or `class` line in a fence under an `API` heading yields its name, and one under another heading does not; names come back in line order; a file that cannot be decoded as UTF-8, and a path that is a directory, raise `PhaseBError`. Run them and see them fail
-- [ ] Implement `DocSection` and `read_sections` with the spec's fields and docstrings; keep the path-shaped extensions and the Doc1 tree depth (3) as module constants
-- [ ] Reuse `_DEF_LINE_RE` and `_CLASS_LINE_RE` from `rules/project_hygiene.py` by import, not by copy
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`: nested headings give a `heading_path` joined by ` > `; a repeated heading path gets `#2`; a `#` line inside a fence is not a heading; each name shape is kept (a path holding `/`, a path ending in each listed extension, `--name`, an identifier with `_`, `.` or an inner capital, a token with a trailing `(...)` dropped) and each is dropped (a token with a space or `<`, a path starting `/` or `~`, a plain lowercase word, a plain capitalised word); a `def` or `class` line in a fence under an `API` heading yields its name, and one under another heading does not; names come back in line order; a file that cannot be decoded as UTF-8, and a path that is a directory, raise `PhaseBError`. Run them and see them fail
+- [x] Implement `DocSection` and `read_sections` with the spec's fields and docstrings; keep the path-shaped extensions and the Doc1 tree depth (3) as module constants
+- [x] Reuse `_DEF_LINE_RE` and `_CLASS_LINE_RE` from `rules/project_hygiene.py` by import, not by copy
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `read_sections` raises `PhaseBError`, never skips, on a file it cannot read
+- [x] The new tests pass
+- [x] `read_sections` raises `PhaseBError`, never skips, on a file it cannot read
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
