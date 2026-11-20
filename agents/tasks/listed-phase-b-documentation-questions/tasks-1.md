@@ -353,7 +353,7 @@ audit, with the review template and completion gate to match.
 
 ## Task 9: Deduplication, whole-tree checks, final tests, and close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -364,27 +364,27 @@ and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Hoist anything `docrefs.py` and the Doc listers duplicate from the A4 lister (`phaseb/candidates.py`) or the spec-drift rule code (`rules/project_hygiene.py`: `_spec_markdown_files`, `_DEF_LINE_RE`, `_CLASS_LINE_RE`, the `API`-heading and fence tracking, the `**Status:**` reading) to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define, and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A hoist that would change `check_spec_api_signature_drift`'s output or need one of its existing tests to change stops as `blocked`, naming the test
-- [ ] For each of `Doc1`, `Doc2`, `Doc4` and `Doc5`, run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root and check it exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` and `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- <path>` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented`
-- [ ] Run `pre-commit run --all-files`, `pre-commit run auditme-all --hook-stage manual --all-files` and `uv run --group docs mkdocs build --strict`, and fix what they report
-- [ ] Last, save the final full test run to the order's test log, relative to the main checkout:
+- [x] Hoist anything `docrefs.py` and the Doc listers duplicate from the A4 lister (`phaseb/candidates.py`) or the spec-drift rule code (`rules/project_hygiene.py`: `_spec_markdown_files`, `_DEF_LINE_RE`, `_CLASS_LINE_RE`, the `API`-heading and fence tracking, the `**Status:**` reading) to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define, and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A hoist that would change `check_spec_api_signature_drift`'s output or need one of its existing tests to change stops as `blocked`, naming the test
+- [x] For each of `Doc1`, `Doc2`, `Doc4` and `Doc5`, run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root and check it exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` and `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- <path>` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented`
+- [x] Run `pre-commit run --all-files`, `pre-commit run auditme-all --hook-stage manual --all-files` and `uv run --group docs mkdocs build --strict`, and fix what they report
+- [x] Last, save the final full test run to the order's test log, relative to the main checkout:
       `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] Every existing `check_spec_api_signature_drift` test passes unchanged
-- [ ] The spec's status is `implemented`
-- [ ] The log ends with `all selected test directories passed`, printed only because pytest exited 0
+- [x] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
+- [x] Every existing `check_spec_api_signature_drift` test passes unchanged
+- [x] The spec's status is `implemented`
+- [x] The log ends with `all selected test directories passed`, printed only because pytest exited 0
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] The final test command above exits 0 and writes its pass line to `logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log` under the main checkout
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] The final test command above exits 0 and writes its pass line to `logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log` under the main checkout
 
 **Notes:**
 
