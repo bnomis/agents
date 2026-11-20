@@ -1,6 +1,6 @@
 # Repeatable Phase B
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** proposed
 **Date:** 2026-11-20
 **Review page:** https://claude.ai/artifact/2L2gApX1M8DNzL5ivQF3D7
@@ -56,6 +56,12 @@ Decisions (operator, 2026-11-20):
 Review (operator, 2026-11-20): every section of version 1.0 approved on
 the review page, S1 to S9, with no comments.
 
+Amendment 1.1 (operator, 2026-11-20): `Class.method()` resolution is turned
+on for the A4 lister only. The `raises-section-drift` rule keeps its current
+resolution, so this spec changes no rule's output and leaves no catch-up
+surface in any project; giving the rule the same resolution is the separate
+open request in `claude/skills/auditme/requests.md`.
+
 ## Module location
 
 The checker is not under `src/`; this repository keeps it with its skill.
@@ -73,10 +79,12 @@ The checker is not under `src/`; this repository keeps it with its skill.
 - `claude/skills/auditme/tests/phaseb/` - tests
 - `claude/skills/auditme/SKILL.md` - Phase B and the completion gate
 
-The call resolution `check_raises_section_drift` uses (its inner `resolve`,
-the alias table and the class-name resolution) moves to a shared helper in
-`checks/auditme/core.py`, so the rule and the A4 lister resolve calls the same
-way.
+The call resolution `check_raises_section_drift` uses (its inner `resolve`
+and the alias table) moves to a shared helper in `checks/auditme/core.py`, so
+the rule and the A4 lister resolve calls the same way. The helper takes a
+`class_methods: bool = False` flag: the lister passes `True` to resolve
+`<ClassName>.<method>(...)`; the rule keeps the default, so its output does
+not change.
 
 ## API
 
@@ -201,8 +209,8 @@ excludes. The payload holds:
 - `raises`: the section's text;
 - `callees`: the package functions the candidate's calls resolve to, followed
   transitively to `--depth` (default 3), each as `{id, path, start, end}`,
-  using the shared resolver, extended to resolve `<ClassName>.<method>(...)`
-  for a class the package defines;
+  using the shared resolver with `class_methods=True`, which also resolves
+  `<ClassName>.<method>(...)` for a class the package defines;
 - `unresolved`: each call the resolver could not follow, as `path:line` and
   its source text, so the reviewer knows where to trace by hand.
 
