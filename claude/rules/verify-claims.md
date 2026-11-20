@@ -19,6 +19,12 @@ merge, edit and delete while a session runs.
   again before stating the state, and give the time with the claim: "as of
   14:05 UTC, `main` matches `origin/main`". A state without a time cannot be
   told apart from one remembered from hours earlier.
+- Before sending a message, read it once for every sentence that states
+  the present state of something - including a closing aside, a "still"
+  or a "next step" about a different repository object than the one the
+  turn worked on. Each such sentence needs a check run in this turn; delete
+  any sentence that has none. An earlier result still in context feels
+  known, and that feeling is what lets a stale state through.
 - A recap is a statement. The closing report of a ship, merge or queue run
   re-checks every repository it mentions (`git fetch`, then
   `git branch -a --contains <hash>` or `git status -sb`) in the same turn.
