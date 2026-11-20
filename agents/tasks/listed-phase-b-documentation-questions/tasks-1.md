@@ -91,7 +91,7 @@ it at the default.
 
 ## Task 2: A registered batch size per question
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`register_question` with `batch_size`); Settings
@@ -103,20 +103,20 @@ not given. A4 keeps 48, so its behaviour does not change.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py` and `claude/skills/auditme/tests/phaseb/test_cli.py`: a question registered without a size reads back 48; one registered with 12 reads back 12; `phaseb.py plan` on a question registered with a small size writes batches of that size when `--batch-size` is absent, and of the given size when it is present. Run them and see them fail
-- [ ] Add the parameter and a reader for a question's batch size in `claude/skills/auditme/checks/auditme/phaseb/candidates.py`
-- [ ] Make `--batch-size` in `claude/skills/auditme/checks/phaseb.py` default to `None` and fall back to the registered size; say so in its help text
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py` and `claude/skills/auditme/tests/phaseb/test_cli.py`: a question registered without a size reads back 48; one registered with 12 reads back 12; `phaseb.py plan` on a question registered with a small size writes batches of that size when `--batch-size` is absent, and of the given size when it is present. Run them and see them fail
+- [x] Add the parameter and a reader for a question's batch size in `claude/skills/auditme/checks/auditme/phaseb/candidates.py`
+- [x] Make `--batch-size` in `claude/skills/auditme/checks/phaseb.py` default to `None` and fall back to the registered size; say so in its help text
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
-- [ ] A4 is registered with no explicit size, or with 48
+- [x] The new tests pass
+- [x] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
+- [x] A4 is registered with no explicit size, or with 48
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
