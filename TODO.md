@@ -26,6 +26,8 @@ shared resolver once Task 1 of `agents/tasks/repeatable-phase-b/tasks-1.md`
 has moved it into `core.py`; the section-less wrapper gap is separate work.
 The request entry stays the detailed record; this item tracks the work.
 
+Spec: `agents/specs/raises-section-resolution/spec.md`; tasks: `agents/tasks/raises-section-resolution/tasks-1.md`, after `agents/tasks/repeatable-phase-b/tasks-1.md`, in the run order `agents/tasks/order-raises-resolution-and-listed-phase-b.md`. Stays open after the list ships, until the catch-up run in each project with the shared hooks is done and the `requests.md` entry is deleted.
+
 ## Put the Phase B questions that find most onto the listed path
 
 Found on 2026-11-20 while writing `agents/specs/repeatable-phase-b/spec.md`
@@ -56,6 +58,8 @@ this order, each with its lister, brief and tests, shipped between audits:
 The same spec settles a rule for the questions that stay sampled (A13, A15
 and any whose candidates cannot be listed): run them on changed files only,
 or every few audits, and report their new sites as coverage, not drift.
+
+Spec: `agents/specs/listed-phase-b-documentation-questions/spec.md`, `agents/specs/listed-phase-b-test-questions/spec.md` and `agents/specs/listed-phase-b-architecture-questions/spec.md`, each a separate spec extending the repeatable-phase-b one rather than an amendment of it; tasks: `agents/tasks/listed-phase-b-documentation-questions/tasks-1.md`, `agents/tasks/listed-phase-b-test-questions/tasks-1.md` and `agents/tasks/listed-phase-b-architecture-questions/tasks-1.md`, in the run order `agents/tasks/order-raises-resolution-and-listed-phase-b.md`.
 
 ## A project with no audit root skips the project-level checks
 

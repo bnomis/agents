@@ -1,6 +1,6 @@
 # Listed Phase B test questions
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** proposed
 **Date:** 2026-11-20
 
@@ -89,10 +89,13 @@ def build_test_map(root: pathlib.Path, depth: int) -> dict[str, tuple[TestRef, .
 
 
 def is_private(qualname: str, module: str, root: pathlib.Path) -> bool:
-    """True when the package of module has an `__all__` that does not name the
-    function or class (directly or through the module's own `__all__`), or,
-    where no enclosing package defines `__all__`, when a segment of qualname
-    or module starts with an underscore (decision 1).
+    """Whether the function or class qualname in module is private (decision 1).
+
+    The files that count are module's own `__all__` and the `__all__` of every
+    package `__init__.py` above it. Public when any of them names qualname's
+    first segment; private when at least one of them has an `__all__` and none
+    names it; where none has an `__all__`, private when a segment of qualname
+    or module starts with an underscore (clarified in 1.2).
     """
 
 

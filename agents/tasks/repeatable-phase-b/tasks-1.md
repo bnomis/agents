@@ -343,10 +343,12 @@ every check the change can reach, and mark the spec implemented.
 - [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
 - [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
 - [ ] `uv run --group docs mkdocs build --strict` passes
+- [ ] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/repeatable-phase-b/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
 
 **Notes:**
 
 - Depends on Tasks 1-8
+- The saved log is read by `/rro` (`agents/tasks/order-raises-resolution-and-listed-phase-b.md`), whose merge gate does not rerun the tests; the path is relative to the main checkout, the first entry of `git worktree list --porcelain`
 - No `TODO.md` item in this repository tracks this work, so no item moves to `DONE.md`
 
 ---

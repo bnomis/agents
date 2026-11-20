@@ -1,6 +1,6 @@
 # Listed Phase B architecture questions
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** proposed
 **Date:** 2026-11-20
 
@@ -50,9 +50,10 @@ that stay sampled; it settles no such rule itself.
 The checker is not under `src/`; this repository keeps it with its skill.
 
 - `claude/skills/auditme/checks/auditme/phaseb/architecture.py` (new) - the
-  A11, A19, A1 and A17 listers, registered with `register_question`
-- `claude/skills/auditme/checks/auditme/core.py` - `capture_hits`, and the
-  corpus read index moved from `rules/state_and_effects.py` (see Hoists)
+  A11, A19, A1 and A17 listers, registered with `register_question`, and
+  `capture_hits` (in `phaseb/`, not `core.py`, since it raises `PhaseBError`
+  and `phaseb` imports `core.py`; clarified in 1.2)
+- `claude/skills/auditme/checks/auditme/core.py` - the corpus read index moved from `rules/state_and_effects.py` (see Hoists)
 - `checks/auditme/rules/error_handling.py`, `rules/state_and_effects.py` -
   site finders made public (see Hoists)
 - `claude/skills/auditme/phaseb/briefs/{A11,A19,A1,A17}.md` - briefs, version 1
@@ -120,8 +121,9 @@ module. No rule's output and no existing test changes.
   `core.py` without the underscore; the A20 rule imports them from there.
 - Used as they are: `package_class_parents`, `class_lineage`,
   `is_dunder_all_assignment`, and `is_private` from `core.py`, which the
-  test-questions spec adds (decision 1). `capture_hits` generalises the capture in the
-  runner in `tests/conftest.py`.
+  test-questions spec adds (decision 1). `capture_hits`, in
+  `phaseb/architecture.py`, generalises the capture in the runner in
+  `tests/conftest.py`.
 
 ### Sites the sweep already reports
 

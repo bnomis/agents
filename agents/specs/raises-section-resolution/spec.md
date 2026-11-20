@@ -1,6 +1,6 @@
 # Raises section resolution
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** proposed
 **Date:** 2026-11-20
 
@@ -137,8 +137,11 @@ the shortest chain, ties broken by sorting the chain tuples:
   or `..., raised by probe.wrap.wrapper` when the wrapper raises it; a longer
   chain lists its wrappers in call order, comma-separated after `via`.
 
-`related` lists the path of every function on a reported chain outside the
-subject's file, sorted and de-duplicated. The extra-declaration branch
+`related` lists the path of every function, outside the subject's file, on
+any chain by which a reported name reaches the subject - not only the
+shortest chain the message names - sorted and de-duplicated. This keeps
+today's behaviour, where `related` names the file of every direct callee
+that reaches the error, and adds the wrappers' files (clarified in 1.2). The extra-declaration branch
 ("declares X, which never reaches the caller") is unchanged in logic; as
 `reached` grows it can only lose hits. Accept markers on the `def` line work
 as today.
