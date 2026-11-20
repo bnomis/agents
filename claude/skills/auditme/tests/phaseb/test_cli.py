@@ -65,6 +65,14 @@ def test_candidates_prints_one_json_line_per_candidate(root: pathlib.Path) -> No
     assert {'id', 'hash', 'payload'} <= set(records[0])
 
 
+@pytest.mark.parametrize('question', ['Doc1', 'Doc2', 'Doc4', 'Doc5'])
+def test_candidates_runs_for_listers_that_take_no_depth(root: pathlib.Path, question: str) -> None:
+    subprocess.run(['git', 'init', '-q'], cwd=root, check=True)
+    subprocess.run(['git', 'add', '.'], cwd=root, check=True)
+    done = run('candidates', root, '--question', question)
+    assert done.returncode == 0, done.stderr
+
+
 def test_plan_writes_batches_and_reports_counts(root: pathlib.Path, tmp_path: pathlib.Path) -> None:
     out = tmp_path / 'run'
     done = run('plan', root, '--question', 'A4', '--out', out)
@@ -181,3 +189,26 @@ def test_unknown_question_exits_2_with_the_message_on_stderr(root: pathlib.Path)
     assert done.returncode == 2
     assert 'Z9' in done.stderr
     assert done.stdout == ''
+
+
+# registered batch size
+
+
+def _plan_in_process(monkeypatch: pytest.MonkeyPatch, root: pathlib.Path, out: pathlib.Path, *extra: str) -> list[list[str]]:
+    """Run `phaseb.py plan` in this process for a question registered with a batch size of 1."""
+    import phaseb  # noqa: PLC0415  the script lives in checks/, which conftest puts on sys.path
+    from auditme.phaseb import candidates  # noqa: PLC0415
+
+    lister, brief, _ = candidates.REGISTRY['A4']
+    monkeypatch.setitem(candidates.REGISTRY, 'A4', (lister, brief, 1))
+    monkeypatch.setattr(sys, 'argv', ['phaseb.py', 'plan', str(root), '--question', 'A4', '--out', str(out), *extra])
+    assert phaseb.main() == 0
+    return json.loads((out / 'plan.json').read_text(encoding='utf-8'))['batches']
+
+
+def test_plan_uses_the_registered_size_without_batch_size(root: pathlib.Path, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    assert _plan_in_process(monkeypatch, root, tmp_path / 'out') == [[FIRST], [SECOND]]
+
+
+def test_plan_batch_size_option_overrides_the_registered_size(root: pathlib.Path, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    assert _plan_in_process(monkeypatch, root, tmp_path / 'out', '--batch-size', '2') == [[FIRST, SECOND]]

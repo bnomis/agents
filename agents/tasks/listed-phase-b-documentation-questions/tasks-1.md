@@ -47,7 +47,7 @@ hoists what they duplicate.
 
 ## Task 1: Prerequisite check, and hoist `corpus_definitions` into `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Module location (prerequisite; `core.py`); API (`corpus_definitions`); Error handling (syntax errors skipped; no sweep rule added)
@@ -62,24 +62,24 @@ it at the default.
 
 **Subtasks:**
 
-- [ ] Prerequisite check, from the repository root: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If either fails, stop as `blocked`, naming the unmerged prerequisite `agents/tasks/repeatable-phase-b/tasks-1.md` and which check failed
-- [ ] Starting-point check: `grep -rnwE 'corpus_definitions|docrefs|DocSection|DocTarget|CorpusIndex|read_sections|resolve_name' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# corpus definitions` heading, on a fixture project with `src/pkg/`: at the default, a module-level `def` is keyed by its bare name, a method and a class are not, and a file with a syntax error is skipped; with `classes=True`, a class is keyed by its name and a method by its bare name, each with its node and path; a name defined in two modules has two entries. Run them and see them fail
-- [ ] Add `corpus_definitions` to `claude/skills/auditme/checks/auditme/core.py`, carrying `_source_definitions`' docstring (corpus-wide, module-level by default, and why) and saying what `classes=True` adds and that only the Phase B listers set it
-- [ ] `_corpus_py_files` lives in `rules/state_and_effects.py`, and `core.py` imports nothing from `rules/`: move `_corpus_py_files` (and anything it needs that `core.py` lacks) into `core.py` and import it back into `state_and_effects.py` and `project_hygiene.py` under the same name, rather than adding a `core` to `rules` import
-- [ ] Remove `_source_definitions` and have `check_spec_api_signature_drift` call `corpus_definitions(scope, src_root)` with no `classes` argument; update the `_source_definitions` references in its docstring
+- [x] Prerequisite check, from the repository root: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If either fails, stop as `blocked`, naming the unmerged prerequisite `agents/tasks/repeatable-phase-b/tasks-1.md` and which check failed
+- [x] Starting-point check: `grep -rnwE 'corpus_definitions|docrefs|DocSection|DocTarget|CorpusIndex|read_sections|resolve_name' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# corpus definitions` heading, on a fixture project with `src/pkg/`: at the default, a module-level `def` is keyed by its bare name, a method and a class are not, and a file with a syntax error is skipped; with `classes=True`, a class is keyed by its name and a method by its bare name, each with its node and path; a name defined in two modules has two entries. Run them and see them fail
+- [x] Add `corpus_definitions` to `claude/skills/auditme/checks/auditme/core.py`, carrying `_source_definitions`' docstring (corpus-wide, module-level by default, and why) and saying what `classes=True` adds and that only the Phase B listers set it
+- [x] `_corpus_py_files` lives in `rules/state_and_effects.py`, and `core.py` imports nothing from `rules/`: move `_corpus_py_files` (and anything it needs that `core.py` lacks) into `core.py` and import it back into `state_and_effects.py` and `project_hygiene.py` under the same name, rather than adding a `core` to `rules` import
+- [x] Remove `_source_definitions` and have `check_spec_api_signature_drift` call `corpus_definitions(scope, src_root)` with no `classes` argument; update the `_source_definitions` references in its docstring
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py`, `claude/skills/auditme/tests/test_project_hygiene.py` and `claude/skills/auditme/tests/test_state_and_effects.py` passes unchanged
-- [ ] `check_spec_api_signature_drift` passes no `classes` argument
-- [ ] `core.py` imports nothing from `auditme.rules`
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py`, `claude/skills/auditme/tests/test_project_hygiene.py` and `claude/skills/auditme/tests/test_state_and_effects.py` passes unchanged
+- [x] `check_spec_api_signature_drift` passes no `classes` argument
+- [x] `core.py` imports nothing from `auditme.rules`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_nested_underscore_and_spec_signatures.py claude/skills/auditme/tests/test_project_hygiene.py claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -91,7 +91,7 @@ it at the default.
 
 ## Task 2: A registered batch size per question
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`register_question` with `batch_size`); Settings
@@ -103,20 +103,20 @@ not given. A4 keeps 48, so its behaviour does not change.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py` and `claude/skills/auditme/tests/phaseb/test_cli.py`: a question registered without a size reads back 48; one registered with 12 reads back 12; `phaseb.py plan` on a question registered with a small size writes batches of that size when `--batch-size` is absent, and of the given size when it is present. Run them and see them fail
-- [ ] Add the parameter and a reader for a question's batch size in `claude/skills/auditme/checks/auditme/phaseb/candidates.py`
-- [ ] Make `--batch-size` in `claude/skills/auditme/checks/phaseb.py` default to `None` and fall back to the registered size; say so in its help text
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py` and `claude/skills/auditme/tests/phaseb/test_cli.py`: a question registered without a size reads back 48; one registered with 12 reads back 12; `phaseb.py plan` on a question registered with a small size writes batches of that size when `--batch-size` is absent, and of the given size when it is present. Run them and see them fail
+- [x] Add the parameter and a reader for a question's batch size in `claude/skills/auditme/checks/auditme/phaseb/candidates.py`
+- [x] Make `--batch-size` in `claude/skills/auditme/checks/phaseb.py` default to `None` and fall back to the registered size; say so in its help text
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
-- [ ] A4 is registered with no explicit size, or with 48
+- [x] The new tests pass
+- [x] Every existing test under `claude/skills/auditme/tests/phaseb/` passes unchanged
+- [x] A4 is registered with no explicit size, or with 48
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -127,7 +127,7 @@ not given. A4 keeps 48, so its behaviour does not change.
 
 ## Task 3: `docrefs.py`: sections and code-shaped names
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`DocSection`, `read_sections`); Implementation (Documents and names); Error handling (unreadable document); Settings (constants)
@@ -139,19 +139,19 @@ outside fences) and records each code-shaped name with its line.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`: nested headings give a `heading_path` joined by ` > `; a repeated heading path gets `#2`; a `#` line inside a fence is not a heading; each name shape is kept (a path holding `/`, a path ending in each listed extension, `--name`, an identifier with `_`, `.` or an inner capital, a token with a trailing `(...)` dropped) and each is dropped (a token with a space or `<`, a path starting `/` or `~`, a plain lowercase word, a plain capitalised word); a `def` or `class` line in a fence under an `API` heading yields its name, and one under another heading does not; names come back in line order; a file that cannot be decoded as UTF-8, and a path that is a directory, raise `PhaseBError`. Run them and see them fail
-- [ ] Implement `DocSection` and `read_sections` with the spec's fields and docstrings; keep the path-shaped extensions and the Doc1 tree depth (3) as module constants
-- [ ] Reuse `_DEF_LINE_RE` and `_CLASS_LINE_RE` from `rules/project_hygiene.py` by import, not by copy
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`: nested headings give a `heading_path` joined by ` > `; a repeated heading path gets `#2`; a `#` line inside a fence is not a heading; each name shape is kept (a path holding `/`, a path ending in each listed extension, `--name`, an identifier with `_`, `.` or an inner capital, a token with a trailing `(...)` dropped) and each is dropped (a token with a space or `<`, a path starting `/` or `~`, a plain lowercase word, a plain capitalised word); a `def` or `class` line in a fence under an `API` heading yields its name, and one under another heading does not; names come back in line order; a file that cannot be decoded as UTF-8, and a path that is a directory, raise `PhaseBError`. Run them and see them fail
+- [x] Implement `DocSection` and `read_sections` with the spec's fields and docstrings; keep the path-shaped extensions and the Doc1 tree depth (3) as module constants
+- [x] Reuse `_DEF_LINE_RE` and `_CLASS_LINE_RE` from `rules/project_hygiene.py` by import, not by copy
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `read_sections` raises `PhaseBError`, never skips, on a file it cannot read
+- [x] The new tests pass
+- [x] `read_sections` raises `PhaseBError`, never skips, on a file it cannot read
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -162,7 +162,7 @@ outside fences) and records each code-shaped name with its line.
 
 ## Task 4: `docrefs.py`: the corpus index and `resolve_name`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** API (`DocTarget`, `resolve_name`, `CorpusIndex`); Implementation (Resolution); Error handling (syntax errors; unresolved is not an error)
@@ -176,21 +176,21 @@ ambiguous. Nothing resolves by resemblance.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`, under a new `# resolution` heading, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a tracked path relative to the root, and one relative to the document's directory, resolve to `file` or `directory`; an untracked path does not; a dotted name through a package `__init__.py` re-export resolves to the defining function; a unique bare name resolves to its `function` or `class`; a bare name defined twice returns both; `Probe.load` resolves to a `method` and `Probe.size` to a field; `app.port`, where `AppSettings(BaseSettings)` has a field `app` whose class has a field `port`, resolves to a `setting`, and a dotted key whose first segment is no settings field does not; `--limit`, passed to `add_argument`, `option` or `Option`, resolves to an `option`; a name the corpus never defines returns `[]`; each target carries `id`, `path`, `start` and `end`. Run them and see them fail
-- [ ] Implement `CorpusIndex`, using `corpus_definitions(..., classes=True)` from Task 1 and the alias table from repeatable-phase-b's shared call resolver in `core.py`, rather than building either again
-- [ ] Read the tracked file list with `git ls-files -z`; raise `PhaseBError` when it fails (no work tree)
-- [ ] Implement `DocTarget` and `resolve_name` with the spec's signatures and docstrings
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`, under a new `# resolution` heading, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a tracked path relative to the root, and one relative to the document's directory, resolve to `file` or `directory`; an untracked path does not; a dotted name through a package `__init__.py` re-export resolves to the defining function; a unique bare name resolves to its `function` or `class`; a bare name defined twice returns both; `Probe.load` resolves to a `method` and `Probe.size` to a field; `app.port`, where `AppSettings(BaseSettings)` has a field `app` whose class has a field `port`, resolves to a `setting`, and a dotted key whose first segment is no settings field does not; `--limit`, passed to `add_argument`, `option` or `Option`, resolves to an `option`; a name the corpus never defines returns `[]`; each target carries `id`, `path`, `start` and `end`. Run them and see them fail
+- [x] Implement `CorpusIndex`, using `corpus_definitions(..., classes=True)` from Task 1 and the alias table from repeatable-phase-b's shared call resolver in `core.py`, rather than building either again
+- [x] Read the tracked file list with `git ls-files -z`; raise `PhaseBError` when it fails (no work tree)
+- [x] Implement `DocTarget` and `resolve_name` with the spec's signatures and docstrings
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] A token that resolves to nothing or to several targets raises nothing
-- [ ] `git ls-files` failing raises `PhaseBError`
+- [x] The new tests pass
+- [x] A token that resolves to nothing or to several targets raises nothing
+- [x] `git ls-files` failing raises `PhaseBError`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -202,7 +202,7 @@ ambiguous. Nothing resolves by resemblance.
 
 ## Task 5: The Doc4 and Doc5 listers
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** Implementation (Documents and names; Doc4 and Doc5 candidates); Decisions 2 and 3; Error handling
@@ -215,31 +215,32 @@ ambiguous tokens, each with the spec's id, span, payload and hash.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a proposed spec is not listed for Doc4 and an implemented one is; a root `README.md` is listed for Doc5 beside `docs/guide.md`; a pair's id is `<doc>::<heading path>::<target id>` and its payload holds the target and each line naming it; editing the target's source changes its pair's hash and not a pair in an unrelated section; editing a block of the section that names the target changes the hash, and editing a block that does not name it does not; a section with an undefined name gets `<doc>::<heading path>::(unresolved)` holding the token, its line and any definitions found, and that candidate vanishes once the name is defined; an ambiguous name goes into the `(unresolved)` candidate with both definitions; an unreadable listed document raises `PhaseBError`; candidates and hashes are the same on a second call. Run them and see them fail
-- [ ] Discover documents with `_spec_markdown_files` (imported, not copied), filtered as the spec says
-- [ ] Hash a pair as the spec's Doc4 and Doc5 candidates section says: sha256, NUL-separated, over each block (paragraph, list item, table row or fence) naming the target, once, in line order, then the target's source (`ast.get_source_segment` with decorators for a def or class, the statement for a field or option call, a file's bytes, a directory's sorted tracked entries); hash an `(unresolved)` candidate over the section's text and the sorted tokens
-- [ ] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc4.md`, `Doc5.md`, written in Task 7) and batch size 24
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a proposed spec is not listed for Doc4 and an implemented one is; a root `README.md` is listed for Doc5 beside `docs/guide.md`; a pair's id is `<doc>::<heading path>::<target id>` and its payload holds the target and each line naming it; editing the target's source changes its pair's hash and not a pair in an unrelated section; editing a block of the section that names the target changes the hash, and editing a block that does not name it does not; a section with an undefined name gets `<doc>::<heading path>::(unresolved)` holding the token, its line and any definitions found, and that candidate vanishes once the name is defined; an ambiguous name goes into the `(unresolved)` candidate with both definitions; an unreadable listed document raises `PhaseBError`; candidates and hashes are the same on a second call. Run them and see them fail
+- [x] Discover documents with `_spec_markdown_files` (imported, not copied), filtered as the spec says
+- [x] Hash a pair as the spec's Doc4 and Doc5 candidates section says: sha256, NUL-separated, over each block (paragraph, list item, table row or fence) naming the target, once, in line order, then the target's source (`ast.get_source_segment` with decorators for a def or class, the statement for a field or option call, a file's bytes, a directory's sorted tracked entries); hash an `(unresolved)` candidate over the section's text and the sorted tokens
+- [x] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc4.md`, `Doc5.md`, written in Task 7) and batch size 24
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No sweep rule is added: `claude/skills/auditme/tests/registry-order.txt` is unchanged
+- [x] The new tests pass
+- [x] No sweep rule is added: `claude/skills/auditme/tests/registry-order.txt` is unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
 - Depends on Tasks 2, 3 and 4
 - Model the registration and candidate shape on the A4 lister in the same module
+- `Doc4.md` and `Doc5.md` exist as one-line placeholders (a version line only) because `test_briefs.py` requires every registered brief to exist; Task 7 replaces them
 
 ---
 
 ## Task 6: The Doc1 and Doc2 listers
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Doc1 and Doc2 candidates); Error handling (`pyproject.toml`, `.pre-commit-config.yaml`, `git ls-files`)
@@ -252,19 +253,19 @@ corpus's top-level imports.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, under a new `# Doc1 and Doc2` heading: a Doc1 candidate's id is `AGENTS.md::<heading path>` and its payload holds each named path with its resolution and the tree; a section with neither path nor fence is not listed; a new tracked directory changes Doc1's hash and an untracked one does not; Doc2 matches a token to a PEP 503-normalised name from each of `project.dependencies`, `project.optional-dependencies`, `dependency-groups` and `build-system.requires`, to a `- id:` hook in `.pre-commit-config.yaml`, and to a top-level module the corpus imports, and lists a token matching none; editing `.pre-commit-config.yaml` changes Doc2's hash; an unparseable `pyproject.toml`, an unreadable `.pre-commit-config.yaml` and a failing `git ls-files` each raise `PhaseBError`; a missing `pyproject.toml` or hook file is not an error. Run them and see them fail
-- [ ] Build the tree from `git ls-files -z`, reusing Task 4's tracked-file reader; read `pyproject.toml` with `tomllib`; hash as the spec says (Doc1: section text, then tree; Doc2: section text, canonical JSON of the tables, then the hook file's bytes)
-- [ ] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc1.md`, `Doc2.md`) and batch size 12
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_doc_candidates.py`, under a new `# Doc1 and Doc2` heading: a Doc1 candidate's id is `AGENTS.md::<heading path>` and its payload holds each named path with its resolution and the tree; a section with neither path nor fence is not listed; a new tracked directory changes Doc1's hash and an untracked one does not; Doc2 matches a token to a PEP 503-normalised name from each of `project.dependencies`, `project.optional-dependencies`, `dependency-groups` and `build-system.requires`, to a `- id:` hook in `.pre-commit-config.yaml`, and to a top-level module the corpus imports, and lists a token matching none; editing `.pre-commit-config.yaml` changes Doc2's hash; an unparseable `pyproject.toml`, an unreadable `.pre-commit-config.yaml` and a failing `git ls-files` each raise `PhaseBError`; a missing `pyproject.toml` or hook file is not an error. Run them and see them fail
+- [x] Build the tree from `git ls-files -z`, reusing Task 4's tracked-file reader; read `pyproject.toml` with `tomllib`; hash as the spec says (Doc1: section text, then tree; Doc2: section text, canonical JSON of the tables, then the hook file's bytes)
+- [x] Register both with their brief paths (`claude/skills/auditme/phaseb/briefs/Doc1.md`, `Doc2.md`) and batch size 12
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No code path treats a file that exists but cannot be read or parsed as absent
+- [x] The new tests pass
+- [x] No code path treats a file that exists but cannot be read or parsed as absent
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -275,7 +276,7 @@ corpus's top-level imports.
 
 ## Task 7: The Doc1, Doc2, Doc4 and Doc5 briefs, version 1
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Briefs; Skill changes, Doc5's predicate); Decision 3
@@ -287,21 +288,21 @@ thresholds, the input and output format, the env-variable security rule, and
 
 **Subtasks:**
 
-- [ ] In `claude/skills/auditme/SKILL.md`'s Phase B checklist, change Doc5's predicate to "Drift between `docs/` or `README.md` and `src/`" (decision 3), so the Doc5 brief quotes the widened question
-- [ ] Extend `claude/skills/auditme/tests/phaseb/test_briefs.py`: each Doc brief exists with exactly one `**Brief version:** 1` line; each contains its question's text as it stands in `SKILL.md`; Doc4 and Doc5 name the `drift` key, Doc1 and Doc2 the `stale` and `missing` keys. Run them and see them fail
-- [ ] Write each brief's thresholds exactly as the spec's Briefs section lists them, including what is not drift and, for Doc4 and Doc5, how an `(unresolved)` candidate is judged
-- [ ] Output: one JSON line per candidate with `id`, its findings keys and `reason`, every candidate present; a threshold the brief does not settle is reported in the reply, not decided
-- [ ] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
+- [x] In `claude/skills/auditme/SKILL.md`'s Phase B checklist, change Doc5's predicate to "Drift between `docs/` or `README.md` and `src/`" (decision 3), so the Doc5 brief quotes the widened question
+- [x] Extend `claude/skills/auditme/tests/phaseb/test_briefs.py`: each Doc brief exists with exactly one `**Brief version:** 1` line; each contains its question's text as it stands in `SKILL.md`; Doc4 and Doc5 name the `drift` key, Doc1 and Doc2 the `stale` and `missing` keys. Run them and see them fail
+- [x] Write each brief's thresholds exactly as the spec's Briefs section lists them, including what is not drift and, for Doc4 and Doc5, how an `(unresolved)` candidate is judged
+- [x] Output: one JSON line per candidate with `id`, its findings keys and `reason`, every candidate present; a threshold the brief does not settle is reported in the reply, not decided
+- [x] Repeat the security rule every subagent brief carries: never list environment variables (`env`, `printenv`, `set`) or print an env file; to test that a variable is set, use `[ -n "${VAR:-}" ]` and print only yes or no
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] No brief names a project, path or review from any real run
+- [x] The new tests pass
+- [x] No brief names a project, path or review from any real run
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -312,7 +313,7 @@ thresholds, the input and output format, the env-variable security rule, and
 
 ## Task 8: `SKILL.md`: listed Doc questions and sampled cadence
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (Skill changes); Decisions 1, 2 and 3
@@ -324,24 +325,24 @@ audit, with the review template and completion gate to match.
 
 **Subtasks:**
 
-- [ ] In section 4, Interpretive review, name the listed questions (A4, Doc1, Doc2, Doc4, Doc5) and state the sampled cadence: every audit runs a sampled question on the files changed since the previous review's `**Commit:**`, using the diff base `checks/changed.py` resolves; every third audit, counted from the first audit after this change ships, and any audit with no previous `**Commit:**`, runs it on the whole tree
-- [ ] Beside Doc5's predicate (widened in Task 7), say the first audit's README findings are catch-up
-- [ ] In the Convergence section, say a sampled question's new site goes under "Coverage (sampled)" and is never marked "missed by" a review, and the rule applies in full to listed questions
-- [ ] In the Review template, add a `**Commit:**` line (the audited `HEAD`) and, beside each sampled question, its mode (changed files since a named commit, or full)
-- [ ] In the Completion gate, require a current verdict per candidate for every listed question and that every sampled question ran in its cadence's mode
-- [ ] Say the next audit after this change judges every Doc candidate, that its findings in unchanged code are catch-up, and that its Convergence note names the newly listed questions
-- [ ] Add the new test files to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] In section 4, Interpretive review, name the listed questions (A4, Doc1, Doc2, Doc4, Doc5) and state the sampled cadence: every audit runs a sampled question on the files changed since the previous review's `**Commit:**`, using the diff base `checks/changed.py` resolves; every third audit, counted from the first audit after this change ships, and any audit with no previous `**Commit:**`, runs it on the whole tree
+- [x] Beside Doc5's predicate (widened in Task 7), say the first audit's README findings are catch-up
+- [x] In the Convergence section, say a sampled question's new site goes under "Coverage (sampled)" and is never marked "missed by" a review, and the rule applies in full to listed questions
+- [x] In the Review template, add a `**Commit:**` line (the audited `HEAD`) and, beside each sampled question, its mode (changed files since a named commit, or full)
+- [x] In the Completion gate, require a current verdict per candidate for every listed question and that every sampled question ran in its cadence's mode
+- [x] Say the next audit after this change judges every Doc candidate, that its findings in unchanged code are catch-up, and that its Convergence note names the newly listed questions
+- [x] Add the new test files to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] `SKILL.md` names each listed question and the sampled cadence as the spec states them
-- [ ] Nothing in `SKILL.md` names a project, path or review from any real run
+- [x] `SKILL.md` names each listed question and the sampled cadence as the spec states them
+- [x] Nothing in `SKILL.md` names a project, path or review from any real run
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes (each brief still quotes its question verbatim)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes (each brief still quotes its question verbatim)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
@@ -352,7 +353,7 @@ audit, with the review template and completion gate to match.
 
 ## Task 9: Deduplication, whole-tree checks, final tests, and close the spec
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -363,27 +364,27 @@ and mark the spec implemented.
 
 **Subtasks:**
 
-- [ ] Hoist anything `docrefs.py` and the Doc listers duplicate from the A4 lister (`phaseb/candidates.py`) or the spec-drift rule code (`rules/project_hygiene.py`: `_spec_markdown_files`, `_DEF_LINE_RE`, `_CLASS_LINE_RE`, the `API`-heading and fence tracking, the `**Status:**` reading) to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define, and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A hoist that would change `check_spec_api_signature_drift`'s output or need one of its existing tests to change stops as `blocked`, naming the test
-- [ ] For each of `Doc1`, `Doc2`, `Doc4` and `Doc5`, run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root and check it exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` and `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- <path>` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented`
-- [ ] Run `pre-commit run --all-files`, `pre-commit run auditme-all --hook-stage manual --all-files` and `uv run --group docs mkdocs build --strict`, and fix what they report
-- [ ] Last, save the final full test run to the order's test log, relative to the main checkout:
+- [x] Hoist anything `docrefs.py` and the Doc listers duplicate from the A4 lister (`phaseb/candidates.py`) or the spec-drift rule code (`rules/project_hygiene.py`: `_spec_markdown_files`, `_DEF_LINE_RE`, `_CLASS_LINE_RE`, the `API`-heading and fence tracking, the `**Status:**` reading) to a single owner: grep the tree for each literal collection, constant and one-line helper the new modules define, and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge. A hoist that would change `check_spec_api_signature_drift`'s output or need one of its existing tests to change stops as `blocked`, naming the test
+- [x] For each of `Doc1`, `Doc2`, `Doc4` and `Doc5`, run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root and check it exits 0 and that each line it prints parses as JSON with the `id`, `hash` and `payload` keys
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` and `claude/skills/auditme/checks/auditme/registry.py` are unchanged against the branch's base (`git diff <base> -- <path>` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented`
+- [x] Run `pre-commit run --all-files`, `pre-commit run auditme-all --hook-stage manual --all-files` and `uv run --group docs mkdocs build --strict`, and fix what they report
+- [x] Last, save the final full test run to the order's test log, relative to the main checkout:
       `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] Every existing `check_spec_api_signature_drift` test passes unchanged
-- [ ] The spec's status is `implemented`
-- [ ] The log ends with `all selected test directories passed`, printed only because pytest exited 0
+- [x] No literal collection or helper is defined both in `phaseb/` and elsewhere under `claude/skills/auditme/checks/`
+- [x] Every existing `check_spec_api_signature_drift` test passes unchanged
+- [x] The spec's status is `implemented`
+- [x] The log ends with `all selected test directories passed`, printed only because pytest exited 0
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] The final test command above exits 0 and writes its pass line to `logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log` under the main checkout
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] The final test command above exits 0 and writes its pass line to `logs/rro/listed-phase-b-documentation-questions/tasks-1/final-tests.log` under the main checkout
 
 **Notes:**
 
