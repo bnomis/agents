@@ -162,7 +162,7 @@ outside fences) and records each code-shaped name with its line.
 
 ## Task 4: `docrefs.py`: the corpus index and `resolve_name`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** API (`DocTarget`, `resolve_name`, `CorpusIndex`); Implementation (Resolution); Error handling (syntax errors; unresolved is not an error)
@@ -176,21 +176,21 @@ ambiguous. Nothing resolves by resemblance.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`, under a new `# resolution` heading, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a tracked path relative to the root, and one relative to the document's directory, resolve to `file` or `directory`; an untracked path does not; a dotted name through a package `__init__.py` re-export resolves to the defining function; a unique bare name resolves to its `function` or `class`; a bare name defined twice returns both; `Probe.load` resolves to a `method` and `Probe.size` to a field; `app.port`, where `AppSettings(BaseSettings)` has a field `app` whose class has a field `port`, resolves to a `setting`, and a dotted key whose first segment is no settings field does not; `--limit`, passed to `add_argument`, `option` or `Option`, resolves to an `option`; a name the corpus never defines returns `[]`; each target carries `id`, `path`, `start` and `end`. Run them and see them fail
-- [ ] Implement `CorpusIndex`, using `corpus_definitions(..., classes=True)` from Task 1 and the alias table from repeatable-phase-b's shared call resolver in `core.py`, rather than building either again
-- [ ] Read the tracked file list with `git ls-files -z`; raise `PhaseBError` when it fails (no work tree)
-- [ ] Implement `DocTarget` and `resolve_name` with the spec's signatures and docstrings
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_docrefs.py`, under a new `# resolution` heading, on a git-initialised fixture with `src/pkg/`, `agents/specs/probe/spec.md`, `docs/guide.md` and `AGENTS.md`: a tracked path relative to the root, and one relative to the document's directory, resolve to `file` or `directory`; an untracked path does not; a dotted name through a package `__init__.py` re-export resolves to the defining function; a unique bare name resolves to its `function` or `class`; a bare name defined twice returns both; `Probe.load` resolves to a `method` and `Probe.size` to a field; `app.port`, where `AppSettings(BaseSettings)` has a field `app` whose class has a field `port`, resolves to a `setting`, and a dotted key whose first segment is no settings field does not; `--limit`, passed to `add_argument`, `option` or `Option`, resolves to an `option`; a name the corpus never defines returns `[]`; each target carries `id`, `path`, `start` and `end`. Run them and see them fail
+- [x] Implement `CorpusIndex`, using `corpus_definitions(..., classes=True)` from Task 1 and the alias table from repeatable-phase-b's shared call resolver in `core.py`, rather than building either again
+- [x] Read the tracked file list with `git ls-files -z`; raise `PhaseBError` when it fails (no work tree)
+- [x] Implement `DocTarget` and `resolve_name` with the spec's signatures and docstrings
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] A token that resolves to nothing or to several targets raises nothing
-- [ ] `git ls-files` failing raises `PhaseBError`
+- [x] The new tests pass
+- [x] A token that resolves to nothing or to several targets raises nothing
+- [x] `git ls-files` failing raises `PhaseBError`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb/test_docrefs.py claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
