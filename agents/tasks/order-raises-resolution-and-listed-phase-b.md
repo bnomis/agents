@@ -42,11 +42,11 @@ repository:
 | test pass line | `all selected test directories passed` |
 | test fail pattern | `FAILED` |
 | always wait for | |
-| progress page | |
+| progress page | https://claude.ai/artifact/XeWk6GJbeU68NwiXZFMxyP |
 
 | # | Task list | Waits for | Stops for you | Status |
 |---|---|---|---|---|
-| 1 | `repeatable-phase-b/tasks-1.md` | - | - | todo |
+| 1 | `repeatable-phase-b/tasks-1.md` | - | - | running |
 | 2 | `raises-section-resolution/tasks-1.md` | 1 | - | todo |
 | 3 | `listed-phase-b-documentation-questions/tasks-1.md` | 1 | - | todo |
 | 4 | `listed-phase-b-test-questions/tasks-1.md` | 3 | - | todo |
