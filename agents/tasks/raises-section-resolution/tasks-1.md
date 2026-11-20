@@ -132,7 +132,7 @@ shortest chain.
 
 ## Task 3: Document the extension
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Spec Reference:** Implementation (Documentation); Settings
@@ -142,21 +142,21 @@ shortest chain.
 
 **Subtasks:**
 
-- [ ] In the docstring of `check_raises_section_drift`, rewrite the "Callees are followed one level" sentence to state the new resolution (`<ClassName>.<method>(...)` for a package class, and section-less callees followed to `SECTIONLESS_DEPTH`), and add an `Extension (<the date of this task's commit>):` paragraph naming both gaps, `SECTIONLESS_DEPTH` and the request "`raises-section-drift` should follow pass-through callees and `Class.method()` calls" in `claude/skills/auditme/requests.md`
-- [ ] In `claude/skills/auditme/SKILL.md` A4, replace "it follows each same-package callee one level through its declared `Raises:`" with "it follows each same-package callee, including `<ClassName>.<method>(...)` for a class the package defines, through its declared `Raises:`, and follows a callee with no section into its own raises and callees, up to three calls deep"; add `cls.<method>()` calls and inherited methods to the list of what Phase B reviews by hand. Add no "Documented refinements" entry
-- [ ] In `docs/guide/checker.md`, extend the `raises-section-drift` row to say errors are followed through wrappers with no section and through `Class.method()` calls
+- [x] In the docstring of `check_raises_section_drift`, rewrite the "Callees are followed one level" sentence to state the new resolution (`<ClassName>.<method>(...)` for a package class, and section-less callees followed to `SECTIONLESS_DEPTH`), and add an `Extension (<the date of this task's commit>):` paragraph naming both gaps, `SECTIONLESS_DEPTH` and the request "`raises-section-drift` should follow pass-through callees and `Class.method()` calls" in `claude/skills/auditme/requests.md`
+- [x] In `claude/skills/auditme/SKILL.md` A4, replace "it follows each same-package callee one level through its declared `Raises:`" with "it follows each same-package callee, including `<ClassName>.<method>(...)` for a class the package defines, through its declared `Raises:`, and follows a callee with no section into its own raises and callees, up to three calls deep"; add `cls.<method>()` calls and inherited methods to the list of what Phase B reviews by hand. Add no "Documented refinements" entry
+- [x] In `docs/guide/checker.md`, extend the `raises-section-drift` row to say errors are followed through wrappers with no section and through `Class.method()` calls
 
 **Acceptance Criteria:**
 
-- [ ] No text in the three files still says callees are followed one level only
-- [ ] `SKILL.md`'s "Documented refinements" list is unchanged
-- [ ] None of the three files names a project other than this repository
+- [x] No text in the three files still says callees are followed one level only
+- [x] `SKILL.md`'s "Documented refinements" list is unchanged
+- [x] None of the three files names a project other than this repository
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
