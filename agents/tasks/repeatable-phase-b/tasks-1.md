@@ -280,7 +280,7 @@ read the version from it.
 
 ## Task 8: `SKILL.md`: listed questions in Phase B
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Skill changes; A review's findings)
@@ -291,23 +291,23 @@ per-question fan-out as now, marked `(sampled)`.
 
 **Subtasks:**
 
-- [ ] In section 4, Interpretive review, add the listed-question path: `plan`, one reviewer per batch with the question's brief, `check`, up to two retries of a failing batch by fresh reviewers, `merge`, `report`; and name the questions with a lister (A4)
-- [ ] Say that a listed question's findings are its flagged ledger verdicts, new or carried; that a carried finding is not a regression and is never marked "missed by" a review; and that a finding the operator dismisses on the review page is recorded with `phaseb.py dismiss`
-- [ ] Say that every other question is sampled and marked `(sampled)` in the review, and that a new site in a sampled question is coverage, not drift
-- [ ] In the Convergence section, say the rule applies in full to listed questions
-- [ ] In the completion gate, add: every listed question has a current verdict for every candidate, or the review names each id not judged
-- [ ] Say that putting a question on the listed path (its lister, brief and tests) is a skill change made between audits, never during one
-- [ ] Add the `phaseb` tests to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] In section 4, Interpretive review, add the listed-question path: `plan`, one reviewer per batch with the question's brief, `check`, up to two retries of a failing batch by fresh reviewers, `merge`, `report`; and name the questions with a lister (A4)
+- [x] Say that a listed question's findings are its flagged ledger verdicts, new or carried; that a carried finding is not a regression and is never marked "missed by" a review; and that a finding the operator dismisses on the review page is recorded with `phaseb.py dismiss`
+- [x] Say that every other question is sampled and marked `(sampled)` in the review, and that a new site in a sampled question is coverage, not drift
+- [x] In the Convergence section, say the rule applies in full to listed questions
+- [x] In the completion gate, add: every listed question has a current verdict for every candidate, or the review names each id not judged
+- [x] Say that putting a question on the listed path (its lister, brief and tests) is a skill change made between audits, never during one
+- [x] Add the `phaseb` tests to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] `SKILL.md` names `phaseb.py`'s subcommands with the paths Task 6 wrote
-- [ ] Nothing in `SKILL.md` names a project, path or review from the pilot
+- [x] `SKILL.md` names `phaseb.py`'s subcommands with the paths Task 6 wrote
+- [x] Nothing in `SKILL.md` names a project, path or review from the pilot
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
