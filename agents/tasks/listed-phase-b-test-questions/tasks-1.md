@@ -40,7 +40,7 @@ repository's `no-project-names` hook requires.
 
 ## Task 1: Check the prerequisites and hoist the shared helpers into `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Prerequisites; Module location (reused, not copied)
@@ -53,25 +53,25 @@ output stays as it is.
 
 **Subtasks:**
 
-- [ ] Prerequisite check: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, `grep -c '^\*\*Status:\*\* implemented' agents/specs/listed-phase-b-documentation-questions/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If any fails, stop as `blocked`, naming the spec that is not `implemented` or the command that failed
-- [ ] Starting-point check: `grep -rnwE 'TestRef|build_test_map|is_private|t1_reasons|is_t2_candidate' claude/skills/auditme/checks` prints nothing and `claude/skills/auditme/checks/auditme/phaseb/testmap.py` does not exist; if either fails, stop as `blocked` and name what it found
-- [ ] Read where the earlier lists left things: the module that registers the A4 and documentation listers (`phaseb/candidates.py`, or the group module the documentation-questions list introduced), the shared call resolver's name and signature in `core.py`, and the names `phaseb/` already imports from `core.py`. Later tasks use these as they are
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# scope walk` heading: `_walk_within_scope` imported from `auditme.core` yields an `if` in a function's body and not one inside a nested `def`, `lambda` or class. Run them and see them fail
-- [ ] Move `_walk_within_scope` from `claude/skills/auditme/checks/auditme/rules/error_handling.py` to `core.py` unchanged (name, docstring, body); `error_handling.py` imports it from `auditme.core`
-- [ ] Move `_SIDE_EFFECT_CALL_NAMES` from `claude/skills/auditme/checks/auditme/rules/state_and_effects.py` to `core.py` unchanged (same name, same members, still a `set`); `state_and_effects.py` imports it from `auditme.core`
-- [ ] Move `is_dunder_all_assignment` from `claude/skills/auditme/checks/auditme/rules/style_and_naming.py` to `core.py` unchanged, for Task 2's `is_private`; `style_and_naming.py` imports it from `auditme.core`, and the `non-alphabetical-literal` entry in `claude/skills/auditme/SKILL.md` that names its location is updated to `checks/auditme/core.py`
-- [ ] Skip any of these moves the documentation-questions list already made (the helper is defined in `core.py` and not in the rule module); a helper defined in both places is moved as above
+- [x] Prerequisite check: `grep -c '^\*\*Status:\*\* implemented' agents/specs/repeatable-phase-b/spec.md` prints `1`, `grep -c '^\*\*Status:\*\* implemented' agents/specs/listed-phase-b-documentation-questions/spec.md` prints `1`, and `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0. If any fails, stop as `blocked`, naming the spec that is not `implemented` or the command that failed
+- [x] Starting-point check: `grep -rnwE 'TestRef|build_test_map|is_private|t1_reasons|is_t2_candidate' claude/skills/auditme/checks` prints nothing and `claude/skills/auditme/checks/auditme/phaseb/testmap.py` does not exist; if either fails, stop as `blocked` and name what it found
+- [x] Read where the earlier lists left things: the module that registers the A4 and documentation listers (`phaseb/candidates.py`, or the group module the documentation-questions list introduced), the shared call resolver's name and signature in `core.py`, and the names `phaseb/` already imports from `core.py`. Later tasks use these as they are
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# scope walk` heading: `_walk_within_scope` imported from `auditme.core` yields an `if` in a function's body and not one inside a nested `def`, `lambda` or class. Run them and see them fail
+- [x] Move `_walk_within_scope` from `claude/skills/auditme/checks/auditme/rules/error_handling.py` to `core.py` unchanged (name, docstring, body); `error_handling.py` imports it from `auditme.core`
+- [x] Move `_SIDE_EFFECT_CALL_NAMES` from `claude/skills/auditme/checks/auditme/rules/state_and_effects.py` to `core.py` unchanged (same name, same members, still a `set`); `state_and_effects.py` imports it from `auditme.core`
+- [x] Move `is_dunder_all_assignment` from `claude/skills/auditme/checks/auditme/rules/style_and_naming.py` to `core.py` unchanged, for Task 2's `is_private`; `style_and_naming.py` imports it from `auditme.core`, and the `non-alphabetical-literal` entry in `claude/skills/auditme/SKILL.md` that names its location is updated to `checks/auditme/core.py`
+- [x] Skip any of these moves the documentation-questions list already made (the helper is defined in `core.py` and not in the rule module); a helper defined in both places is moved as above
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `grep -rn 'def _walk_within_scope\|^_SIDE_EFFECT_CALL_NAMES\|def is_dunder_all_assignment' claude/skills/auditme/checks` shows each in `core.py` only
-- [ ] Every existing test in `test_error_handling.py`, `test_state_and_effects.py`, `test_style_and_naming.py` and `test_core.py` passes unchanged; if one would need a change, stop as `blocked` and name it
+- [x] The new tests pass
+- [x] `grep -rn 'def _walk_within_scope\|^_SIDE_EFFECT_CALL_NAMES\|def is_dunder_all_assignment' claude/skills/auditme/checks` shows each in `core.py` only
+- [x] Every existing test in `test_error_handling.py`, `test_state_and_effects.py`, `test_style_and_naming.py` and `test_core.py` passes unchanged; if one would need a change, stop as `blocked` and name it
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_style_and_naming.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_style_and_naming.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
