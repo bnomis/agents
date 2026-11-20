@@ -240,7 +240,7 @@ version-1 brief.
 
 ## Task 6: The A1 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** Implementation (A1 candidates; Sites the sweep already reports, A1 row; Briefs, A1); API (A1 ids); Decisions 1 and 2
@@ -253,21 +253,21 @@ spec gives; and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A1`, on a fixture `pkg` defining `ProbeError(Exception)`: an `open(...)` call is a candidate with id `<path>::<qualname>::call:open#1`, with its enclosing `try`, `envelopes` and `domain_errors` `['ProbeError']`; a call to a name in `FILESYSTEM_TOUCHING_CALLS`, `subprocess.run`, `torch.load`, `pandas.read_csv`, `df.to_parquet` and `requests.get` is each one; `conn.execute` is one in a module importing `sqlite3` and not in one that does not; no call in a package without a domain error is listed; no call in `test_probe.py`, `probe_test.py`, `conftest.py` or under `tests/` is listed; a call on a `filesystem-envelope-gap`, `filesystem-op-without-envelope` or `translator-envelope-gap` hit is dropped, whether the hit is on the call's line or on the first handler of its enclosing `try`; a call in a helper `is_private` marks private lists `callers` with each resolved call site and its enclosing envelope (or null); adding a caller changes the helper's hash; an edit in a caller not listed does not. Run them and see them fail
-- [ ] Implement the lister with `FILESYSTEM_TOUCHING_CALLS`, `translator_envelopes`, `handler_translates`, `callable_short_name`, `package_class_parents`, `class_lineage`, `is_private` and the shared call resolver the repeatable-phase-b list put in `core.py`; drop through `capture_hits` on the three owning rules
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A1.md` as Task 4's brief, with the A1 question verbatim from `SKILL.md`, the A1 thresholds from the spec (including decision 2: a private or nested helper is covered when every resolved caller calls it inside a translating envelope), and `**Brief version:** 1`
-- [ ] Register `A1` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A1`, on a fixture `pkg` defining `ProbeError(Exception)`: an `open(...)` call is a candidate with id `<path>::<qualname>::call:open#1`, with its enclosing `try`, `envelopes` and `domain_errors` `['ProbeError']`; a call to a name in `FILESYSTEM_TOUCHING_CALLS`, `subprocess.run`, `torch.load`, `pandas.read_csv`, `df.to_parquet` and `requests.get` is each one; `conn.execute` is one in a module importing `sqlite3` and not in one that does not; no call in a package without a domain error is listed; no call in `test_probe.py`, `probe_test.py`, `conftest.py` or under `tests/` is listed; a call on a `filesystem-envelope-gap`, `filesystem-op-without-envelope` or `translator-envelope-gap` hit is dropped, whether the hit is on the call's line or on the first handler of its enclosing `try`; a call in a helper `is_private` marks private lists `callers` with each resolved call site and its enclosing envelope (or null); adding a caller changes the helper's hash; an edit in a caller not listed does not. Run them and see them fail
+- [x] Implement the lister with `FILESYSTEM_TOUCHING_CALLS`, `translator_envelopes`, `handler_translates`, `callable_short_name`, `package_class_parents`, `class_lineage`, `is_private` and the shared call resolver the repeatable-phase-b list put in `core.py`; drop through `capture_hits` on the three owning rules
+- [x] Write `claude/skills/auditme/phaseb/briefs/A1.md` as Task 4's brief, with the A1 question verbatim from `SKILL.md`, the A1 thresholds from the spec (including decision 2: a private or nested helper is covered when every resolved caller calls it inside a translating envelope), and `**Brief version:** 1`
+- [x] Register `A1` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A1`
-- [ ] Private means `is_private` and nothing else (decision 1, "what is private"); the lister defines no underscore test of its own
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A1` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A1`
+- [x] Private means `is_private` and nothing else (decision 1, "what is private"); the lister defines no underscore test of its own
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A1` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
