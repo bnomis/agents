@@ -105,7 +105,7 @@ place to register a lister and its brief.
 
 ## Task 3: The A4 lister and the content hash
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A4 candidates; Content hash); Decisions D2
@@ -118,19 +118,19 @@ source.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_a4_candidates.py`, on a fixture project with `src/pkg/`: a function with a `Raises:` section is a candidate with id `src/pkg/mod.py::name` and its lines; a method's id is `path::Class.method`; a function without one is not; each D2 stub shape (`...`, `pass`, a docstring alone, `raise NotImplementedError`) is not; a callee two calls deep appears in `callees` at depth 3 and not at depth 1; a `Probe.load()` call resolves into `callees`; a call on a local instance appears in `unresolved` with its `path:line` and source text; editing a callee's body changes the caller's hash, and editing an unrelated function does not; candidates come back in the same order and with the same hashes on a second call. Run them and see them fail
-- [ ] Implement the lister in `phaseb/candidates.py`, using Task 1's resolver with `class_methods=True` and the roots `audit.py` uses (`_audit_roots` and `_extra_roots` in `claude/skills/auditme/checks/auditme/core.py`, rather than repeating their logic)
-- [ ] Register it as `A4` with the brief path `claude/skills/auditme/phaseb/briefs/A4.md` (the file is written in Task 7; the lister does not read it)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_a4_candidates.py`, on a fixture project with `src/pkg/`: a function with a `Raises:` section is a candidate with id `src/pkg/mod.py::name` and its lines; a method's id is `path::Class.method`; a function without one is not; each D2 stub shape (`...`, `pass`, a docstring alone, `raise NotImplementedError`) is not; a callee two calls deep appears in `callees` at depth 3 and not at depth 1; a `Probe.load()` call resolves into `callees`; a call on a local instance appears in `unresolved` with its `path:line` and source text; editing a callee's body changes the caller's hash, and editing an unrelated function does not; candidates come back in the same order and with the same hashes on a second call. Run them and see them fail
+- [x] Implement the lister in `phaseb/candidates.py`, using Task 1's resolver with `class_methods=True` and the roots `audit.py` uses (`_audit_roots` and `_extra_roots` in `claude/skills/auditme/checks/auditme/core.py`, rather than repeating their logic)
+- [x] Register it as `A4` with the brief path `claude/skills/auditme/phaseb/briefs/A4.md` (the file is written in Task 7; the lister does not read it)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] The hash is computed exactly as the spec's Content hash section says: the candidate's source, then each listed callee's source in id order, NUL-separated
+- [x] The new tests pass
+- [x] The hash is computed exactly as the spec's Content hash section says: the candidate's source, then each listed callee's source in id order, NUL-separated
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
