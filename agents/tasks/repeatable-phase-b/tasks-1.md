@@ -175,7 +175,7 @@ while the findings are unchanged, and record a dismissal.
 
 ## Task 5: Planning batches and checking a run
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`plan_batches`, `check_run`); Error handling (retries, not judged)
@@ -186,18 +186,18 @@ run's output batch by batch, reporting each problem and the batches to retry.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: a candidate with a current verdict (same hash and brief version) is not planned; one with no verdict, a changed hash or an older brief version is; `rejudge=True` plans every candidate; batches keep id order and hold `size` candidates except the last; the written `plan.json` holds the question, brief path, brief version and each batch's ids; `check_run` reports a batch with no output file, an unparseable line, a missing id, a duplicate id and an unexpected id, each against its batch, lists exactly those batches to retry, and reports nothing for a complete run; `check_run` on a directory without `plan.json` raises `PhaseBError`. Run them and see them fail
-- [ ] Implement `plan_batches`, a writer for the batch files and `plan.json`, `check_run` and its `RunCheck` result, and a reader that turns a checked run's output into `Verdict` objects stamped with each candidate's hash, the plan's brief version and today's date
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: a candidate with a current verdict (same hash and brief version) is not planned; one with no verdict, a changed hash or an older brief version is; `rejudge=True` plans every candidate; batches keep id order and hold `size` candidates except the last; the written `plan.json` holds the question, brief path, brief version and each batch's ids; `check_run` reports a batch with no output file, an unparseable line, a missing id, a duplicate id and an unexpected id, each against its batch, lists exactly those batches to retry, and reports nothing for a complete run; `check_run` on a directory without `plan.json` raises `PhaseBError`. Run them and see them fail
+- [x] Implement `plan_batches`, a writer for the batch files and `plan.json`, `check_run` and its `RunCheck` result, and a reader that turns a checked run's output into `Verdict` objects stamped with each candidate's hash, the plan's brief version and today's date
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `check_run` raises nothing for a reviewer's malformed output; it reports it
+- [x] The new tests pass
+- [x] `check_run` raises nothing for a reviewer's malformed output; it reports it
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
