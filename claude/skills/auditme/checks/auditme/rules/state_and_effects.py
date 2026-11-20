@@ -1,20 +1,22 @@
 """Checks on mutation, side effects and hidden state."""
 
 import ast
+import collections.abc
 import contextlib
+import dataclasses
 import pathlib
 import re
-from collections import defaultdict
 
 from auditme.core import (
     _SIDE_EFFECT_CALL_NAMES,
     _accept_reason,
     _all_py_files,
-    _corpus_py_files,
     _emit,
     _relpath,
     _source_lines,
+    corpus_py_files,
     module_dotted,
+    reads_by_module_and_name,
 )
 
 _DISK_IO_NAMES = {
@@ -490,6 +492,44 @@ def check_mutable_store_without_copy(scope: pathlib.Path, src_root: pathlib.Path
                     )
 
 
+@dataclasses.dataclass(frozen=True)
+class IfChain:
+    """An `if/elif/...` chain whose every test names the same subject."""
+
+    subject: str
+    tests: list[ast.expr]
+    orelse: list[ast.stmt] | None
+
+
+def if_chain(node: ast.If, subject_of: collections.abc.Callable[[ast.expr], str | None]) -> IfChain | None:
+    """Walk the `elif` chain starting at `node`.
+
+    Return None when a test has no subject (`subject_of` returns None) or two
+    tests name different subjects. `orelse` is the body of a final plain
+    `else`, or None when the chain has none."""
+    subject: str | None = None
+    tests: list[ast.expr] = []
+    orelse: list[ast.stmt] | None = None
+    cursor: ast.If | None = node
+    while cursor is not None:
+        name = subject_of(cursor.test)
+        if name is None or (subject is not None and name != subject):
+            return None
+        subject = name
+        tests.append(cursor.test)
+        rest = cursor.orelse
+        if not rest:
+            cursor = None
+        elif len(rest) == 1 and isinstance(rest[0], ast.If):
+            cursor = rest[0]
+        else:
+            orelse = rest
+            cursor = None
+    if subject is None:
+        return None
+    return IfChain(subject=subject, tests=tests, orelse=orelse)
+
+
 def check_assert_never_missing(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag `if/elif` chains that dispatch on string equality of a single
     variable and either (a) terminate without an `else` or (b) end with a
@@ -515,35 +555,12 @@ def check_assert_never_missing(scope: pathlib.Path, src_root: pathlib.Path) -> N
         for node in ast.walk(tree):
             if not isinstance(node, ast.If):
                 continue
-            # Walk the chain, collecting tested variable names
-            chain_var: str | None = None
-            chain_len = 0
-            cursor: ast.If | None = node
-            terminal_else: list[ast.stmt] | None = None
-            consistent = True
-            while cursor is not None:
-                test = cursor.test
-                var_name = _extract_string_eq_var(test)
-                if var_name is None:
-                    consistent = False
-                    break
-                if chain_var is None:
-                    chain_var = var_name
-                elif var_name != chain_var:
-                    consistent = False
-                    break
-                chain_len += 1
-                orelse = cursor.orelse
-                if not orelse:
-                    terminal_else = None
-                    cursor = None
-                elif len(orelse) == 1 and isinstance(orelse[0], ast.If):
-                    cursor = orelse[0]
-                else:
-                    terminal_else = orelse
-                    cursor = None
-            if not consistent or chain_var is None or chain_len < 3:
+            chain = if_chain(node, _extract_string_eq_var)
+            if chain is None or len(chain.tests) < 3:
                 continue
+            chain_var = chain.subject
+            chain_len = len(chain.tests)
+            terminal_else = chain.orelse
             # Already uses assert_never? OK.
             if terminal_else is not None:
                 has_assert_never = False
@@ -708,85 +725,6 @@ def mutable_value_shape(value: ast.expr) -> tuple[str, str] | None:
     return None
 
 
-def _dotted_read(node: ast.Attribute) -> tuple[str, str] | None:
-    """Resolve an attribute chain to the `(module, name)` it reads, or None.
-
-    Two rooted forms count. The ordinary one is a chain of attributes on a
-    name - `pkg.evaluation.primary.METRICS_BY_HEAD` reads `METRICS_BY_HEAD`
-    from `pkg.evaluation.primary`. The second is the `sys.modules`
-    indirection - `sys.modules['pkg.evaluation.primary'].METRICS_BY_HEAD` -
-    which is the documented idiom for reaching a module without importing it,
-    used to break a package-initialisation ordering cycle. It reads exactly
-    what the dotted form reads, so a scan that resolved only the dotted form
-    reported a container with many such readers as private. Literal subscripts
-    only: a computed key names no module a scan can know.
-    """
-    parts: list[str] = []
-    cur: ast.AST = node
-    while isinstance(cur, ast.Attribute):
-        parts.append(cur.attr)
-        cur = cur.value
-    if isinstance(cur, ast.Name):
-        parts.append(cur.id)
-    elif isinstance(cur, ast.Subscript):
-        key = _sys_modules_key(cur)
-        if key is None:
-            return None
-        parts.append(key)
-    else:
-        return None
-    parts.reverse()
-    if len(parts) < 2:
-        return None
-    return '.'.join(parts[:-1]), parts[-1]
-
-
-def _sys_modules_key(node: ast.Subscript) -> str | None:
-    """`sys.modules['pkg.mod']` -> `'pkg.mod'`; any other subscript -> None."""
-    target = node.value
-    if not (isinstance(target, ast.Attribute) and target.attr == 'modules'):
-        return None
-    if not (isinstance(target.value, ast.Name) and target.value.id == 'sys'):
-        return None
-    key = node.slice
-    if isinstance(key, ast.Constant) and isinstance(key.value, str):
-        return key.value
-    return None
-
-
-def _reads_by_module_and_name(
-    scope: pathlib.Path,
-    src_root: pathlib.Path,
-) -> dict[tuple[str, str], list[tuple[pathlib.Path, int]]]:
-    """Every `(module, name)` the corpus reads, mapped to where it reads it.
-
-    Both spellings count. `from <module> import NAME` is the one a project
-    that permits it writes; a project that mandates full import paths writes
-    every read dotted, as `<module>.NAME`, and a scan that saw only the first
-    would read a heavily-used export as private.
-
-    The corpus is every root the sweep reads, not the one being swept: a
-    reader in a sibling package, or in a script under `bin/`, is a reader.
-    """
-    reads: dict[tuple[str, str], list[tuple[pathlib.Path, int]]] = defaultdict(list)
-    for path in _corpus_py_files(scope, src_root):
-        try:
-            tree = ast.parse(path.read_text(encoding='utf-8'))
-        except SyntaxError, UnicodeDecodeError:
-            continue
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module is None:
-                    continue
-                for alias in node.names:
-                    reads[(node.module, alias.name)].append((path, node.lineno))
-            elif isinstance(node, ast.Attribute):
-                read = _dotted_read(node)
-                if read is not None:
-                    reads[read].append((path, node.lineno))
-    return reads
-
-
 def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.Path) -> None:
     """Flag module-level mutable containers that are read by name from
     another module in the same corpus. Externally-read globals should
@@ -800,7 +738,7 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
         `tuple`.
       - `NAME` is read from another file, as `from <this-module> import NAME`,
         as `<this-module>.NAME`, or as
-        `sys.modules['<this-module>'].NAME`; see `_dotted_read`.
+        `sys.modules['<this-module>'].NAME`; see `dotted_read`.
 
     Locked enumeration (per SKILL.md A20):
       dict -> must be `types.MappingProxyType(...)`.
@@ -816,7 +754,7 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
 
     The reader scan covers every root the sweep reads - every package under
     `src/` and every extra root such as `bin/` - not just the root being
-    swept; see `_corpus_py_files`.
+    swept; see `corpus_py_files`.
 
     A wrapped value is this check's non-goal and
     `check_mutable_members_in_immutable_wrapper`'s subject: the wrapper is
@@ -850,8 +788,8 @@ def check_mutable_module_level_exported(scope: pathlib.Path, src_root: pathlib.P
         return
 
     # Second pass: for each candidate, check whether ANY other file reads that
-    # name. See `_reads_by_module_and_name` for the forms a read is written in.
-    imports_of = _reads_by_module_and_name(scope, src_root)
+    # name. See `reads_by_module_and_name` for the forms a read is written in.
+    imports_of = reads_by_module_and_name(scope, src_root)
     for path, assign_node, value, name in candidates:
         module = module_name_of[path]
         importers = imports_of.get((module, name), [])
@@ -936,7 +874,7 @@ def check_mutable_members_in_immutable_wrapper(scope: pathlib.Path, src_root: pa
     if not candidates:
         return
 
-    imports_of = _reads_by_module_and_name(scope, src_root)
+    imports_of = reads_by_module_and_name(scope, src_root)
     for path, assign_node, name, wrapper, hazards in candidates:
         readers = imports_of.get((module_name_of[path], name), [])
         if not [(p, ln) for p, ln in readers if p != path]:
@@ -1048,7 +986,7 @@ def _dataclass_frozen_by_name(scope: pathlib.Path, src_root: pathlib.Path) -> di
     on the strength of a same-named class somewhere else in the tree.
     """
     frozen_by_name: dict[str, bool] = {}
-    for path in _corpus_py_files(scope, src_root):
+    for path in corpus_py_files(scope, src_root):
         try:
             tree = ast.parse(path.read_text(encoding='utf-8'))
         except SyntaxError, UnicodeDecodeError:

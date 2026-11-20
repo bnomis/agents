@@ -1,7 +1,7 @@
 # Listed Phase B architecture questions
 
 **Version:** 1.2
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-11-20
 
 Puts the auditme Phase B questions A11 (exhaustion via `assert_never`), A19

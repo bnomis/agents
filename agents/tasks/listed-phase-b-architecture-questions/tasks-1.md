@@ -46,7 +46,7 @@ run from the repository root. Tests use neutral fixture names (`pkg`,
 
 ## Task 1: Prerequisites, then hoist `if_chain` and `is_broad_handler`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Prerequisites; API (`if_chain`, `IfChain`, `is_broad_handler`); Implementation (Hoists)
@@ -59,23 +59,23 @@ public `is_broad_handler`, without changing either rule's output.
 
 **Subtasks:**
 
-- [ ] Prerequisite check, before any edit: `grep -n '^\*\*Status:\*\*' agents/specs/repeatable-phase-b/spec.md agents/specs/listed-phase-b-documentation-questions/spec.md agents/specs/listed-phase-b-test-questions/spec.md` prints `implemented` for all three; `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0; and `grep -nw 'def is_private' claude/skills/auditme/checks/auditme/core.py` prints one line. If any fails, stop as `blocked` and name which
-- [ ] Starting-point check: `grep -rnwE 'capture_hits|if_chain|IfChain|is_broad_handler|translator_envelopes|handler_translates|callable_short_name|FILESYSTEM_TOUCHING_CALLS|corpus_py_files|dotted_read|sys_modules_key|reads_by_module_and_name' claude/skills/auditme/checks` prints nothing, and `claude/skills/auditme/checks/auditme/phaseb/architecture.py` does not exist; if either fails, stop as `blocked` and name what it found (the underscored names do not match a whole-word search, so the existing private helpers do not fire it)
-- [ ] Tests first in `claude/skills/auditme/tests/test_state_and_effects.py`, under a new `# if_chain` heading, on `ast.parse` trees: a three-arm `if/elif/elif` on one name returns its subject, its three tests and `orelse` None; one ending in `else` returns that body as `orelse`; a chain whose second test names another subject returns None; a test the `subject_of` callable rejects returns None. Run them and see them fail
-- [ ] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# is_broad_handler` heading: true for a bare `except:`, `except Exception`, `except BaseException`, and a tuple holding either; false for `except ValueError` and a tuple of narrow types. Run them and see them fail
-- [ ] Add the frozen `IfChain` dataclass (`subject: str`, `tests: list[ast.expr]`, `orelse: list[ast.stmt] | None`) and `if_chain` to `claude/skills/auditme/checks/auditme/rules/state_and_effects.py`, and have `check_assert_never_missing` call it with `_extract_string_eq_var`, keeping its walk over every `If` node, its three-arm minimum and its `assert_never` test
-- [ ] Add `is_broad_handler` to `claude/skills/auditme/checks/auditme/rules/error_handling.py` and replace the handler-type test in `check_silent_broad_except` and `check_broad_except_wrong_level` with it
+- [x] Prerequisite check, before any edit: `grep -n '^\*\*Status:\*\*' agents/specs/repeatable-phase-b/spec.md agents/specs/listed-phase-b-documentation-questions/spec.md agents/specs/listed-phase-b-test-questions/spec.md` prints `implemented` for all three; `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A4` exits 0; and `grep -nw 'def is_private' claude/skills/auditme/checks/auditme/core.py` prints one line. If any fails, stop as `blocked` and name which
+- [x] Starting-point check: `grep -rnwE 'capture_hits|if_chain|IfChain|is_broad_handler|translator_envelopes|handler_translates|callable_short_name|FILESYSTEM_TOUCHING_CALLS|corpus_py_files|dotted_read|sys_modules_key|reads_by_module_and_name' claude/skills/auditme/checks` prints nothing, and `claude/skills/auditme/checks/auditme/phaseb/architecture.py` does not exist; if either fails, stop as `blocked` and name what it found (the underscored names do not match a whole-word search, so the existing private helpers do not fire it)
+- [x] Tests first in `claude/skills/auditme/tests/test_state_and_effects.py`, under a new `# if_chain` heading, on `ast.parse` trees: a three-arm `if/elif/elif` on one name returns its subject, its three tests and `orelse` None; one ending in `else` returns that body as `orelse`; a chain whose second test names another subject returns None; a test the `subject_of` callable rejects returns None. Run them and see them fail
+- [x] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# is_broad_handler` heading: true for a bare `except:`, `except Exception`, `except BaseException`, and a tuple holding either; false for `except ValueError` and a tuple of narrow types. Run them and see them fail
+- [x] Add the frozen `IfChain` dataclass (`subject: str`, `tests: list[ast.expr]`, `orelse: list[ast.stmt] | None`) and `if_chain` to `claude/skills/auditme/checks/auditme/rules/state_and_effects.py`, and have `check_assert_never_missing` call it with `_extract_string_eq_var`, keeping its walk over every `If` node, its three-arm minimum and its `assert_never` test
+- [x] Add `is_broad_handler` to `claude/skills/auditme/checks/auditme/rules/error_handling.py` and replace the handler-type test in `check_silent_broad_except` and `check_broad_except_wrong_level` with it
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `test_state_and_effects.py` and `test_error_handling.py` passes unchanged
-- [ ] Each helper stays in its rule module: neither serves more than one rule module or reads the whole corpus, so the spec's Hoists rule keeps it out of `core.py`
+- [x] The new tests pass
+- [x] Every existing test in `test_state_and_effects.py` and `test_error_handling.py` passes unchanged
+- [x] Each helper stays in its rule module: neither serves more than one rule module or reads the whole corpus, so the spec's Hoists rule keeps it out of `core.py`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -87,7 +87,7 @@ public `is_broad_handler`, without changing either rule's output.
 
 ## Task 2: Public envelope helpers and the A20 read index in `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Hoists)
@@ -101,20 +101,20 @@ listers can import them. A rename and a move only: no behaviour changes.
 
 **Subtasks:**
 
-- [ ] Rename the four `error_handling.py` names and every use of them: `grep -rnE '_FILESYSTEM_TOUCHING_CALLS|_translator_envelopes|_handler_translates|_callable_short_name' claude tests` prints nothing afterwards
-- [ ] Move the four read-index functions to `claude/skills/auditme/checks/auditme/core.py` beside `_audit_roots` (the documentation-questions list already moved `_corpus_py_files` there and imports it back into `rules/state_and_effects.py`: rename it in place and drop that re-import rather than moving it again), as `corpus_py_files`, `dotted_read`, `sys_modules_key` and `reads_by_module_and_name`; have the A20 rules in `rules/state_and_effects.py` (`check_mutable_module_level_exported` and `check_mutable_members_in_immutable_wrapper`, or whichever call the index) and `rules/project_hygiene.py` (which imports `_corpus_py_files` from `state_and_effects`) import them from `core.py`
-- [ ] Update the docstring in `core.py` that names `_corpus_py_files`
-- [ ] `grep -rnE '_corpus_py_files|_dotted_read|_sys_modules_key|_reads_by_module_and_name' claude tests` prints nothing
+- [x] Rename the four `error_handling.py` names and every use of them: `grep -rnE '_FILESYSTEM_TOUCHING_CALLS|_translator_envelopes|_handler_translates|_callable_short_name' claude tests` prints nothing afterwards
+- [x] Move the four read-index functions to `claude/skills/auditme/checks/auditme/core.py` beside `_audit_roots` (the documentation-questions list already moved `_corpus_py_files` there and imports it back into `rules/state_and_effects.py`: rename it in place and drop that re-import rather than moving it again), as `corpus_py_files`, `dotted_read`, `sys_modules_key` and `reads_by_module_and_name`; have the A20 rules in `rules/state_and_effects.py` (`check_mutable_module_level_exported` and `check_mutable_members_in_immutable_wrapper`, or whichever call the index) and `rules/project_hygiene.py` (which imports `_corpus_py_files` from `state_and_effects`) import them from `core.py`
+- [x] Update the docstring in `core.py` that names `_corpus_py_files`
+- [x] `grep -rnE '_corpus_py_files|_dotted_read|_sys_modules_key|_reads_by_module_and_name' claude tests` prints nothing
 
 **Acceptance Criteria:**
 
-- [ ] Every existing test in `test_core.py`, `test_state_and_effects.py`, `test_error_handling.py` and `test_project_hygiene.py` passes unchanged
-- [ ] No moved or renamed name is defined in two places
+- [x] Every existing test in `test_core.py`, `test_state_and_effects.py`, `test_error_handling.py` and `test_project_hygiene.py` passes unchanged
+- [x] No moved or renamed name is defined in two places
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_project_hygiene.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/test_state_and_effects.py claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_project_hygiene.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -125,7 +125,7 @@ listers can import them. A rename and a move only: no behaviour changes.
 
 ## Task 3: `capture_hits` and the `architecture.py` skeleton
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`capture_hits`, candidate ids); Error handling; Implementation (Sites the sweep already reports)
@@ -141,21 +141,21 @@ owning rule's hit.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# capture_hits` heading, on a fixture project with `src/pkg/`: one rule's hits come back as `(rule, path, line)` triples; an accepted hit is included; `_EMITTED` holds the same entries after the call as before it; nothing reaches stdout; a check that raises gives `PhaseBError` whose message names the check. Run them and see them fail
-- [ ] Implement `capture_hits` in `claude/skills/auditme/checks/auditme/phaseb/architecture.py` with the signature and docstring in the spec's API, generalising the capture in the `run_check` fixture in `claude/skills/auditme/tests/conftest.py`; leave that fixture as it is
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# shared` heading: a file under an audit root that does not parse raises `PhaseBError` naming it; the site counter numbers two sites in one qualname `#1` and `#2` in order of appearance, and a site added in another function leaves them unchanged; module-level code has the qualname `<module>`. Run them and see them fail
-- [ ] Create `phaseb/architecture.py` with those helpers, and import it wherever the earlier lists import their lister modules so its registrations run (follow `phaseb/__init__.py` as the earlier lists left it)
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# capture_hits` heading, on a fixture project with `src/pkg/`: one rule's hits come back as `(rule, path, line)` triples; an accepted hit is included; `_EMITTED` holds the same entries after the call as before it; nothing reaches stdout; a check that raises gives `PhaseBError` whose message names the check. Run them and see them fail
+- [x] Implement `capture_hits` in `claude/skills/auditme/checks/auditme/phaseb/architecture.py` with the signature and docstring in the spec's API, generalising the capture in the `run_check` fixture in `claude/skills/auditme/tests/conftest.py`; leave that fixture as it is
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_architecture_candidates.py`, under a `# shared` heading: a file under an audit root that does not parse raises `PhaseBError` naming it; the site counter numbers two sites in one qualname `#1` and `#2` in order of appearance, and a site added in another function leaves them unchanged; module-level code has the qualname `<module>`. Run them and see them fail
+- [x] Create `phaseb/architecture.py` with those helpers, and import it wherever the earlier lists import their lister modules so its registrations run (follow `phaseb/__init__.py` as the earlier lists left it)
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `capture_hits` returns accepted hits as well as unaccepted ones
-- [ ] No lister is registered yet, so `claude/skills/auditme/tests/phaseb/test_briefs.py` passes unchanged
+- [x] The new tests pass
+- [x] `capture_hits` returns accepted hits as well as unaccepted ones
+- [x] No lister is registered yet, so `claude/skills/auditme/tests/phaseb/test_briefs.py` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/test_core.py claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -167,7 +167,7 @@ owning rule's hit.
 
 ## Task 4: The A11 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A11 candidates; Sites the sweep already reports, A11 row; Briefs, A11); API (A11 ids)
@@ -180,20 +180,20 @@ spec gives, and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A11`, on a fixture `pkg` with a `Mode` enum and a `Literal` alias: a chain on `mode == Mode.FAST` / `Mode.SLOW` is a candidate with id `<path>::<qualname>::if:mode#1`; a chain using `is`, `in` and a tuple of constants is one; a single `if` with no `else` is not; a chain head that is the sole `orelse` of another `if` is not listed separately; a chain whose tests name two subjects is not; an `if flag:` / `else` where `flag = mode == 'a'` in the same function is one; a `match` is one with id `::match:<subject>#1`; `annotation` and `type_source` are filled from a parameter annotation naming `Mode` and null for an unannotated subject; a three-arm string chain the `assert-never-missing` rule flags is dropped, and so is one whose hit carries an accept comment; the id survives an unrelated edit above the site; an edit inside the chain changes the hash and one outside does not. Run them and see them fail
-- [ ] Implement the lister in `phaseb/architecture.py` with `if_chain` and a subject test that accepts a name or dotted attribute compared by `==`, `is` or `in` with string constants, attribute constants or tuples of them; anchor on the chain's first `if` and drop through `capture_hits` with `check_assert_never_missing`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A11.md`: the A11 question verbatim from `SKILL.md`, the input format, the output (one JSON line per candidate with `id`, `findings`, `reason`), the A11 thresholds from the spec's Briefs section, the rule that an unsettled threshold is reported and never decided, the rule never to list environment variables (`env`, `printenv`, `set`) or print an env file, and `**Brief version:** 1`
-- [ ] Register `A11` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A11`, on a fixture `pkg` with a `Mode` enum and a `Literal` alias: a chain on `mode == Mode.FAST` / `Mode.SLOW` is a candidate with id `<path>::<qualname>::if:mode#1`; a chain using `is`, `in` and a tuple of constants is one; a single `if` with no `else` is not; a chain head that is the sole `orelse` of another `if` is not listed separately; a chain whose tests name two subjects is not; an `if flag:` / `else` where `flag = mode == 'a'` in the same function is one; a `match` is one with id `::match:<subject>#1`; `annotation` and `type_source` are filled from a parameter annotation naming `Mode` and null for an unannotated subject; a three-arm string chain the `assert-never-missing` rule flags is dropped, and so is one whose hit carries an accept comment; the id survives an unrelated edit above the site; an edit inside the chain changes the hash and one outside does not. Run them and see them fail
+- [x] Implement the lister in `phaseb/architecture.py` with `if_chain` and a subject test that accepts a name or dotted attribute compared by `==`, `is` or `in` with string constants, attribute constants or tuples of them; anchor on the chain's first `if` and drop through `capture_hits` with `check_assert_never_missing`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A11.md`: the A11 question verbatim from `SKILL.md`, the input format, the output (one JSON line per candidate with `id`, `findings`, `reason`), the A11 thresholds from the spec's Briefs section, the rule that an unsettled threshold is reported and never decided, the rule never to list environment variables (`env`, `printenv`, `set`) or print an env file, and `**Brief version:** 1`
+- [x] Register `A11` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `claude/skills/auditme/tests/phaseb/test_briefs.py` passes for `A11`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A11` exits 0
+- [x] The new tests pass, and `claude/skills/auditme/tests/phaseb/test_briefs.py` passes for `A11`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A11` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_state_and_effects.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -204,7 +204,7 @@ spec gives, and the version-1 brief.
 
 ## Task 5: The A19 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A19 candidates; Sites the sweep already reports, A19 row; Briefs, A19); API (A19 ids)
@@ -216,20 +216,20 @@ version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A19`: an `except Exception` that logs at `warning` and returns a default is a candidate with id `<path>::<qualname>::except#1`, with `log_calls` holding `warning: <text>`; a bare `except:` is one; an `except ValueError` that calls `logger.exception(` is one, and so are `log`, `_logger`, `LOGGER`, `logging`, `loguru.logger` and `self.logger`; an `except ValueError` that logs at `error` is not; a handler on a `silent-broad-except`, `broad-except-wrong-level` or `logger-exception-graceful-degradation` hit is dropped, including a hit on the function's last `return` when the handler falls through, accepted or not; at module level the hash is the `try` statement's source; an edit in the enclosing function changes the hash and one in another function does not. Run them and see them fail
-- [ ] Implement the lister with `is_broad_handler` and `capture_hits` on the three owning rules, anchoring on the handler's lines and, for a handler that falls through, the function's last `return`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A19.md` as Task 4's brief, with the A19 question verbatim from `SKILL.md` and the A19 thresholds from the spec, and `**Brief version:** 1`
-- [ ] Register `A19` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A19`: an `except Exception` that logs at `warning` and returns a default is a candidate with id `<path>::<qualname>::except#1`, with `log_calls` holding `warning: <text>`; a bare `except:` is one; an `except ValueError` that calls `logger.exception(` is one, and so are `log`, `_logger`, `LOGGER`, `logging`, `loguru.logger` and `self.logger`; an `except ValueError` that logs at `error` is not; a handler on a `silent-broad-except`, `broad-except-wrong-level` or `logger-exception-graceful-degradation` hit is dropped, including a hit on the function's last `return` when the handler falls through, accepted or not; at module level the hash is the `try` statement's source; an edit in the enclosing function changes the hash and one in another function does not. Run them and see them fail
+- [x] Implement the lister with `is_broad_handler` and `capture_hits` on the three owning rules, anchoring on the handler's lines and, for a handler that falls through, the function's last `return`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A19.md` as Task 4's brief, with the A19 question verbatim from `SKILL.md` and the A19 thresholds from the spec, and `**Brief version:** 1`
+- [x] Register `A19` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A19`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A19` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A19`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A19` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -240,7 +240,7 @@ version-1 brief.
 
 ## Task 6: The A1 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** Implementation (A1 candidates; Sites the sweep already reports, A1 row; Briefs, A1); API (A1 ids); Decisions 1 and 2
@@ -253,21 +253,21 @@ spec gives; and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A1`, on a fixture `pkg` defining `ProbeError(Exception)`: an `open(...)` call is a candidate with id `<path>::<qualname>::call:open#1`, with its enclosing `try`, `envelopes` and `domain_errors` `['ProbeError']`; a call to a name in `FILESYSTEM_TOUCHING_CALLS`, `subprocess.run`, `torch.load`, `pandas.read_csv`, `df.to_parquet` and `requests.get` is each one; `conn.execute` is one in a module importing `sqlite3` and not in one that does not; no call in a package without a domain error is listed; no call in `test_probe.py`, `probe_test.py`, `conftest.py` or under `tests/` is listed; a call on a `filesystem-envelope-gap`, `filesystem-op-without-envelope` or `translator-envelope-gap` hit is dropped, whether the hit is on the call's line or on the first handler of its enclosing `try`; a call in a helper `is_private` marks private lists `callers` with each resolved call site and its enclosing envelope (or null); adding a caller changes the helper's hash; an edit in a caller not listed does not. Run them and see them fail
-- [ ] Implement the lister with `FILESYSTEM_TOUCHING_CALLS`, `translator_envelopes`, `handler_translates`, `callable_short_name`, `package_class_parents`, `class_lineage`, `is_private` and the shared call resolver the repeatable-phase-b list put in `core.py`; drop through `capture_hits` on the three owning rules
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A1.md` as Task 4's brief, with the A1 question verbatim from `SKILL.md`, the A1 thresholds from the spec (including decision 2: a private or nested helper is covered when every resolved caller calls it inside a translating envelope), and `**Brief version:** 1`
-- [ ] Register `A1` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A1`, on a fixture `pkg` defining `ProbeError(Exception)`: an `open(...)` call is a candidate with id `<path>::<qualname>::call:open#1`, with its enclosing `try`, `envelopes` and `domain_errors` `['ProbeError']`; a call to a name in `FILESYSTEM_TOUCHING_CALLS`, `subprocess.run`, `torch.load`, `pandas.read_csv`, `df.to_parquet` and `requests.get` is each one; `conn.execute` is one in a module importing `sqlite3` and not in one that does not; no call in a package without a domain error is listed; no call in `test_probe.py`, `probe_test.py`, `conftest.py` or under `tests/` is listed; a call on a `filesystem-envelope-gap`, `filesystem-op-without-envelope` or `translator-envelope-gap` hit is dropped, whether the hit is on the call's line or on the first handler of its enclosing `try`; a call in a helper `is_private` marks private lists `callers` with each resolved call site and its enclosing envelope (or null); adding a caller changes the helper's hash; an edit in a caller not listed does not. Run them and see them fail
+- [x] Implement the lister with `FILESYSTEM_TOUCHING_CALLS`, `translator_envelopes`, `handler_translates`, `callable_short_name`, `package_class_parents`, `class_lineage`, `is_private` and the shared call resolver the repeatable-phase-b list put in `core.py`; drop through `capture_hits` on the three owning rules
+- [x] Write `claude/skills/auditme/phaseb/briefs/A1.md` as Task 4's brief, with the A1 question verbatim from `SKILL.md`, the A1 thresholds from the spec (including decision 2: a private or nested helper is covered when every resolved caller calls it inside a translating envelope), and `**Brief version:** 1`
+- [x] Register `A1` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A1`
-- [ ] Private means `is_private` and nothing else (decision 1, "what is private"); the lister defines no underscore test of its own
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A1` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A1`
+- [x] Private means `is_private` and nothing else (decision 1, "what is private"); the lister defines no underscore test of its own
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A1` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_error_handling.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -279,7 +279,7 @@ spec gives; and the version-1 brief.
 
 ## Task 7: The A17 lister and brief
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** Implementation (A17 candidates; Sites the sweep already reports, A17 row; Briefs, A17); API (A17 ids); Decisions 1 and 3
@@ -291,20 +291,20 @@ an empty one's reach-ins, the hash the spec gives, and the version-1 brief.
 
 **Subtasks:**
 
-- [ ] Tests first in `test_architecture_candidates.py`, under `# A17`: `src/pkg/__init__.py` with `__all__ = ['Probe']` is a candidate whose id is the path alone, with `consumers` listing a read of `Probe` from another package as `path: line text`; a read from `tests/` is left out of `consumers` and out of the hash; a `[project.scripts]` target in `pyproject.toml` is a consumer; an empty `__init__.py` lists `reach_ins` for each outside read of a submodule; an `__init__.py` with an `empty-init-while-siblings-export` hit on line 1 is dropped; a consumer line a `migration-shim-consumer` hit names is removed from `consumers`; moving a consumer's reading line leaves the hash unchanged; an edit to the `__init__.py` changes it. Run them and see them fail
-- [ ] Implement the lister with `is_dunder_all_assignment`, `reads_by_module_and_name` from `core.py`, `tomllib` for `pyproject.toml`, and `capture_hits` on `check_empty_init_with_exporting_siblings` and `check_migration_shim_consumers`
-- [ ] Write `claude/skills/auditme/phaseb/briefs/A17.md` as Task 4's brief, with the A17 question verbatim from `SKILL.md`, the A17 thresholds from the spec (a bypass to a submodule `is_private` marks private, decision 1; a test-tree read is not a consumer, decision 3), and `**Brief version:** 1`
-- [ ] Register `A17` with that brief path
+- [x] Tests first in `test_architecture_candidates.py`, under `# A17`: `src/pkg/__init__.py` with `__all__ = ['Probe']` is a candidate whose id is the path alone, with `consumers` listing a read of `Probe` from another package as `path: line text`; a read from `tests/` is left out of `consumers` and out of the hash; a `[project.scripts]` target in `pyproject.toml` is a consumer; an empty `__init__.py` lists `reach_ins` for each outside read of a submodule; an `__init__.py` with an `empty-init-while-siblings-export` hit on line 1 is dropped; a consumer line a `migration-shim-consumer` hit names is removed from `consumers`; moving a consumer's reading line leaves the hash unchanged; an edit to the `__init__.py` changes it. Run them and see them fail
+- [x] Implement the lister with `is_dunder_all_assignment`, `reads_by_module_and_name` from `core.py`, `tomllib` for `pyproject.toml`, and `capture_hits` on `check_empty_init_with_exporting_siblings` and `check_migration_shim_consumers`
+- [x] Write `claude/skills/auditme/phaseb/briefs/A17.md` as Task 4's brief, with the A17 question verbatim from `SKILL.md`, the A17 thresholds from the spec (a bypass to a submodule `is_private` marks private, decision 1; a test-tree read is not a consumer, decision 3), and `**Brief version:** 1`
+- [x] Register `A17` with that brief path
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass, and `test_briefs.py` passes for `A17`
-- [ ] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A17` exits 0
+- [x] The new tests pass, and `test_briefs.py` passes for `A17`
+- [x] `python3 claude/skills/auditme/checks/phaseb.py candidates . --question A17` exits 0
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb claude/skills/auditme/tests/test_imports_and_surfaces.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
@@ -315,7 +315,7 @@ an empty one's reach-ins, the hash the spec gives, and the version-1 brief.
 
 ## Task 8: `SKILL.md`: A11, A19, A1 and A17 are listed
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation (Skill changes); Settings
@@ -326,21 +326,21 @@ site a sweep rule for the same question reports is not judged in Phase B.
 
 **Subtasks:**
 
-- [ ] Add A11, A19, A1 and A17 to the listed questions where section 4 names them, in the layout the documentation-questions and test-questions lists left, and remove `(sampled)` from them wherever `SKILL.md` marks it
-- [ ] In section 4, say that a site a sweep rule for the same question reports, accepted or not, is not judged in Phase B, and is judged as new once the hit is fixed
-- [ ] Say that `--question` accepts the four and `--depth` applies to A4 only, where `SKILL.md` describes the options
-- [ ] Add `test_architecture_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
+- [x] Add A11, A19, A1 and A17 to the listed questions where section 4 names them, in the layout the documentation-questions and test-questions lists left, and remove `(sampled)` from them wherever `SKILL.md` marks it
+- [x] In section 4, say that a site a sweep rule for the same question reports, accepted or not, is not judged in Phase B, and is judged as new once the hit is fixed
+- [x] Say that `--question` accepts the four and `--depth` applies to A4 only, where `SKILL.md` describes the options
+- [x] Add `test_architecture_candidates.py` to `claude/skills/auditme/tests/README.md`'s description of the test tree
 
 **Acceptance Criteria:**
 
-- [ ] No Phase B question text in `SKILL.md` changes, so each brief still holds its question verbatim and `test_briefs.py` passes
-- [ ] Nothing in `SKILL.md` names a project
+- [x] No Phase B question text in `SKILL.md` changes, so each brief still holds its question verbatim and `test_briefs.py` passes
+- [x] Nothing in `SKILL.md` names a project
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
 
 **Notes:**
 
@@ -350,7 +350,7 @@ site a sweep rule for the same question reports is not judged in Phase B.
 
 ## Task 9: Whole-tree checks, deduplication, close the spec and the TODO item
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -362,25 +362,25 @@ run order's merge gate.
 
 **Subtasks:**
 
-- [ ] Hoist anything `phaseb/architecture.py` duplicates from `phaseb/candidates.py`, the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper it defines (the logger names, the client module names, the `.to_*` method names, the test-file predicate especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
-- [ ] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root for each of `A11`, `A19`, `A1` and `A17`, and check each exits 0 and each line it prints parses as JSON with the `id`, `hash` and `payload` keys
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-architecture-questions/spec.md`
-- [ ] Move the `TODO.md` item "Put the Phase B questions that find most onto the listed path" to the end of `DONE.md`: append its heading and body unchanged, then a line `Done: <YYYY-MM-DD> - specs agents/specs/listed-phase-b-documentation-questions/spec.md, agents/specs/listed-phase-b-test-questions/spec.md and agents/specs/listed-phase-b-architecture-questions/spec.md, task lists agents/tasks/listed-phase-b-documentation-questions/tasks-1.md, agents/tasks/listed-phase-b-test-questions/tasks-1.md and agents/tasks/listed-phase-b-architecture-questions/tasks-1.md` (names in backticks, as the other `Done:` lines have them); remove the item from `TODO.md` and touch no other `TODO.md` item
+- [x] Hoist anything `phaseb/architecture.py` duplicates from `phaseb/candidates.py`, the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper it defines (the logger names, the client module names, the `.to_*` method names, the test-file predicate especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
+- [x] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root for each of `A11`, `A19`, `A1` and `A17`, and check each exits 0 and each line it prints parses as JSON with the `id`, `hash` and `payload` keys
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-architecture-questions/spec.md`
+- [x] Move the `TODO.md` item "Put the Phase B questions that find most onto the listed path" to the end of `DONE.md`: append its heading and body unchanged, then a line `Done: <YYYY-MM-DD> - specs agents/specs/listed-phase-b-documentation-questions/spec.md, agents/specs/listed-phase-b-test-questions/spec.md and agents/specs/listed-phase-b-architecture-questions/spec.md, task lists agents/tasks/listed-phase-b-documentation-questions/tasks-1.md, agents/tasks/listed-phase-b-test-questions/tasks-1.md and agents/tasks/listed-phase-b-architecture-questions/tasks-1.md` (names in backticks, as the other `Done:` lines have them); remove the item from `TODO.md` and touch no other `TODO.md` item
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/architecture.py` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
-- [ ] The item is in `DONE.md` with its body unchanged and gone from `TODO.md`; every other `TODO.md` item is unchanged
+- [x] No literal collection or helper is defined both in `phaseb/architecture.py` and elsewhere under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
+- [x] The item is in `DONE.md` with its body unchanged and gone from `TODO.md`; every other `TODO.md` item is unchanged
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] `T=$(mktemp -d); git show "$(git log --diff-filter=A --format=%H -- agents/tasks/listed-phase-b-architecture-questions/tasks-1.md)":TODO.md > "$T/todo-before.md"; python3 ~/.claude/skills/todo-review/verify_bodies.py "$T/todo-before.md" TODO.md DONE.md` exits 0
-- [ ] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-architecture-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] `T=$(mktemp -d); git show "$(git log --diff-filter=A --format=%H -- agents/tasks/listed-phase-b-architecture-questions/tasks-1.md)":TODO.md > "$T/todo-before.md"; python3 ~/.claude/skills/todo-review/verify_bodies.py "$T/todo-before.md" TODO.md DONE.md` exits 0
+- [x] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-architecture-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
 
 **Notes:**
 
