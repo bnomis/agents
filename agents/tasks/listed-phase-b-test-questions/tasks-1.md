@@ -157,7 +157,7 @@ fixture it requests.
 
 ## Task 4: Caller routes, `callers` and `test_files`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Spec Reference:** API (`build_test_map` depth; T1 payload `callers`, `test_files`); Implementation (Finding the tests, caller route and `test_files`); Settings (`--depth`)
@@ -170,19 +170,19 @@ candidate's `callers` (package functions reaching it within `depth`) and its
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_testmap.py`: a test calling `run`, where `run` calls `load`, gives `load` a `caller` ref with `via` the id of `run`; a target three calls below the tested function is reached at depth 3 and not at depth 1; a function with both a direct test and a caller test keeps both refs; `callers` of `load` lists `run` with its `{id, path, start, end}` within depth and not beyond it; `test_files` is sorted and holds the mirrored test file (`src/pkg/mod.py` -> `src/tests/pkg/test_mod.py` where that layout exists), every test file importing the candidate's module and every test file importing a listed caller's module, and not a test file importing neither. Run them and see them fail
-- [ ] Implement the caller route over the package call graph the shared resolver gives (the A4 lister's `class_methods=True` use), following callees to `depth`
-- [ ] Implement the `callers` and `test_files` helpers in `testmap.py`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_testmap.py`: a test calling `run`, where `run` calls `load`, gives `load` a `caller` ref with `via` the id of `run`; a target three calls below the tested function is reached at depth 3 and not at depth 1; a function with both a direct test and a caller test keeps both refs; `callers` of `load` lists `run` with its `{id, path, start, end}` within depth and not beyond it; `test_files` is sorted and holds the mirrored test file (`src/pkg/mod.py` -> `src/tests/pkg/test_mod.py` where that layout exists), every test file importing the candidate's module and every test file importing a listed caller's module, and not a test file importing neither. Run them and see them fail
+- [x] Implement the caller route over the package call graph the shared resolver gives (the A4 lister's `class_methods=True` use), following callees to `depth`
+- [x] Implement the `callers` and `test_files` helpers in `testmap.py`
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] A cycle in the call graph terminates
+- [x] The new tests pass
+- [x] A cycle in the call graph terminates
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb -q -p no:cacheprovider` passes
 
 **Notes:**
 
