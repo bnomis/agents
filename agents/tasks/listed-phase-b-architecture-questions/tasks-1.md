@@ -350,7 +350,7 @@ site a sweep rule for the same question reports is not judged in Phase B.
 
 ## Task 9: Whole-tree checks, deduplication, close the spec and the TODO item
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole spec
@@ -362,25 +362,25 @@ run order's merge gate.
 
 **Subtasks:**
 
-- [ ] Hoist anything `phaseb/architecture.py` duplicates from `phaseb/candidates.py`, the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper it defines (the logger names, the client module names, the `.to_*` method names, the test-file predicate especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
-- [ ] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root for each of `A11`, `A19`, `A1` and `A17`, and check each exits 0 and each line it prints parses as JSON with the `id`, `hash` and `payload` keys
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-architecture-questions/spec.md`
-- [ ] Move the `TODO.md` item "Put the Phase B questions that find most onto the listed path" to the end of `DONE.md`: append its heading and body unchanged, then a line `Done: <YYYY-MM-DD> - specs agents/specs/listed-phase-b-documentation-questions/spec.md, agents/specs/listed-phase-b-test-questions/spec.md and agents/specs/listed-phase-b-architecture-questions/spec.md, task lists agents/tasks/listed-phase-b-documentation-questions/tasks-1.md, agents/tasks/listed-phase-b-test-questions/tasks-1.md and agents/tasks/listed-phase-b-architecture-questions/tasks-1.md` (names in backticks, as the other `Done:` lines have them); remove the item from `TODO.md` and touch no other `TODO.md` item
+- [x] Hoist anything `phaseb/architecture.py` duplicates from `phaseb/candidates.py`, the rule modules or `core.py` to a single owner: grep the tree for each literal collection, constant and one-line helper it defines (the logger names, the client module names, the `.to_*` method names, the test-file predicate especially), and import rather than copy. Choose the owner from the existing import graph; prefer a module the consumer already imports over adding a new edge
+- [x] Run `python3 claude/skills/auditme/checks/phaseb.py candidates . --question <Q>` from the repository root for each of `A11`, `A19`, `A1` and `A17`, and check each exits 0 and each line it prints parses as JSON with the `id`, `hash` and `payload` keys
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented` in `agents/specs/listed-phase-b-architecture-questions/spec.md`
+- [x] Move the `TODO.md` item "Put the Phase B questions that find most onto the listed path" to the end of `DONE.md`: append its heading and body unchanged, then a line `Done: <YYYY-MM-DD> - specs agents/specs/listed-phase-b-documentation-questions/spec.md, agents/specs/listed-phase-b-test-questions/spec.md and agents/specs/listed-phase-b-architecture-questions/spec.md, task lists agents/tasks/listed-phase-b-documentation-questions/tasks-1.md, agents/tasks/listed-phase-b-test-questions/tasks-1.md and agents/tasks/listed-phase-b-architecture-questions/tasks-1.md` (names in backticks, as the other `Done:` lines have them); remove the item from `TODO.md` and touch no other `TODO.md` item
 
 **Acceptance Criteria:**
 
-- [ ] No literal collection or helper is defined both in `phaseb/architecture.py` and elsewhere under `claude/skills/auditme/checks/`
-- [ ] The spec's status is `implemented`
-- [ ] The item is in `DONE.md` with its body unchanged and gone from `TODO.md`; every other `TODO.md` item is unchanged
+- [x] No literal collection or helper is defined both in `phaseb/architecture.py` and elsewhere under `claude/skills/auditme/checks/`
+- [x] The spec's status is `implemented`
+- [x] The item is in `DONE.md` with its body unchanged and gone from `TODO.md`; every other `TODO.md` item is unchanged
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] `T=$(mktemp -d); git show "$(git log --diff-filter=A --format=%H -- agents/tasks/listed-phase-b-architecture-questions/tasks-1.md)":TODO.md > "$T/todo-before.md"; python3 ~/.claude/skills/todo-review/verify_bodies.py "$T/todo-before.md" TODO.md DONE.md` exits 0
-- [ ] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-architecture-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] `T=$(mktemp -d); git show "$(git log --diff-filter=A --format=%H -- agents/tasks/listed-phase-b-architecture-questions/tasks-1.md)":TODO.md > "$T/todo-before.md"; python3 ~/.claude/skills/todo-review/verify_bodies.py "$T/todo-before.md" TODO.md DONE.md` exits 0
+- [x] The full test run is saved for the run order's merge gate, from the repository root of this worktree: `MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p'); LOG="$MAIN/logs/rro/listed-phase-b-architecture-questions/tasks-1/final-tests.log"; mkdir -p "$(dirname "$LOG")"; uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider 2>&1 | tee "$LOG"; [ "${PIPESTATUS[0]}" -eq 0 ] && echo 'all selected test directories passed' | tee -a "$LOG"`, and the log ends with `all selected test directories passed`
 
 **Notes:**
 
