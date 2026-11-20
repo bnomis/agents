@@ -83,7 +83,7 @@ output stays as it is.
 
 ## Task 2: `is_private` in `core.py`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`is_private`); Decisions 1; Implementation (Tests: `is_private`)
@@ -94,19 +94,19 @@ payload uses it here and the architecture-questions spec reuses it.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# is_private` heading, on fixture projects with `src/pkg/`: a function named in `src/pkg/__init__.py`'s `__all__` is not private; one left out of it is private, even with no leading underscore; one named in its module's own `__all__` is not private; a method's privacy follows its class's name (`Probe.load` is not private when `Probe` is named in an `__all__`); with no `__all__` in the package or the module, `pkg.mod.load` is not private and `pkg.mod._load`, `pkg._mod.load` and `pkg.mod.Probe._load` are; with an `__all__` that names it, `_load` is not private (the underscore counts only where no `__all__` exists); an annotated `__all__: list[str] = [...]` is read like a plain one. Run them and see them fail
-- [ ] Implement `is_private` in `claude/skills/auditme/checks/auditme/core.py` with the spec's signature and docstring, reading `__all__` through `is_dunder_all_assignment` (moved in Task 1) and locating the module's file with the same roots `_audit_roots` gives
-- [ ] Add `is_private` to `core.py`'s public names wherever the module lists them
+- [x] Tests first in `claude/skills/auditme/tests/test_core.py`, under a new `# is_private` heading, on fixture projects with `src/pkg/`: a function named in `src/pkg/__init__.py`'s `__all__` is not private; one left out of it is private, even with no leading underscore; one named in its module's own `__all__` is not private; a method's privacy follows its class's name (`Probe.load` is not private when `Probe` is named in an `__all__`); with no `__all__` in the package or the module, `pkg.mod.load` is not private and `pkg.mod._load`, `pkg._mod.load` and `pkg.mod.Probe._load` are; with an `__all__` that names it, `_load` is not private (the underscore counts only where no `__all__` exists); an annotated `__all__: list[str] = [...]` is read like a plain one. Run them and see them fail
+- [x] Implement `is_private` in `claude/skills/auditme/checks/auditme/core.py` with the spec's signature and docstring, reading `__all__` through `is_dunder_all_assignment` (moved in Task 1) and locating the module's file with the same roots `_audit_roots` gives
+- [x] Add `is_private` to `core.py`'s public names wherever the module lists them
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] `is_private` takes no leading underscore and needs nothing from `phaseb/` or a rule module
+- [x] The new tests pass
+- [x] `is_private` takes no leading underscore and needs nothing from `phaseb/` or a rule module
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_core.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
