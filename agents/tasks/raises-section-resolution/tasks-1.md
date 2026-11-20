@@ -80,7 +80,7 @@ repository root. Tests use neutral fixture names (`probe`, `Probe`,
 
 ## Task 2: Follow a callee with no `Raises:` section
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** large
 **Spec Reference:** API (`SECTIONLESS_DEPTH`, `escapes`); Implementation (Following a section-less callee; What is reported); Error handling; Testing (Wrapper, Handlers at every hop, Raise in the wrapper, Depth, Cycle, Kept narrowing, Extras only shrink, Accept marker); Decisions 1 and 2
@@ -93,7 +93,7 @@ shortest chain.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# --- raises-section-drift: section-less callees` heading, on the `probe` fixtures with `perform()` in `probe/inner.py` and `wrapper()` in `probe/wrap.py`:
+- [x] Tests first in `claude/skills/auditme/tests/test_error_handling.py`, under a new `# --- raises-section-drift: section-less callees` heading, on the `probe` fixtures with `perform()` in `probe/inner.py` and `wrapper()` in `probe/wrap.py`:
       - wrapper: section-less `wrapper()` calls `perform()`, which declares and raises `ProbeError`; a caller whose section omits `ProbeError` gets one hit, variant `... declared by probe.inner.perform via probe.wrap.wrapper`, `related` naming both files; a caller declaring `ProbeError`, or its base, gets none
       - handlers at every hop: no hit when the caller catches `ProbeError` around `wrapper()`, or `wrapper()` catches it around `perform()`; a hit when `wrapper()` catches and re-raises it
       - raise in the wrapper: `wrapper()` raising `ProbeError` itself gives `raised by probe.wrap.wrapper`
@@ -103,24 +103,24 @@ shortest chain.
       - extras only shrink: a subject declaring `ProbeError`, catching it from another call and reaching it through `wrapper()`, gets no "never reaches the caller" hit
       - accept marker: an accept marker for `raises-section-drift` on the caller's `def` line marks the new wrapper hit accepted
       Run them and see the tests that expect a hit (or, for the last two, the changed verdict) fail
-- [ ] Add the module constant `SECTIONLESS_DEPTH: typing.Final = 3` with the docstring the spec's API section gives
-- [ ] Add the inner `escapes(qualname, hop, chain)` beside `caught` and `is_domain`, walking `nested_call_sites(f)` as the spec's Implementation section says: uncaught domain raises escape with chain `(f,)`; only while `hop < SECTIONLESS_DEPTH`, a resolved call to a function not in `chain` and not `f` adds, minus `f`'s handlers at that site, a sectioned callee's declared domain errors not skipped by `unset_optional_guard` (chain `(f, callee)`) or a section-less callee's `escapes(g, hop + 1, (*chain, f))` prefixed by `f`; anything else adds nothing. No memoisation; iterate every set sorted
-- [ ] In the subject's call-site loop, keep a callee with a section as today (not followed), and for a section-less callee add `escapes(callee, 1, (subject,))` minus what the handlers around the call catch, keeping the chains in `reached`
-- [ ] Report one omission hit per name not covered, naming the shortest chain (ties broken by sorting the chain tuples): `raised here`, `declared by <q>`, `declared by <q> via <w1>, <w2>` or `raised by <w>`; fill `related` with the file of every function, outside the subject's file, on any chain by which a reported name reaches the subject (spec 1.2, "What is reported"), sorted and de-duplicated
-- [ ] Use the grown `reached` in the extra-declaration branch unchanged in logic, so a "never reaches" hit can only disappear
-- [ ] Run the existing tests; if any existing test's expected hits change, stop as `blocked` naming it
+- [x] Add the module constant `SECTIONLESS_DEPTH: typing.Final = 3` with the docstring the spec's API section gives
+- [x] Add the inner `escapes(qualname, hop, chain)` beside `caught` and `is_domain`, walking `nested_call_sites(f)` as the spec's Implementation section says: uncaught domain raises escape with chain `(f,)`; only while `hop < SECTIONLESS_DEPTH`, a resolved call to a function not in `chain` and not `f` adds, minus `f`'s handlers at that site, a sectioned callee's declared domain errors not skipped by `unset_optional_guard` (chain `(f, callee)`) or a section-less callee's `escapes(g, hop + 1, (*chain, f))` prefixed by `f`; anything else adds nothing. No memoisation; iterate every set sorted
+- [x] In the subject's call-site loop, keep a callee with a section as today (not followed), and for a section-less callee add `escapes(callee, 1, (subject,))` minus what the handlers around the call catch, keeping the chains in `reached`
+- [x] Report one omission hit per name not covered, naming the shortest chain (ties broken by sorting the chain tuples): `raised here`, `declared by <q>`, `declared by <q> via <w1>, <w2>` or `raised by <w>`; fill `related` with the file of every function, outside the subject's file, on any chain by which a reported name reaches the subject (spec 1.2, "What is reported"), sorted and de-duplicated
+- [x] Use the grown `reached` in the extra-declaration branch unchanged in logic, so a "never reaches" hit can only disappear
+- [x] Run the existing tests; if any existing test's expected hits change, stop as `blocked` naming it
 
 **Acceptance Criteria:**
 
-- [ ] The new tests pass
-- [ ] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
-- [ ] `escapes` enters no function already on its chain and follows no call at `hop == SECTIONLESS_DEPTH`, so no package shape can raise `RecursionError`
-- [ ] Two runs on the same fixture give identical output (sorted iteration)
+- [x] The new tests pass
+- [x] Every existing test in `claude/skills/auditme/tests/test_error_handling.py` passes unchanged
+- [x] `escapes` enters no function already on its chain and follows no call at `hop == SECTIONLESS_DEPTH`, so no package shape can raise `RecursionError`
+- [x] Two runs on the same fixture give identical output (sorted iteration)
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_get_container_default.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/test_error_handling.py claude/skills/auditme/tests/test_registry.py claude/skills/auditme/tests/test_get_container_default.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
