@@ -82,7 +82,7 @@ repeated hyphens collapsed): `"C++ Parser v2.0"` becomes `c-parser-v20`.
   code, or skip); commit.
 - **Writes:** `agents/specs/<slug>/spec.md`, `agents/specs/index.md`.
   Commits only the spec file, with a message such as
-  `specdev: add error handling section to <slug> spec`.
+  `docs(specs): add error handling to <SLUG> spec`.
 
 One spec covers one repository and is self-contained; cross-repository work
 is one spec per repository.
@@ -128,7 +128,7 @@ edits another repository.
   recommendations, favouring branching logic, error paths and edge cases.
 - **Then:** if there are recommendations, runs
   `/taskdev agents/test-plans/plan-N.md`.
-- **Stops for:** commit (`testplan: add plan-N`).
+- **Stops for:** commit (`docs(tests): add plan-N`).
 
 ## /todo-add {#todo-add}
 

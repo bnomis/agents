@@ -229,7 +229,7 @@ repository, and tests `log_kind` with two examples only.
 
 ## Task 6: Bring the skill reference in line with the skills
 
-**Status:** todo
+**Status:** done
 **Priority:** low
 **Complexity:** small
 **Source Reference:** finding "Skill reference drifts from three skills" (Doc5: `docs/reference/skills.md:9`, `:85`, `:131`)
@@ -240,20 +240,20 @@ skill file.
 
 **Subtasks:**
 
-- [ ] Add a `when_to_use` list to `claude/skills/paper-pdf-hunter/SKILL.md`'s frontmatter, in the shape the other skills use, with trigger phrases taken from its description
-- [ ] `docs/reference/skills.md:85`: give `/specdev`'s commit message as the skill does, `docs(specs): add error handling to <SLUG> spec`
-- [ ] `docs/reference/skills.md:131`: give `/testplan`'s as `docs(tests): add plan-N`
-- [ ] Search the page for any other commit message it quotes and compare each with its skill
+- [x] Add a `when_to_use` list to `claude/skills/paper-pdf-hunter/SKILL.md`'s frontmatter, in the shape the other skills use, with trigger phrases taken from its description
+- [x] `docs/reference/skills.md:85`: give `/specdev`'s commit message as the skill does, `docs(specs): add error handling to <SLUG> spec`
+- [x] `docs/reference/skills.md:131`: give `/testplan`'s as `docs(tests): add plan-N`
+- [x] Search the page for any other commit message it quotes and compare each with its skill
 
 **Acceptance Criteria:**
 
-- [ ] Every `claude/skills/*/SKILL.md` frontmatter has `when_to_use`
-- [ ] Each commit message `docs/reference/skills.md` quotes matches its skill's
+- [x] Every `claude/skills/*/SKILL.md` frontmatter has `when_to_use`
+- [x] Each commit message `docs/reference/skills.md` quotes matches its skill's
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --group docs mkdocs build --strict` exits 0
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --group docs mkdocs build --strict` exits 0
 
 **Notes:**
 
