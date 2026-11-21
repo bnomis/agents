@@ -4,11 +4,15 @@ import pathlib
 import subprocess
 import sys
 
+import hypothesis
+import hypothesis.strategies
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 import inventory  # noqa: E402
+
+PROBE_OPEN_LISTS = ['agents/tasks/probe/tasks-1.md: 1/2 done; open: todo']
 
 
 def run(repo: pathlib.Path, *args: str) -> None:
@@ -42,7 +46,7 @@ def repo(tmp_path: pathlib.Path) -> pathlib.Path:
 def test_finds_nested_repositories_and_skips_worktrees(tmp_path: pathlib.Path, repo: pathlib.Path) -> None:
     run(repo, 'worktree', 'add', '-b', 'side', str(repo / '.claude' / 'worktrees' / 'side'))
 
-    assert inventory.find_repositories(tmp_path, 2) == [repo]
+    assert inventory.scan_repositories(tmp_path, 2) == [repo]
 
 
 def test_branch_merged_by_ancestry_and_unmerged(repo: pathlib.Path) -> None:
@@ -51,8 +55,8 @@ def test_branch_merged_by_ancestry_and_unmerged(repo: pathlib.Path) -> None:
     commit(repo, 'x.txt', 'x\n')
     run(repo, 'checkout', 'main')
 
-    assert inventory.is_merged(repo, 'old', 'main')
-    assert not inventory.is_merged(repo, 'new', 'main')
+    assert inventory.branch_is_merged(repo, 'old', 'main')
+    assert not inventory.branch_is_merged(repo, 'new', 'main')
 
 
 def test_branch_merged_by_patch_after_cherry_pick(repo: pathlib.Path) -> None:
@@ -62,7 +66,7 @@ def test_branch_merged_by_patch_after_cherry_pick(repo: pathlib.Path) -> None:
     commit(repo, 'z.txt', 'z\n')
     run(repo, 'cherry-pick', 'picked')
 
-    assert inventory.is_merged(repo, 'picked', 'main')
+    assert inventory.branch_is_merged(repo, 'picked', 'main')
 
 
 def test_open_task_list_is_reported_and_superseded_one_is_not(repo: pathlib.Path) -> None:
@@ -71,7 +75,7 @@ def test_open_task_list_is_reported_and_superseded_one_is_not(repo: pathlib.Path
     (tasks / 'probe' / 'tasks-1.md').write_text('# Tasks\n\n## Task 1\n\n**Status:** done\n\n## Task 2\n\n**Status:** todo\n', encoding='utf-8')
     (tasks / 'probe' / 'tasks-0.md').write_text('# Tasks\n\n**Superseded:** by tasks-1.md\n\n## Task 1\n\n**Status:** todo\n', encoding='utf-8')
 
-    assert inventory.open_task_lists(repo) == ['agents/tasks/probe/tasks-1.md: 1/2 done; open: todo']
+    assert inventory.open_task_lists(repo) == PROBE_OPEN_LISTS
 
 
 def test_spec_status(repo: pathlib.Path) -> None:
@@ -101,7 +105,7 @@ def test_task_list_status_in_a_table_row_is_read(repo: pathlib.Path) -> None:
     tasks.mkdir(parents=True)
     (tasks / 'tasks-1.md').write_text('# Tasks\n\n## Task 1\n\n| **Status** | done |\n\n## Task 2\n\n| **Status** | todo |\n', encoding='utf-8')
 
-    assert inventory.open_task_lists(repo) == ['agents/tasks/probe/tasks-1.md: 1/2 done; open: todo']
+    assert inventory.open_task_lists(repo) == PROBE_OPEN_LISTS
 
 
 def test_checkbox_only_task_list_is_reported_when_a_box_is_unticked(repo: pathlib.Path) -> None:
@@ -132,3 +136,55 @@ def test_report_flags_locked_unmerged_worktree(tmp_path: pathlib.Path, repo: pat
 
     assert any('[side]: UNMERGED, 0 changed paths, LOCKED' in line for line in lines)
     assert any(line.startswith('- branch `side`: +1 -0, UNMERGED') for line in lines)
+
+
+def test_branch_checked_out_in_a_worktree_is_merge_checked_once(tmp_path: pathlib.Path, repo: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    run(repo, 'worktree', 'add', '-b', 'side', str(repo / '.claude' / 'worktrees' / 'side'))
+    calls: list[tuple[str, ...]] = []
+    real_git = inventory.git
+
+    def counting_git(path: pathlib.Path, *args: str) -> str:
+        calls.append(args)
+        return real_git(path, *args)
+
+    monkeypatch.setattr(inventory, 'git', counting_git)
+
+    inventory.report(repo, tmp_path)
+
+    assert sum(args[0] == 'merge-base' for args in calls) == 1
+
+
+def test_main_prints_heading_and_repository_section(tmp_path: pathlib.Path, repo: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert inventory.main([str(tmp_path)]) == 0
+
+    out = capsys.readouterr().out
+    assert out.startswith(f'# Inventory of {tmp_path.resolve()}')
+    assert '## pkg' in out
+
+
+def test_main_without_a_repository_exits_1(tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert inventory.main([str(tmp_path)]) == 1
+
+    assert 'no git repository at or below' in capsys.readouterr().err
+
+
+def test_main_with_an_unreadable_task_list_names_the_path(repo: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    tasks = repo / 'agents' / 'tasks'
+    tasks.mkdir(parents=True)
+    bad = tasks / 'bad.md'
+    bad.write_bytes(b'\xff\xfe not utf-8 \x80\n')
+
+    assert inventory.main([str(repo)]) == 1
+
+    assert str(bad) in capsys.readouterr().err
+
+
+@hypothesis.settings(max_examples=50, deadline=None)
+@hypothesis.given(
+    hypothesis.strategies.lists(hypothesis.strategies.sampled_from(['todo', 'in-progress', 'done', 'blocked']), max_size=8), hypothesis.strategies.booleans()
+)
+def test_statuses_yields_each_status_in_order(words: list[str], as_table: bool) -> None:
+    lines = [f'| **Status** | {w} |' if as_table else f'**Status:** {w}' for w in words]
+    interleaved = [x for line in lines for x in (line, 'prose')]
+
+    assert inventory.statuses(interleaved) == words

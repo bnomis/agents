@@ -115,7 +115,7 @@ missing git does not blank the line or a real error go unseen.
 
 ## Task 3: Survey inventory: errors, names, one merge check per branch, tests
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** medium
 **Source Reference:** `literal-duplication` (`claude/skills/survey/tests/test_inventory.py:74`, `:104`); findings A1 (`inventory.py:57`, `:70`, `:124`, `:149`), A9 (`:61`, `:89`), A24 (`:165`, `:173`), T1 (`:182`), T2 (`:46`), T3 (`:182`)
@@ -127,24 +127,24 @@ merge check twice for a branch checked out in a worktree, and has no test of
 
 **Subtasks:**
 
-- [ ] Rename `find_repositories` to `scan_repositories` and `is_merged` to `branch_is_merged`, with their callers and tests
-- [ ] In `report`, compute `branch_is_merged` once per branch and reuse it in the worktree and branch loops
-- [ ] In `main`, catch `OSError`, `UnicodeDecodeError` and `subprocess.CalledProcessError`, print one line to stderr naming the path or the git command, and return `1`
-- [ ] In `test_inventory.py`, hoist the expected list at lines 74 and 104 into one module constant both tests use
-- [ ] Add a test of `main` on a temporary workspace (the output's heading and one repository section), one for a root with no repository (exit `1`, the stderr line), and one for an unreadable task list (exit `1`, the path named)
-- [ ] Add a hypothesis test of `statuses` (each `**Status:**` heading line or table row it is given yields exactly its status word, in order), with `max_examples` bounded
+- [x] Rename `find_repositories` to `scan_repositories` and `is_merged` to `branch_is_merged`, with their callers and tests
+- [x] In `report`, compute `branch_is_merged` once per branch and reuse it in the worktree and branch loops
+- [x] In `main`, catch `OSError`, `UnicodeDecodeError` and `subprocess.CalledProcessError`, print one line to stderr naming the path or the git command, and return `1`
+- [x] In `test_inventory.py`, hoist the expected list at lines 74 and 104 into one module constant both tests use
+- [x] Add a test of `main` on a temporary workspace (the output's heading and one repository section), one for a root with no repository (exit `1`, the stderr line), and one for an unreadable task list (exit `1`, the path named)
+- [x] Add a hypothesis test of `statuses` (each `**Status:**` heading line or table row it is given yields exactly its status word, in order), with `max_examples` bounded
 
 **Acceptance Criteria:**
 
-- [ ] `git grep -nwE 'find_repositories|is_merged' -- claude/skills/survey` finds nothing
-- [ ] A test counts `git` calls for a branch checked out in a worktree and sees one merge check
-- [ ] The new `main` tests and the hypothesis test pass
+- [x] `git grep -nwE 'find_repositories|is_merged' -- claude/skills/survey` finds nothing
+- [x] A test counts `git` calls for a branch checked out in a worktree and sees one merge check
+- [x] The new `main` tests and the hypothesis test pass
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run pytest claude/skills/survey/tests -q -p no:cacheprovider` exits 0
-- [ ] The sweep (header) lists no unaccepted hit in `claude/skills/survey/inventory.py` or its tests
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run pytest claude/skills/survey/tests -q -p no:cacheprovider` exits 0
+- [x] The sweep (header) lists no unaccepted hit in `claude/skills/survey/inventory.py` or its tests
 
 **Notes:**
 
