@@ -4,36 +4,6 @@ Open work only, in implementation order, nearest first. Finished items move to
 `DONE.md` unchanged. See the shared `todo-add` and `todo-review` skills for
 the shape of an item.
 
-## `phaseb.py check` rejects the result of every listed question but A4
-
-Found on 2026-11-21 in the Doc batch-size pilot (two runs of 13 batches each
-on one project, results kept in the session's scratchpad):
-`python3 claude/skills/auditme/checks/phaseb.py check <run dir>` exits 1 on
-every Doc1, Doc2, Doc4 and Doc5 run. It reports each result line as
-`unparseable ... extra must be a list of strings` and each id as missing,
-and lists every batch for retry, though every reviewer returned a
-well-formed line per candidate in the brief's own shape. So no Doc run can
-pass `check` or be merged into a ledger. Reading the code the same day: the
-T1, T2, A1, A11, A17 and A19 briefs ask for a `findings` object, which the
-same check rejects, so every listed question but A4 is affected.
-
-Cause: `parse_result` in `claude/skills/auditme/checks/auditme/phaseb/batches.py`
-requires A4's `missing` and `extra` lists on every line, and `read_run_verdicts`
-in the same file builds each `Verdict.findings` from those two keys alone,
-while each brief defines its own output: `drift` (Doc4, Doc5), `stale` and
-`missing` (Doc1, Doc2), a `findings` object (T1, T2 and the A questions).
-The listers shipped in `c10a5cc`, the T listers in `9da7cc3` and the A
-listers in `73df3f4`; their tests ran `check` on A4-shaped output only.
-
-Fix direction: give each registered question its result shape (the keys
-its brief names), have `parse_result` and `read_run_verdicts` validate and
-store those keys, and add a test per registered question that runs `check`
-and `merge` on a line in its brief's shape. It changes the verdict contract
-of the repeatable-phase-b spec, which names A4's keys, so it goes through
-that spec, or the three listed-question specs, first.
-
-Spec: `agents/specs/repeatable-phase-b/spec.md`, amendment 1.2 (one `findings` object for every question, chosen by the operator on 2026-11-21); tasks: `agents/tasks/repeatable-phase-b/tasks-2.md`.
-
 ## Pilot the documentation listers' batch sizes on a real audit
 
 Found on 2026-11-20 in a review of this file:

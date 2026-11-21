@@ -1,7 +1,7 @@
 # Repeatable Phase B
 
 **Version:** 1.2
-**Status:** proposed
+**Status:** implemented
 **Date:** 2026-11-20
 **Review page:** https://claude.ai/artifact/2L2gApX1M8DNzL5ivQF3D7
 
