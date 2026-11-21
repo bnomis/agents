@@ -36,7 +36,7 @@ Choices made in writing this list, where the review offered two ways:
 
 ## Task 1: Declare the test dependencies and run every test directory in CI
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Source Reference:** Finding "pytest undeclared" (D1)
@@ -49,20 +49,20 @@ directory from the locked environment.
 
 **Subtasks:**
 
-- [ ] `uv add --dev pytest hypothesis` (the resolver's 14-day `exclude-newer` applies; a probe on 2026-11-21 resolved `pytest>=9.2.0` and `hypothesis>=6.170.15`)
-- [ ] In `.github/workflows/ci.yml`, replace `uv run --no-project --with pytest pytest claude/skills/survey/tests tests -q -p no:cacheprovider` with `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests tests -q -p no:cacheprovider`
-- [ ] Update any doc that gives the old test command (`git grep -n 'with pytest'` outside `agents/audit-reviews/`)
+- [x] `uv add --dev pytest hypothesis` (the resolver's 14-day `exclude-newer` applies; a probe on 2026-11-21 resolved `pytest>=9.2.0` and `hypothesis>=6.170.15`)
+- [x] In `.github/workflows/ci.yml`, replace `uv run --no-project --with pytest pytest claude/skills/survey/tests tests -q -p no:cacheprovider` with `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests tests -q -p no:cacheprovider`
+- [x] Update any doc that gives the old test command (`git grep -n 'with pytest'` outside `agents/audit-reviews/`)
 
 **Acceptance Criteria:**
 
-- [ ] `pyproject.toml`'s `dev` group lists `pytest` and `hypothesis`, and `uv lock --check` exits 0
-- [ ] `git grep -n -- '--with pytest'` finds nothing outside `agents/audit-reviews/`
+- [x] `pyproject.toml`'s `dev` group lists `pytest` and `hypothesis`, and `uv lock --check` exits 0
+- [x] `git grep -n -- '--with pytest'` finds nothing outside `agents/audit-reviews/`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests tests -q -p no:cacheprovider` exits 0
-- [ ] The sweep (header) lists no unaccepted hit in a file this task changed
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests tests -q -p no:cacheprovider` exits 0
+- [x] The sweep (header) lists no unaccepted hit in a file this task changed
 
 **Notes:**
 
