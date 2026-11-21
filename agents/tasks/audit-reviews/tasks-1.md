@@ -192,7 +192,7 @@ run that directory in CI.
 
 ## Task 5: Test-log scan: errors, names, containment, property test
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Source Reference:** findings A1 (`claude/skills/test-log-review/scan.py:61`, `:67`), A9 (`:51`, `:66`), Sec4 (`:59`), T2 (`:46`)
@@ -203,22 +203,22 @@ repository, and tests `log_kind` with two examples only.
 
 **Subtasks:**
 
-- [ ] Rename `find_repositories` to `scan_repositories` and `parse_log` to `read_log`, with their callers and tests
-- [ ] In `newest_per_kind`, skip a match whose resolved path is not inside the resolved repository
-- [ ] In `main`, catch `OSError`, print one line to stderr naming the path, and return `1`
-- [ ] Add tests: a `--glob` with `..` reaches no file outside the repository; an unreadable log gives exit `1` and its path
-- [ ] Add a hypothesis test of `log_kind`: it is idempotent, and a name with a timestamp added in the form the module strips maps to the name without it; `max_examples` bounded
+- [x] Rename `find_repositories` to `scan_repositories` and `parse_log` to `read_log`, with their callers and tests
+- [x] In `newest_per_kind`, skip a match whose resolved path is not inside the resolved repository
+- [x] In `main`, catch `OSError`, print one line to stderr naming the path, and return `1`
+- [x] Add tests: a `--glob` with `..` reaches no file outside the repository; an unreadable log gives exit `1` and its path
+- [x] Add a hypothesis test of `log_kind`: it is idempotent, and a name with a timestamp added in the form the module strips maps to the name without it; `max_examples` bounded
 
 **Acceptance Criteria:**
 
-- [ ] `git grep -nwE 'find_repositories|parse_log' -- claude/skills/test-log-review` finds nothing
-- [ ] `claude/skills/test-log-review/SKILL.md` still describes the script's options and output correctly
+- [x] `git grep -nwE 'find_repositories|parse_log' -- claude/skills/test-log-review` finds nothing
+- [x] `claude/skills/test-log-review/SKILL.md` still describes the script's options and output correctly
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run pytest claude/skills/test-log-review/tests -q -p no:cacheprovider` exits 0
-- [ ] The sweep (header) lists no unaccepted hit in `claude/skills/test-log-review/scan.py` or its tests
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run pytest claude/skills/test-log-review/tests -q -p no:cacheprovider` exits 0
+- [x] The sweep (header) lists no unaccepted hit in `claude/skills/test-log-review/scan.py` or its tests
 
 **Notes:**
 

@@ -48,7 +48,7 @@ def log_kind(name: str) -> str:
     return STAMP.sub('', name)
 
 
-def find_repositories(root: pathlib.Path, depth: int) -> list[pathlib.Path]:
+def scan_repositories(root: pathlib.Path, depth: int) -> list[pathlib.Path]:
     """The root and every directory up to `depth` levels below it that holds a `.git`."""
     levels = [[root]] + [list(root.glob('/'.join(['*'] * n))) for n in range(1, depth + 1)]
     return sorted({p for level in levels for p in level if p.is_dir() and (p / '.git').exists()})
@@ -56,14 +56,17 @@ def find_repositories(root: pathlib.Path, depth: int) -> list[pathlib.Path]:
 
 def newest_per_kind(repository: pathlib.Path, pattern: str) -> list[pathlib.Path]:
     newest: dict[str, pathlib.Path] = {}
+    root = repository.resolve()
     for path in repository.glob(pattern):
+        if not path.resolve().is_relative_to(root):
+            continue
         kind = log_kind(path.name)
         if kind not in newest or path.stat().st_mtime > newest[kind].stat().st_mtime:
             newest[kind] = path
     return [newest[k] for k in sorted(newest)]
 
 
-def parse_log(repository: pathlib.Path, path: pathlib.Path) -> LogReport:
+def read_log(repository: pathlib.Path, path: pathlib.Path) -> LogReport:
     lines = path.read_text(errors='replace').splitlines()
     summary, counts, no_tests = '', {}, False
     for line in lines:
@@ -101,7 +104,7 @@ def parse_log(repository: pathlib.Path, path: pathlib.Path) -> LogReport:
 
 
 def scan(root: pathlib.Path, pattern: str, depth: int) -> list[LogReport]:
-    return [parse_log(repo, path) for repo in find_repositories(root, depth) for path in newest_per_kind(repo, pattern)]
+    return [read_log(repo, path) for repo in scan_repositories(root, depth) for path in newest_per_kind(repo, pattern)]
 
 
 def print_text(reports: list[LogReport]) -> None:
@@ -122,7 +125,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--depth', type=int, default=2, help='how many directory levels below root to look for repositories')
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args(argv)
-    reports = scan(args.root.resolve(), args.glob, args.depth)
+    try:
+        reports = scan(args.root.resolve(), args.glob, args.depth)
+    except OSError as error:
+        print(error, file=sys.stderr)
+        return 1
     if args.json:
         json.dump([dataclasses.asdict(r) | {'needs_investigation': r.needs_investigation} for r in reports], sys.stdout, indent=2)
         print()
