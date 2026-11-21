@@ -6,7 +6,7 @@ paths:
 # Logging conventions
 
 General logging rules (use `loguru`, log levels, exception logging) are
-in [coding-standards.md](../auditme/coding-standards.md#logging), from the
+under Logging in `~/.claude/rules/auditme/coding-standards.md`, from the
 auditor repository. PII rules are in
 [security.md](../security.md). This file covers structured log lines that
 other tools parse.

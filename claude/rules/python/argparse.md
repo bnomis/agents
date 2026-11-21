@@ -6,8 +6,8 @@ paths:
 # argparse standards
 
 New command-line interfaces use `cappa`
-([coding-standards.md](../auditme/coding-standards.md#data-structures), from
-the auditor repository). argparse is
+(Data structures in `~/.claude/rules/auditme/coding-standards.md`,
+from the auditor repository). argparse is
 used only in existing code not yet converted, and in a script that must stay
 standard-library only, such as a checker run with no project dependencies
 installed. Where it is used, follow the standards below.

@@ -14,7 +14,11 @@ for the installer.
 Claude Code reads `~/.claude/rules/` as user-level rules for every project.
 Nothing in `claude/CLAUDE.md` links to them; the rules directory alone is what
 loads them. Rules cross-reference each other with relative links (for
-example `[security.md](security.md)`).
+example `[security.md](security.md)`). A rule from another repository is named
+by its installed path instead (`~/.claude/rules/auditme/coding-standards.md`):
+each installed directory is a symlink into its own repository, so a `../`
+link from it would be followed into that repository, not across to the
+other.
 
 - **Unscoped rules** (no frontmatter) load at the start of every session.
 - **Path-scoped rules** start with `paths:` frontmatter listing file globs,
