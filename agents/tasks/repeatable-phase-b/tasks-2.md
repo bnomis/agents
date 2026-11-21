@@ -108,7 +108,7 @@ passes and A4's old top-level shape does not.
 
 ## Task 3: Move the A4 and Doc briefs to the `findings` shape
 
-**Status:** in-progress
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation, The result line (1.2), the Brief version column
@@ -120,20 +120,20 @@ its registered kinds.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: for every question in `REGISTRY`, its brief's Output section asks for a `findings` key and names each of `question_kinds(question)` and no top-level kind keys; the A4 brief's version is 3 and the Doc1, Doc2, Doc4 and Doc5 briefs' versions are 2; the T1, T2, A1, A11, A17 and A19 briefs' versions are unchanged at 1. Run them and see them fail
-- [ ] In `claude/skills/auditme/phaseb/briefs/A4.md`, rewrite Output so `findings` holds `missing` and `extra`, each sorted, with the same meanings as now, and set `**Brief version:** 3`
-- [ ] In `Doc4.md` and `Doc5.md`, move `drift` under `findings` with the same meaning, and set version 2; in `Doc1.md` and `Doc2.md`, move `stale` and `missing` under `findings`, and set version 2. Change nothing outside each Output section and its version line
-- [ ] Update any existing assertion in `test_briefs.py` that quotes a moved key at the top level, keeping what it asserts
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_briefs.py`: for every question in `REGISTRY`, its brief's Output section asks for a `findings` key and names each of `question_kinds(question)` and no top-level kind keys; the A4 brief's version is 3 and the Doc1, Doc2, Doc4 and Doc5 briefs' versions are 2; the T1, T2, A1, A11, A17 and A19 briefs' versions are unchanged at 1. Run them and see them fail
+- [x] In `claude/skills/auditme/phaseb/briefs/A4.md`, rewrite Output so `findings` holds `missing` and `extra`, each sorted, with the same meanings as now, and set `**Brief version:** 3`
+- [x] In `Doc4.md` and `Doc5.md`, move `drift` under `findings` with the same meaning, and set version 2; in `Doc1.md` and `Doc2.md`, move `stale` and `missing` under `findings`, and set version 2. Change nothing outside each Output section and its version line
+- [x] Update any existing assertion in `test_briefs.py` that quotes a moved key at the top level, keeping what it asserts
 
 **Acceptance Criteria:**
 
-- [ ] Every brief's Output names exactly its question's registered kinds under `findings`
-- [ ] The A4 brief is at version 3 and the Doc briefs at version 2; no threshold text changed
+- [x] Every brief's Output names exactly its question's registered kinds under `findings`
+- [x] The A4 brief is at version 3 and the Doc briefs at version 2; no threshold text changed
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_briefs.py claude/skills/auditme/tests/phaseb/test_cli.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_briefs.py claude/skills/auditme/tests/phaseb/test_cli.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
