@@ -5,6 +5,9 @@ import os
 import pathlib
 import sys
 
+import hypothesis
+import hypothesis.strategies
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 import scan  # noqa: E402
@@ -127,3 +130,36 @@ def test_json_output_flags_logs_to_investigate(tmp_path, capsys):
     [entry] = json.loads(capsys.readouterr().out)
     assert entry['needs_investigation'] is True
     assert entry['kind'] == 'pytest.log'
+
+
+def test_a_glob_with_dotdot_reaches_no_file_outside_the_repository(tmp_path):
+    make_repo(tmp_path, 'inside', {})
+    (tmp_path / 'outside.log').write_text(FAILING)
+    assert scan.scan(tmp_path, '../outside.log', 1) == []
+    assert scan.newest_per_kind(tmp_path / 'inside', '../outside.log') == []
+
+
+def test_an_unreadable_log_gives_exit_1_and_its_path(tmp_path, capsys):
+    repo = make_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
+    log = repo / 'pytest-2026-01-01@10.00.00.log'
+    log.chmod(0)
+    try:
+        assert scan.main([str(tmp_path), '--depth', '1']) == 1
+    finally:
+        log.chmod(0o644)
+    err = capsys.readouterr().err
+    assert str(log) in err
+    assert err.count('\n') == 1
+
+
+NAMES = hypothesis.strategies.from_regex(r'[a-z]{1,8}(-[a-z]{1,8}){0,2}\.log', fullmatch=True)
+STAMPS = hypothesis.strategies.from_regex(r'-20[0-9]{2}-[01][0-9]-[0-3][0-9]@[0-2][0-9]\.[0-5][0-9]\.[0-5][0-9]', fullmatch=True)
+
+
+@hypothesis.settings(max_examples=50)
+@hypothesis.given(NAMES, STAMPS)
+def test_log_kind_is_idempotent_and_drops_an_added_timestamp(name, stamp):
+    stem, dot, suffix = name.rpartition('.')
+    stamped = f'{stem}{stamp}.{suffix}'
+    assert scan.log_kind(stamped) == name
+    assert scan.log_kind(scan.log_kind(stamped)) == scan.log_kind(stamped)

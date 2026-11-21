@@ -58,7 +58,7 @@ def git(repo: pathlib.Path, *args: str) -> str:
     return result.stdout.strip() if result.returncode == 0 else ''
 
 
-def find_repositories(root: pathlib.Path, depth: int) -> list[pathlib.Path]:
+def scan_repositories(root: pathlib.Path, depth: int) -> list[pathlib.Path]:
     """Every repository whose top level is `root` or a directory below it, to `depth` levels."""
     found: list[pathlib.Path] = []
 
@@ -86,7 +86,7 @@ def default_branch(repo: pathlib.Path) -> str:
     return git(repo, 'branch', '--show-current')
 
 
-def is_merged(repo: pathlib.Path, ref: str, base: str) -> bool:
+def branch_is_merged(repo: pathlib.Path, ref: str, base: str) -> bool:
     """True when every commit of `ref` is in `base`, by ancestry or by patch."""
     tip = git(repo, 'rev-parse', ref)
     if tip and git(repo, 'merge-base', base, ref) == tip:
@@ -115,13 +115,21 @@ def worktrees(repo: pathlib.Path) -> list[dict[str, str]]:
     return entries[1:]
 
 
+def read_lines(path: pathlib.Path) -> list[str]:
+    """The lines of the UTF-8 file at `path`; an unreadable or undecodable one raises an OSError that names it."""
+    try:
+        return path.read_text(encoding='utf-8').splitlines()
+    except (OSError, UnicodeDecodeError) as error:
+        raise OSError(f'{path}: cannot read as UTF-8 text') from error
+
+
 def open_task_lists(repo: pathlib.Path) -> list[str]:
     """Task lists with a status that is not done, or with no status and an unticked box, as 'path: progress'."""
     lines: list[str] = []
     for path in sorted((repo / 'agents' / 'tasks').glob('**/*.md')):
         if path.name == 'index.md':
             continue
-        text_lines = path.read_text(encoding='utf-8').splitlines()
+        text_lines = read_lines(path)
         header = text_lines[: next((i for i, line in enumerate(text_lines) if line.startswith('## ')), len(text_lines))]
         if any(SUPERSEDED_LIST_RE.match(line) for line in header):
             continue
@@ -146,7 +154,7 @@ def open_specs(repo: pathlib.Path) -> list[str]:
     tasks = repo / 'agents' / 'tasks'
     for path in sorted((repo / 'agents' / 'specs').glob('*/spec.md')):
         name = path.parent.name
-        status = next(iter(statuses(path.read_text(encoding='utf-8').splitlines())), '')
+        status = next(iter(statuses(read_lines(path))), '')
         if DONE_SPEC_RE.search(status):
             continue
         task_note = 'has a task list' if (tasks / name).is_dir() else 'no task list'
@@ -157,12 +165,21 @@ def open_specs(repo: pathlib.Path) -> list[str]:
 def report(repo: pathlib.Path, root: pathlib.Path) -> list[str]:
     """The Markdown section for one repository."""
     base = default_branch(repo)
+    merged_cache: dict[str, bool] = {}
+
+    def merged_label(ref: str) -> str:
+        """'merged' or 'UNMERGED' for `ref`, running the merge check once per branch."""
+        key = ref.removeprefix('refs/heads/')
+        if key not in merged_cache:
+            merged_cache[key] = bool(base) and branch_is_merged(repo, ref, base)
+        return 'merged' if merged_cache[key] else 'UNMERGED'
+
     out = [f'## {repo.relative_to(root) if repo != root else "."}', '']
     out.append(f'- status: `{git(repo, "status", "-sb").splitlines()[0]}`, {changed_paths(repo)} changed paths')
     for entry in worktrees(repo):
         branch = entry.get('branch', '').removeprefix('refs/heads/') or f'detached {entry.get("HEAD", "")[:8]}'
         ref = entry.get('branch') or entry.get('HEAD', '')
-        merged = 'merged' if base and is_merged(repo, ref, base) else 'UNMERGED'
+        merged = merged_label(ref)
         locked = ', LOCKED' if 'locked' in entry else ''
         out.append(f'- worktree `{entry["worktree"]}` [{branch}]: {merged}, {changed_paths(pathlib.Path(entry["worktree"]))} changed paths{locked}')
     for branch in git(repo, 'branch', '--format=%(refname:short)').splitlines():
@@ -170,7 +187,7 @@ def report(repo: pathlib.Path, root: pathlib.Path) -> list[str]:
             continue
         ahead = git(repo, 'rev-list', '--count', f'{base}..{branch}')
         behind = git(repo, 'rev-list', '--count', f'{branch}..{base}')
-        merged = 'merged' if is_merged(repo, branch, base) else 'UNMERGED'
+        merged = merged_label(branch)
         last = git(repo, 'log', '-1', '--format=%cs %s', branch)
         out.append(f'- branch `{branch}`: +{ahead} -{behind}, {merged} | {last}')
     out.extend(f'- open task list: {line}' for line in open_task_lists(repo))
@@ -186,14 +203,21 @@ def main(argv: list[str]) -> int:
     parser.add_argument('--depth', type=int, default=2)
     options = parser.parse_args(argv)
     root = options.root.resolve()
-    repos = find_repositories(root, options.depth)
-    if not repos:
-        print(f'no git repository at or below {root}', file=sys.stderr)
+    try:
+        repos = scan_repositories(root, options.depth)
+        if not repos:
+            print(f'no git repository at or below {root}', file=sys.stderr)
+            return 1
+        now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S UTC')
+        lines = [f'# Inventory of {root}', '', f'Taken at {now}. Fetch first if remote state matters.', '']
+        for repo in repos:
+            lines.extend(report(repo, root))
+    except subprocess.CalledProcessError as error:
+        print('git failed:', *error.cmd, file=sys.stderr)
         return 1
-    now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S UTC')
-    lines = [f'# Inventory of {root}', '', f'Taken at {now}. Fetch first if remote state matters.', '']
-    for repo in repos:
-        lines.extend(report(repo, root))
+    except OSError as error:
+        print(error, file=sys.stderr)
+        return 1
     print('\n'.join(lines))
     return 0
 

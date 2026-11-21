@@ -76,8 +76,9 @@ and prints one line of the available parts joined by ` | `:
 | `cwd: <dir>` | `workspace.current_dir` |
 | `git: <branch>+S~M` | `git` in the working directory: `S` files staged (green), `M` modified (yellow); omitted outside a repository |
 
-A missing or zero field is left out. It writes nothing. It exits `0`, or `1`
-with a traceback when stdin is not JSON. Environment: none.
+A missing, zero or wrongly typed field is left out. When stdin is empty or
+not a JSON object it prints an empty line. It writes nothing else and always
+exits `0`. Environment: none.
 
 The installer links it to `~/.claude/statusline.py` and sets it as the status
 line, unless one is already set.

@@ -1,6 +1,12 @@
 ---
 name: "paper-pdf-hunter"
 description: "Drive a real web browser like a human to find and download PDFs for a list of research papers given in a markdown file (Google Scholar, publisher pages, preprint servers, repositories)."
+when_to_use: |
+    Use this skill whenever the user mentions:
+        - find the PDFs for a list of papers
+        - download papers from a markdown list
+        - hunt for paper PDFs
+        - fetch the PDFs for these references
 ---
 
 # Paper PDF hunter (browser-driven)
