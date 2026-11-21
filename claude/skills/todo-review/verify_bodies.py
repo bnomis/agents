@@ -8,7 +8,9 @@ An item is a `## ` heading and the text up to the next `## ` heading. Its
 body (the text after the heading line, stripped of surrounding blank lines)
 must appear, character for character, in at least one of the new files: in
 TODO.md as a consolidated `###` finding or a reordered item, or in DONE.md
-when it was moved. Exits 1 and names each body that was lost or altered.
+when it was moved. Exits 1 and names each body that was lost or altered, and
+2 when given fewer than two paths or when a file cannot be read (the path and
+the reason go to stderr).
 """
 
 import pathlib
@@ -37,8 +39,15 @@ def main(argv: list[str]) -> int:
     if len(argv) < 3:
         print(__doc__)
         return 2
-    old = item_bodies(pathlib.Path(argv[1]).read_text(encoding='utf-8'))
-    new_text = '\n'.join(pathlib.Path(path).read_text(encoding='utf-8') for path in argv[2:])
+    texts: list[str] = []
+    for path in argv[1:]:
+        try:
+            texts.append(pathlib.Path(path).read_text(encoding='utf-8'))
+        except (OSError, UnicodeDecodeError) as error:
+            print(f'cannot read {path}:', error, file=sys.stderr)
+            return 2
+    old = item_bodies(texts[0])
+    new_text = '\n'.join(texts[1:])
     lost = [title for title, body in old.items() if body and body not in new_text]
     for title in lost:
         print(f'LOST OR ALTERED: {title}')

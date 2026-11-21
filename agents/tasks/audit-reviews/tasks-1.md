@@ -167,21 +167,21 @@ run that directory in CI.
 
 **Subtasks:**
 
-- [ ] Write `claude/skills/todo-review/tests/test_verify_bodies.py`, importing the script as the other skills' tests do (`sys.path` insert): `item_bodies` on text before the first heading, consecutive headings, a trailing item and blank-line stripping; `main` exiting `0` when every body survives, `1` naming each lost one, and `2` with fewer than two paths
-- [ ] Add a hypothesis round-trip test: build a file from generated titles and bodies (no line starting `## ` inside a body), parse it with `item_bodies` and get the same mapping back, with `max_examples` bounded
-- [ ] In `main`, catch `OSError` and `UnicodeDecodeError`, print `cannot read <path>: <reason>` to stderr and return `2`; add the case to the module docstring and to its test
-- [ ] Add `claude/skills/todo-review/tests` to the test step of `.github/workflows/ci.yml`
+- [x] Write `claude/skills/todo-review/tests/test_verify_bodies.py`, importing the script as the other skills' tests do (`sys.path` insert): `item_bodies` on text before the first heading, consecutive headings, a trailing item and blank-line stripping; `main` exiting `0` when every body survives, `1` naming each lost one, and `2` with fewer than two paths
+- [x] Add a hypothesis round-trip test: build a file from generated titles and bodies (no line starting `## ` inside a body), parse it with `item_bodies` and get the same mapping back, with `max_examples` bounded
+- [x] In `main`, catch `OSError` and `UnicodeDecodeError`, print `cannot read <path>: <reason>` to stderr and return `2`; add the case to the module docstring and to its test
+- [x] Add `claude/skills/todo-review/tests` to the test step of `.github/workflows/ci.yml`
 
 **Acceptance Criteria:**
 
-- [ ] A missing new file gives exit `2` and the path on stderr, with no traceback
-- [ ] Every branch of `item_bodies` and `main` has a test
+- [x] A missing new file gives exit `2` and the path on stderr, with no traceback
+- [x] Every branch of `item_bodies` and `main` has a test
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run pytest claude/skills/todo-review/tests -q -p no:cacheprovider` exits 0
-- [ ] The sweep (header) lists no unaccepted hit in `claude/skills/todo-review/verify_bodies.py` or its tests
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run pytest claude/skills/todo-review/tests -q -p no:cacheprovider` exits 0
+- [x] The sweep (header) lists no unaccepted hit in `claude/skills/todo-review/verify_bodies.py` or its tests
 
 **Notes:**
 
