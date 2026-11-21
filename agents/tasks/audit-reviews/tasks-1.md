@@ -156,7 +156,7 @@ merge check twice for a branch checked out in a worktree, and has no test of
 
 ## Task 4: verify_bodies: errors and tests
 
-**Status:** todo
+**Status:** done
 **Priority:** medium
 **Complexity:** small
 **Source Reference:** findings A1 (`claude/skills/todo-review/verify_bodies.py:40`, `:41`), T1 (`:18`, `:35`), T2 (`:18`), T3 (`:35`)
