@@ -1,6 +1,6 @@
 # Listed Phase B documentation questions
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** implemented
 **Date:** 2026-11-20
 
@@ -191,6 +191,15 @@ thresholds, input and output format, the env-variable security rule, and
   run (D2's sense of run), or a version differing from its pin; missing is
   a declared dependency or hook absent from a section that presents itself
   as the tools or libraries list.
+
+Settled after the pilot (operator, 2026-11-21; briefs Doc4, Doc5 and Doc1 at
+version 3): a section or table that states its own date is a record of that
+day and is not checked against today's code; an `(unresolved)` candidate's
+section is judged on its other statements too; in Doc5 an example of
+printed output that leaves out a line the code prints is drift, and a list of
+a field's values written without "for example", "such as" or "including"
+presents itself as complete; in Doc1 a named path the section calls ignored,
+and that `.gitignore` ignores, is not stale.
 
 Registered batch sizes, unmeasured: 24 for Doc4 and Doc5 (a section and its
 code per candidate), 12 for Doc1 and Doc2 (the tree or the inventories).
