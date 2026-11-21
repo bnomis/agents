@@ -32,7 +32,7 @@ repository's `no-project-names` hook requires.
 
 ## Task 1: Register each question's finding kinds
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`register_question`, `question_kinds`); Implementation, The result line (1.2), the kinds table
@@ -43,27 +43,28 @@ each registered question its kinds from the spec's table.
 
 **Subtasks:**
 
-- [ ] Starting-point check: `grep -rnwE 'question_kinds|KINDS' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`, inside the fixture that saves and restores `REGISTRY` (save and restore `KINDS` the same way): registering a question stores its kinds and `question_kinds` returns them in the order given; empty kinds and a repeated kind each raise `PhaseBError` and register nothing; `question_kinds` on an unregistered question raises `PhaseBError`; and every question in `REGISTRY` after import has kinds equal to the spec's table (A4 `('missing', 'extra')`, Doc4 and Doc5 `('drift',)`, Doc1 and Doc2 `('stale', 'missing')`, T1 and T2 `('missing',)`, A1 `('call',)`, A11 `('unexhausted',)`, A17 `('surface',)`, A19 `('handler',)`). Run them and see them fail
-- [ ] In `claude/skills/auditme/checks/auditme/phaseb/candidates.py`, change the signature to `register_question(question, brief, kinds, batch_size=DEFAULT_BATCH_SIZE)`, validate `kinds`, store it in `KINDS: dict[str, tuple[str, ...]]`, and add `question_kinds` with the spec's docstring
-- [ ] Update every registration to pass its kinds as the third argument and any batch size by keyword (`batch_size=DOC_BATCH_SIZE`): the A4, Doc4, Doc5, Doc1, Doc2, T1 and T2 decorators in `candidates.py`, and the A11, A19, A1 and A17 decorators in `claude/skills/auditme/checks/auditme/phaseb/architecture.py`
-- [ ] Update the `Verdict.findings` comment in `candidates.py` to the spec's ("one list per registered kind")
+- [x] Starting-point check: `grep -rnwE 'question_kinds|KINDS' claude/skills/auditme/checks` prints nothing; if it prints anything, stop as `blocked` and name what it found
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_model.py`, inside the fixture that saves and restores `REGISTRY` (save and restore `KINDS` the same way): registering a question stores its kinds and `question_kinds` returns them in the order given; empty kinds and a repeated kind each raise `PhaseBError` and register nothing; `question_kinds` on an unregistered question raises `PhaseBError`; and every question in `REGISTRY` after import has kinds equal to the spec's table (A4 `('missing', 'extra')`, Doc4 and Doc5 `('drift',)`, Doc1 and Doc2 `('stale', 'missing')`, T1 and T2 `('missing',)`, A1 `('call',)`, A11 `('unexhausted',)`, A17 `('surface',)`, A19 `('handler',)`). Run them and see them fail
+- [x] In `claude/skills/auditme/checks/auditme/phaseb/candidates.py`, change the signature to `register_question(question, brief, kinds, batch_size=DEFAULT_BATCH_SIZE)`, validate `kinds`, store it in `KINDS: dict[str, tuple[str, ...]]`, and add `question_kinds` with the spec's docstring
+- [x] Update every registration to pass its kinds as the third argument and any batch size by keyword (`batch_size=DOC_BATCH_SIZE`): the A4, Doc4, Doc5, Doc1, Doc2, T1 and T2 decorators in `candidates.py`, and the A11, A19, A1 and A17 decorators in `claude/skills/auditme/checks/auditme/phaseb/architecture.py`
+- [x] Update the `Verdict.findings` comment in `candidates.py` to the spec's ("one list per registered kind")
 
 **Acceptance Criteria:**
 
-- [ ] `question_kinds` returns the spec's kinds for every registered question
-- [ ] `REGISTRY`'s value tuple is unchanged, and `test_cli.py` passes unchanged
+- [x] `question_kinds` returns the spec's kinds for every registered question
+- [x] `REGISTRY`'s value tuple is unchanged, and `test_cli.py` passes unchanged
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_model.py claude/skills/auditme/tests/phaseb/test_cli.py claude/skills/auditme/tests/phaseb/test_architecture_candidates.py claude/skills/auditme/tests/phaseb/test_doc_candidates.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_model.py claude/skills/auditme/tests/phaseb/test_cli.py claude/skills/auditme/tests/phaseb/test_architecture_candidates.py claude/skills/auditme/tests/phaseb/test_doc_candidates.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
 - Key files: `claude/skills/auditme/checks/auditme/phaseb/candidates.py`, `claude/skills/auditme/checks/auditme/phaseb/architecture.py`
 - BLOCKED (2026-11-21): the spec's signature makes `kinds` a required third argument, so four existing tests in `claude/skills/auditme/tests/phaseb/test_model.py` that call `register_question` without it (`test_register_question_records_lister_and_brief`, `test_register_question_returns_the_lister`, `test_question_registered_without_a_size_reads_back_the_default`, `test_question_registered_with_a_size_reads_it_back`) would fail. They are not A4 result-shape tests, so the list forbids changing them. Needs a decision: allow those four to pass `kinds`, or give `kinds` a default (which the spec forbids).
 - DECIDED by the operator (2026-11-21): those four tests in `test_model.py` gain a `kinds` argument and keep what they assert; `kinds` stays required, as the spec says. This exception names those four tests only: any other existing test that would need changing still stops the task as `blocked`
+- Pre-push audit (2026-11-21): only hit is ruff-version-drift (.pre-commit-config.yaml pins v0.17.2, local ruff is 0.17.5), not caused by this task
 - The Doc registrations pass a batch size third today (`DOC_BATCH_SIZE`, `AGENTS_BATCH_SIZE`); moving it to a keyword is what keeps it from landing in `kinds`
 
 ---
