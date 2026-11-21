@@ -59,8 +59,6 @@ def dest_claude_dir() -> pathlib.Path:
     return pathlib.Path.home() / '.claude'
 
 
-STOP_HOOK_SCRIPT = 'auditme-stop.sh'
-STOP_HOOK_COMMAND = f'bash "$HOME/.claude/hooks/{STOP_HOOK_SCRIPT}"'
 STATUS_LINE = {'command': '~/.claude/statusline.py', 'type': 'command'}
 
 
@@ -84,25 +82,6 @@ def read_settings(path: pathlib.Path) -> dict[str, typing.Any]:
     if not isinstance(settings, dict):
         raise SettingsError(f'{path} is not a JSON object; not changed')
     return settings
-
-
-def has_stop_hook(settings: dict[str, typing.Any]) -> bool:
-    """whether any Stop hook command already names the script"""
-    entries = (settings.get('hooks') or {}).get('Stop') or []
-    return any(STOP_HOOK_SCRIPT in hook.get('command', '') for entry in entries for hook in entry.get('hooks', []))
-
-
-def register_stop_hook(options, settings_path: pathlib.Path) -> None:
-    """adds the Stop hook to settings.json once, keeping everything else"""
-    settings = read_settings(settings_path)
-    if has_stop_hook(settings):
-        print(f'Stop hook already registered in {settings_path}')
-        return
-
-    entry = {'hooks': [{'type': 'command', 'command': STOP_HOOK_COMMAND}]}
-    settings.setdefault('hooks', {}).setdefault('Stop', []).append(entry)
-    write_settings(settings_path, settings)
-    print(f'Registered Stop hook in {settings_path}')
 
 
 def register_status_line(options, settings_path: pathlib.Path) -> None:
@@ -175,7 +154,6 @@ def install_claude(options) -> None:
             symlink_file(options, src, dest)
 
     find_dangling_symlinks(options, tdir)
-    register_stop_hook(options, tdir / 'settings.json')
     register_status_line(options, tdir / 'settings.json')
 
 
