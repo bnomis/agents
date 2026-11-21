@@ -144,7 +144,7 @@ its registered kinds.
 
 ## Task 4: Whole-tree checks, close the spec and the TODO item
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** whole amendment 1.2; Tests (1.2)
@@ -155,27 +155,28 @@ implemented and move the `TODO.md` item to `DONE.md`.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`: for every question in `REGISTRY`, on a fixture project that gives it at least one candidate, `plan`, then a result file written in its brief's shape for every planned id, then `check` exits 0 and `merge` writes one ledger line per candidate. A question whose fixture lists no candidate is not skipped silently: the test names it and fails. Run them and see them fail if any question is not yet covered
-- [ ] Hoist anything the change duplicates (a kinds literal written in both `candidates.py` and a test, a second parser of the result line) to a single owner and import it
-- [ ] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
-- [ ] Set the spec's `**Status:**` to `implemented`
-- [ ] Move the `TODO.md` item "`phaseb.py check` rejects the result of every listed question but A4" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - amendment 1.2 of agents/specs/repeatable-phase-b/spec.md, agents/tasks/repeatable-phase-b/tasks-2.md.`, and remove it from `TODO.md`; touch no other item
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_cli.py`: for every question in `REGISTRY`, on a fixture project that gives it at least one candidate, `plan`, then a result file written in its brief's shape for every planned id, then `check` exits 0 and `merge` writes one ledger line per candidate. A question whose fixture lists no candidate is not skipped silently: the test names it and fails. Run them and see them fail if any question is not yet covered
+- [x] Hoist anything the change duplicates (a kinds literal written in both `candidates.py` and a test, a second parser of the result line) to a single owner and import it
+- [x] Confirm `claude/skills/auditme/tests/registry-order.txt` is unchanged against the branch's base (`git diff <base> -- claude/skills/auditme/tests/registry-order.txt` prints nothing)
+- [x] Set the spec's `**Status:**` to `implemented`
+- [x] Move the `TODO.md` item "`phaseb.py check` rejects the result of every listed question but A4" to the end of `DONE.md`: append its heading and body unchanged, then `Done: <date> - amendment 1.2 of agents/specs/repeatable-phase-b/spec.md, agents/tasks/repeatable-phase-b/tasks-2.md.`, and remove it from `TODO.md`; touch no other item
 
 **Acceptance Criteria:**
 
-- [ ] Every registered question passes `plan`, `check` and `merge` end to end
-- [ ] The spec's status is `implemented`, and the item is in `DONE.md` and not in `TODO.md`
+- [x] Every registered question passes `plan`, `check` and `merge` end to end
+- [x] The spec's status is `implemented`, and the item is in `DONE.md` and not in `TODO.md`
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
-- [ ] `uv run --group docs mkdocs build --strict` passes
-- [ ] `D=$(mktemp -d) && git show "$(git log --diff-filter=A --format=%H -- agents/tasks/repeatable-phase-b/tasks-2.md)":TODO.md > "$D/todo-before.md" && python3 ~/.claude/skills/todo-review/verify_bodies.py "$D/todo-before.md" TODO.md DONE.md` exits 0
+- [x] `pre-commit run --all-files` exits 0
+- [x] `pre-commit run auditme-all --hook-stage manual --all-files` exits 0
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests claude/skills/project-setup/tests tests -q -p no:cacheprovider` passes
+- [x] `uv run --group docs mkdocs build --strict` passes
+- [x] `D=$(mktemp -d) && git show "$(git log --diff-filter=A --format=%H -- agents/tasks/repeatable-phase-b/tasks-2.md)":TODO.md > "$D/todo-before.md" && python3 ~/.claude/skills/todo-review/verify_bodies.py "$D/todo-before.md" TODO.md DONE.md` exits 0
 
 **Notes:**
 
 - Depends on Tasks 1-3
+- Pre-push audit (2026-11-21): only hit is ruff-version-drift (.pre-commit-config.yaml pins v0.17.2, local ruff is 0.17.5), not caused by this task
 
 ---
