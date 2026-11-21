@@ -32,7 +32,7 @@ repository's `no-project-names` hook requires.
 
 ## Task 1: Register each question's finding kinds
 
-**Status:** in-progress
+**Status:** todo
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** API (`register_question`, `question_kinds`); Implementation, The result line (1.2), the kinds table
@@ -63,6 +63,7 @@ each registered question its kinds from the spec's table.
 
 - Key files: `claude/skills/auditme/checks/auditme/phaseb/candidates.py`, `claude/skills/auditme/checks/auditme/phaseb/architecture.py`
 - BLOCKED (2026-11-21): the spec's signature makes `kinds` a required third argument, so four existing tests in `claude/skills/auditme/tests/phaseb/test_model.py` that call `register_question` without it (`test_register_question_records_lister_and_brief`, `test_register_question_returns_the_lister`, `test_question_registered_without_a_size_reads_back_the_default`, `test_question_registered_with_a_size_reads_it_back`) would fail. They are not A4 result-shape tests, so the list forbids changing them. Needs a decision: allow those four to pass `kinds`, or give `kinds` a default (which the spec forbids).
+- DECIDED by the operator (2026-11-21): those four tests in `test_model.py` gain a `kinds` argument and keep what they assert; `kinds` stays required, as the spec says. This exception names those four tests only: any other existing test that would need changing still stops the task as `blocked`
 - The Doc registrations pass a batch size third today (`DOC_BATCH_SIZE`, `AGENTS_BATCH_SIZE`); moving it to a keyword is what keeps it from landing in `kinds`
 
 ---
