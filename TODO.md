@@ -26,3 +26,8 @@ Fix direction: once that change is in auditor, bump this repository's
 auditor pin, declare `claude` and `tests` as its roots in the way it provides,
 and check that `pre-commit run auditme-all --hook-stage manual --all-files`
 reports the scripts' hits. Small; waits for auditor.
+
+Note 2026-11-21: auditor's change is in (`30637b8` on its `main`, its item
+moved to its `DONE.md`): a project declares its roots as `[tool.auditme]
+roots = [{ path = "..." }, ...]` in `pyproject.toml`, which `--extra-root`
+overrides for one run. This item no longer waits; next step `/todo-do`.
