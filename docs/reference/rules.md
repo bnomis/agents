@@ -84,10 +84,10 @@ checker rule checks the rules not listed here.
 
 ### `rule-scope.md`
 
-The `no-project-names` hook (`bin/check-foreign-names.sh`) fails a file or a
-commit message that names a project on a list kept outside the repository.
-It runs at the `pre-commit` and `commit-msg` stages, both as published and in
-this repository's own config.
+The `no-project-names` hook, published by the auditor repository, fails a
+file or a commit message that names a project on a list kept outside the
+repository. It runs at the `pre-commit` and `commit-msg` stages, both as
+published and in this repository's own config.
 
 ### `git-conventions.md`
 

@@ -19,8 +19,9 @@ real project - its counts, its file paths, its review numbers - goes in the
 report to the user and in that project's own records, never into a file or
 commit here.
 
-The shared repository's `no-project-names` hook enforces this against a list
-of names kept outside it (a list inside it would name them).
+The `no-project-names` hook, published by the auditor repository and run
+here, enforces this against a list of names kept outside both (a list inside
+either would name them).
 
 ## Tools used across projects
 
@@ -29,8 +30,8 @@ runner, a checker, a template - and not only for this one. Its code, tests,
 fixtures, specs, task lists, records and commit messages name no project it
 has been run on: a run that found something is "another project", and its
 dated figures stay without the name. Say so in that repository's own
-`AGENTS.md`, and add this repository's published `no-project-names` hook to
-its `.pre-commit-config.yaml`, passing its own names as `--allow=<name>` so
+`AGENTS.md`, and add the auditor repository's published `no-project-names`
+hook to its `.pre-commit-config.yaml`, passing its own names as `--allow=<name>` so
 the list can hold them too. Install the `commit-msg` hook type as well
 (`pre-commit install --hook-type commit-msg`) so commit messages are checked.
 

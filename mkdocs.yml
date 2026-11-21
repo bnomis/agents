@@ -1,5 +1,5 @@
 site_name: agents
-site_description: Shared Claude Code rules and skills, the status line, and the no-project-names hook
+site_description: Shared Claude Code rules and skills, and the status line
 site_url: https://bnomis.github.io/agents/
 theme:
   name: material

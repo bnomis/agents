@@ -2,8 +2,8 @@
 
 ![The agents logo](assets/agents-mark.svg){ align=right width="128" }
 
-Shared [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) rules and skills, the
-status line, and the `no-project-names` hook.
+Shared [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) rules and skills, and
+the status line.
 
 ```shell
 git clone git@github.com:bnomis/agents.git ~/src/agents
@@ -25,8 +25,7 @@ repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 | `claude/rules/` | Rules loaded into every session: git, Python, reviews, security and the rest. See [Rules](reference/rules.md). |
 | `claude/skills/` | Slash commands for specs, task lists, the `TODO.md` workflow, shipping and cleanup. See [Skills](reference/skills.md). |
 | `claude/statusline.py` | The Claude Code status line. |
-| `bin/` | The installer and the `no-project-names` check. See [Command line and hooks](reference/cli.md). |
-| `.pre-commit-hooks.yaml` | The `no-project-names` hook other repositories pin. |
+| `bin/` | The installer. See [Command line and hooks](reference/cli.md). |
 
 ## Where to start
 

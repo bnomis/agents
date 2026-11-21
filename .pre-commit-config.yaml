@@ -14,24 +14,17 @@ repos:
       - id: shellcheck
         args: ["--external-sources", "--source-path=SCRIPTDIR"]
 
-  # The audit hooks, pinned to a commit of the auditor repository like in any
-  # project that adopts them (that repository's docs/setup.md). Upgrade with:
+  # The audit hooks and the names hook, pinned to a commit of the auditor
+  # repository like in any project that adopts them (that repository's
+  # docs/setup.md). Upgrade with:
   # pre-commit autoupdate --repo git@github.com:bnomis/auditor.git
   - repo: git@github.com:bnomis/auditor.git
-    rev: 192e4219d0900eb62c7715c7649215f1f4a1630b
+    rev: 6747c4e78f83f14efd7af58c3d01c6b5b1be27b1
     hooks:
       - id: auditme-changed
       - id: auditme-all
         stages: [manual, pre-push]
-
-  - repo: local
-    hooks:
       # This repository is shared, so no file or commit message names a
       # project (claude/rules/rule-scope.md). The names are listed outside
-      # the repository; see bin/check-foreign-names.sh.
+      # the repository, at ~/.config/agents/foreign-names.
       - id: no-project-names
-        name: no project names in a shared repository
-        entry: bin/check-foreign-names.sh
-        language: script
-        exclude: ^uv\.lock$
-        stages: [pre-commit, commit-msg]
