@@ -1,11 +1,11 @@
 # agents
 
-Shared rules, skills and hooks for Claude Code, and the audit checker
-(`auditme`) that projects pin as pre-commit hooks.
+Shared rules and skills for Claude Code, the status line, and the
+`no-project-names` hook.
 
-`bin/install-claude.py` links `claude/` into `~/.claude/`. The setup guide,
-from a new machine to a project with working guards, is
-[docs/setup.md](docs/setup.md).
+`bin/install-claude.py` links `claude/` into `~/.claude/`. The auditme
+checker, its pre-commit hooks, the Stop hook and `/project-setup` are in the
+auditor repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 
 ## Working on this repository
 

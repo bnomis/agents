@@ -1,5 +1,5 @@
 site_name: agents
-site_description: Shared Claude Code rules, skills and hooks, and the auditme checker projects pin as pre-commit hooks
+site_description: Shared Claude Code rules and skills, the status line, and the no-project-names hook
 site_url: https://bnomis.github.io/agents/
 theme:
   name: material
@@ -48,9 +48,6 @@ plugins:
 nav:
   - Home: index.md
   - How it works: concepts.md
-  - Setting up: setup.md
-  - User guide:
-      - The audit checker: guide/checker.md
   - Reference:
       - Skills: reference/skills.md
       - Rules: reference/rules.md

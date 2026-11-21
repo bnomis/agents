@@ -1,18 +1,14 @@
 # How it works
 
-The repository has two consumers: Claude Code on your machine, which reads the rules and skills from
-`~/.claude/`, and each project's pre-commit and CI, which run the checker pinned to a commit of this
-repository.
+The repository's consumer is Claude Code on your machine, which reads the rules and skills from
+`~/.claude/`. The checker that enforces the mechanical rules in each project's pre-commit and CI is in
+the auditor repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 
 ```mermaid
 flowchart LR
     repo["agents repository"]
-    home["~/.claude/<br>rules, skills, Stop hook"]
-    proj["project<br>.pre-commit-config.yaml"]
-    ci["project CI"]
+    home["~/.claude/<br>rules, skills, status line"]
     repo -- "bin/install-claude.py<br>(symlinks)" --> home
-    repo -- "rev: &lt;commit&gt;" --> proj
-    proj -- "pre-commit run" --> ci
 ```
 
 ## Rules and skills in `~/.claude/`
@@ -33,48 +29,6 @@ entry (a new skill or rule) needs the installer run again.
 
 These files are shared by every project, so none of them names one. A project's own rules and skills
 live in its own `claude/` directory, loaded from that project's `CLAUDE.md`.
-
-## The checker in a project
-
-The checker is `claude/skills/auditme/checks/`: a Python script with no dependencies outside the
-standard library, plus `ruff` and `uv` for the hygiene checks. A project pins it through
-`.pre-commit-hooks.yaml`:
-
-| Where | Hook | Scope | Fails on |
-|---|---|---|---|
-| `git commit` | `auditme-changed` | the whole tree is swept, hits are reported for changed files only | an unaccepted hit in a file the commit changes, or in a file a cross-file hit links to one |
-| `git push` | `auditme-all` | the whole tree | any unaccepted hit |
-| CI | `auditme-all` | the whole tree | any unaccepted hit |
-
-The commit hook ignores hits in files you did not touch, so an old hit never blocks an unrelated
-commit. The push gate and CI catch what the commit hook cannot see: a hit that appears without its
-file changing, such as a duplicate of code added elsewhere.
-
-A hit you have judged correct to keep is accepted in the code, beside the hit, with the reason:
-
-```python
-# auditme: accept[<rule>] <reason>
-```
-
-The reason stays in the source, where the next reader of that line sees it. See
-[The audit checker](guide/checker.md) for the rules and the marker's exact placement.
-
-## Pinning and upgrades
-
-Projects pin the hooks with `rev:` to a commit of this repository. A new rule therefore fails no build
-until a project upgrades with `pre-commit autoupdate`, and the upgrade commit fixes or accepts the new
-hits in the same change. This repository runs its own hooks from its working tree (`repo: local`), so a
-checker change applies in the commit that makes it.
-
-## The Stop hook
-
-`bin/install-claude.py` also registers `claude/hooks/auditme-stop.sh` as a Claude Code Stop hook in
-`~/.claude/settings.json`. In a project whose `.pre-commit-config.yaml` contains `id: auditme-changed`,
-it runs the checker over the changed files when Claude ends a turn, and sends the hits back once, so
-Claude fixes them before handing over. Elsewhere it does nothing.
-
-The Stop hook runs the checker from your clone, not the project's pinned revision, so it is an early
-warning; the pinned hooks remain the authority.
 
 ## Records in a repository
 

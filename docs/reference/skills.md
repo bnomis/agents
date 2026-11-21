@@ -7,18 +7,19 @@ into `~/.claude/`, so every skill is available in every project as
 
 Invoke a skill in Claude Code as `/<name> [args]`, or by asking for what it
 does: the `when_to_use` list in each skill's frontmatter names the phrases
-that trigger it ("ship it", "add a todo", "audit the code").
+that trigger it ("ship it", "add a todo").
+
+The `/auditme` and `/project-setup` skills are in the auditor repository
+(`bnomis/auditor`, <https://bnomis.github.io/auditor/reference/skills/>).
 
 Common behaviour:
 
-- The planning, TODO and audit skills check `git status` first and ask
+- The planning and TODO skills check `git status` first and ask
   whether to commit uncommitted changes before touching a file they own.
-- They ask before committing, and do not push unless asked. The exceptions
-  are `/ship`, whose job is to commit, merge and push, and `/project-setup`,
-  which never pushes.
+- They ask before committing, and do not push unless asked. The exception
+  is `/ship`, whose job is to commit, merge and push.
 - Steps that change something outside the working tree (deleting branches,
-  creating a deploy key, setting a CI secret) are confirmed with the user
-  first.
+  for example) are confirmed with the user first.
 - Questions to the user go through Claude Code's `AskUserQuestion` tool
   where the skill names it.
 
@@ -50,13 +51,6 @@ Common behaviour:
 |---|---|---|
 | [ship](#ship) | `/ship [message hint]` | Commit, merge the branch into `main`, push `main` |
 | [cleanup](#cleanup) | `/cleanup [repo-path]` | Delete local branches and worktrees already merged |
-
-### Auditing and setup
-
-| Skill | Invocation | Purpose |
-|---|---|---|
-| [auditme](#auditme) | `/auditme [scope]` | Scripted and checklist audit of code, specs and docs |
-| [project-setup](#project-setup) | `/project-setup new [path]`, `/project-setup adopt [path]` | Install the shared audit hooks, CI gate and project files |
 
 ### Other
 
@@ -352,64 +346,6 @@ never changes the remote. It reads only until the plan is approved.
   The plan lists ignored files each worktree removal will delete.
 - Never `--force` on worktrees. Uses `git branch -D` only for a branch it
   proved merged by the rebase or squash test.
-
-## /auditme {#auditme}
-
-```text
-/auditme [scope] [--category <category>]
-```
-
-Scope is empty (specs, `src/`, `bin/`, `docs/`, `AGENTS.md`, `README.md`), a
-file path, a spec slug, or the docs. `--category` (`standards`,
-`architecture`, `performance`, `security`, `testing`, `dependencies`,
-`documentation`) is a debugging aid; a normal audit runs every category.
-
-- **Runs:** the scripted sweep
-  `python3 ~/.claude/skills/auditme/checks/audit.py <project-root>`, then a
-  fixed checklist applied by one subagent per question across every file in
-  scope, then a spec review and re-verification of earlier findings.
-- **Refuses to start** while `claude/skills/auditme/requests.md` has open
-  checker change requests.
-- **Writes:** `agents/audit-reviews/review-N.md`,
-  `agents/audit-reviews/summary.md`, `agents/audit-reviews/index.md`, and
-  marks shipped tasks done in `agents/tasks/audit-reviews/`.
-- **Then:** runs `/taskdev agents/audit-reviews/review-N.md` if there are
-  findings.
-- **Stops for:** uncommitted changes; commit (`auditme: add review-N`).
-
-The checker, its rules and accept markers are described in
-[The checker](../guide/checker.md).
-
-## /project-setup {#project-setup}
-
-```text
-/project-setup new [<path>]
-/project-setup adopt [<path>]
-```
-
-Path defaults to the current repository root. Templates are in
-`claude/skills/project-setup/templates/`.
-
-- **`new`:** writes `.pre-commit-config.yaml` (ruff, shellcheck, and the
-  `auditme-changed` and `auditme-all` hooks pinned to the shared repository's
-  current `main` commit), `.github/workflows/ci.yml`, `AGENTS.md`,
-  `CLAUDE.md`, `TODO.md`, `DONE.md` and `claude/rules/README.md`; installs the
-  pre-commit and pre-push hooks; then runs the deploy-key steps. Asks before
-  overwriting any existing file.
-- **`adopt`:** adds the auditme hooks, offers to remove a project-local hook
-  doing the same job, and counts unaccepted hits with
-  `pre-commit run auditme-all --hook-stage manual --all-files`. At zero hits
-  it enables the pre-push stage, adds the CI audit step and runs the
-  deploy-key steps; otherwise it files a dated `TODO.md` item instead and
-  enables neither gate.
-- **Deploy-key steps:** generate an ed25519 key in a temporary directory, add
-  the public key as a read-only deploy key on the shared repository, set it
-  as the `AGENTS_DEPLOY_KEY` secret on the project, then delete the files.
-  The private key is never printed.
-- **Stops for:** the project name and test command; each deploy-key and
-  secret command; commit. Never pushes.
-
-See [Setup](../setup.md) for the full walk-through.
 
 ## /paper-pdf-hunter {#paper-pdf-hunter}
 

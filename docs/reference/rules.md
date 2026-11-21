@@ -8,7 +8,8 @@ session's context. The shared rules live in `claude/rules/` and
 
 `bin/install-claude.py` links `claude/rules/` into `~/.claude/rules/`: each
 entry of `claude/rules/` becomes a symlink there, so `~/.claude/rules/python`
-is a link to `claude/rules/python/`. See [Setup](../setup.md) for installing.
+is a link to `claude/rules/python/`. See [Command line and hooks](cli.md#bininstall-claudepy)
+for the installer.
 
 Claude Code reads `~/.claude/rules/` as user-level rules for every project.
 Nothing in `claude/CLAUDE.md` links to them; the rules directory alone is what
@@ -76,10 +77,9 @@ Every file here is path-scoped (see above).
 ## Rules enforced by a check
 
 The checks below run as pre-commit hooks or as rules of the auditme checker.
-The checker sweeps the packages under `src/` and the scripts in `bin/` of the
-project it runs in; see [The checker](../guide/checker.md). Its hits are
-reported by the `auditme-changed` and `auditme-all` hooks (see
-[Command line and hooks](cli.md#published-pre-commit-hooks)). No hook or
+The checker and its `auditme-changed` and `auditme-all` hooks are in the
+auditor repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>),
+which documents what each rule reports and how to accept a hit. No hook or
 checker rule checks the rules not listed here.
 
 ### `rule-scope.md`
@@ -91,8 +91,9 @@ this repository's own config.
 
 ### `git-conventions.md`
 
-The requirement that a script-checkable rule be a hook is met by the
-`auditme-changed` hook at `pre-commit` and `auditme-all` at `pre-push`, plus
+The requirement that a script-checkable rule be a hook is met by the auditor
+repository's `auditme-changed` hook at `pre-commit` and `auditme-all` at
+`pre-push`, plus
 ruff and shellcheck hooks in this repository's `.pre-commit-config.yaml`.
 Nothing checks commit message format or branch names.
 
@@ -129,13 +130,3 @@ Nothing checks commit message format or branch names.
 No checker rule. Ruff reports `assert` as `S101` in a project whose ruff
 config selects the `S` (bandit) rules, and the checker's `ruff` rule passes
 that hit through.
-
-### Accepting a hit
-
-A checker hit is accepted with a comment on its line or the line above:
-
-```python
-# auditme: accept[<rule>] <reason>
-```
-
-A marker without `[<rule>]` accepts a hit from any rule on that line.
