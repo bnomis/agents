@@ -72,7 +72,7 @@ directory from the locked environment.
 
 ## Task 2: Make the status line robust, cheaper and tested
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** medium
 **Source Reference:** `silent-broad-except` (`claude/statusline.py:24`); `bare-parametric-annotation` (`:31`, `:37`, `:45`, `:53`); findings "Status line hides every failure and runs git four times per refresh" (A19, P2), "Status line trusts the session JSON's shape" (Sec2), "Scripts let I/O errors escape as tracebacks" (A1, `:61`), "Untested scripts and branches" (T1, T3, status line part)
@@ -83,26 +83,26 @@ missing git does not blank the line or a real error go unseen.
 
 **Subtasks:**
 
-- [ ] Write `tests/test_statusline.py` first, loading the script with `importlib` from `claude/statusline.py`: each getter with the field present, missing, `null`, zero and a non-number; `git_status` with a stub `git` on `PATH` (a repository with staged and modified files, not a repository, git missing); and the whole script run as a subprocess with JSON on stdin, with empty stdin and with non-JSON
-- [ ] Move the module-level script body into `main() -> int` behind `if __name__ == '__main__':`, so the tests can import the module without reading stdin
-- [ ] Annotate the getters' parameter as `dict[str, object]` and read each nested field through `isinstance` checks, dropping the part when a value is not the expected type (a `dict`, a non-empty `str`, an `int` or `float`)
-- [ ] In `main`, treat empty or non-JSON stdin, or a top level that is not an object, as no fields: print an empty line and return `0`
-- [ ] Replace the four git calls with one `git status --porcelain=v2 --branch`, taking the branch from `# branch.head` and counting staged and modified entries from the `1`/`2` lines' `XY` field, with the same output as now
-- [ ] Replace the bare `except:` with `except (subprocess.CalledProcessError, FileNotFoundError):`, so any other error propagates
-- [ ] Update `docs/reference/cli.md`'s `claude/statusline.py` section: it now says it exits `1` with a traceback when stdin is not JSON; say it prints an empty line and exits `0`
+- [x] Write `tests/test_statusline.py` first, loading the script with `importlib` from `claude/statusline.py`: each getter with the field present, missing, `null`, zero and a non-number; `git_status` with a stub `git` on `PATH` (a repository with staged and modified files, not a repository, git missing); and the whole script run as a subprocess with JSON on stdin, with empty stdin and with non-JSON
+- [x] Move the module-level script body into `main() -> int` behind `if __name__ == '__main__':`, so the tests can import the module without reading stdin
+- [x] Annotate the getters' parameter as `dict[str, object]` and read each nested field through `isinstance` checks, dropping the part when a value is not the expected type (a `dict`, a non-empty `str`, an `int` or `float`)
+- [x] In `main`, treat empty or non-JSON stdin, or a top level that is not an object, as no fields: print an empty line and return `0`
+- [x] Replace the four git calls with one `git status --porcelain=v2 --branch`, taking the branch from `# branch.head` and counting staged and modified entries from the `1`/`2` lines' `XY` field, with the same output as now
+- [x] Replace the bare `except:` with `except (subprocess.CalledProcessError, FileNotFoundError):`, so any other error propagates
+- [x] Update `docs/reference/cli.md`'s `claude/statusline.py` section: it now says it exits `1` with a traceback when stdin is not JSON; say it prints an empty line and exits `0`
 
 **Acceptance Criteria:**
 
-- [ ] `{"model": null}`, `{"context_window": {"used_percentage": "n/a"}}`, empty stdin and `not json` each print a line without a traceback and exit `0`
-- [ ] Inside a repository the output's `git:` part is the same as before for a clean tree, staged files and modified files
-- [ ] `git` runs once per refresh (the stub records its calls)
-- [ ] No bare `except:` remains in `claude/statusline.py`
+- [x] `{"model": null}`, `{"context_window": {"used_percentage": "n/a"}}`, empty stdin and `not json` each print a line without a traceback and exit `0`
+- [x] Inside a repository the output's `git:` part is the same as before for a clean tree, staged files and modified files
+- [x] `git` runs once per refresh (the stub records its calls)
+- [x] No bare `except:` remains in `claude/statusline.py`
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run pytest tests/test_statusline.py -q -p no:cacheprovider` exits 0
-- [ ] The sweep (header) lists no unaccepted hit in `claude/statusline.py` or `tests/test_statusline.py`
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run pytest tests/test_statusline.py -q -p no:cacheprovider` exits 0
+- [x] The sweep (header) lists no unaccepted hit in `claude/statusline.py` or `tests/test_statusline.py`
 
 **Notes:**
 
