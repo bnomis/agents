@@ -71,7 +71,7 @@ each registered question its kinds from the spec's table.
 
 ## Task 2: Read the `findings` object in `check` and `merge`
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation, The result line (1.2); API (`check_run`)
@@ -83,21 +83,21 @@ passes and A4's old top-level shape does not.
 
 **Subtasks:**
 
-- [ ] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: for every question in `REGISTRY`, a run whose result line has `findings` with exactly that question's kinds (one kind non-empty) passes `check_run` with no problem and no retry, and `read_run_verdicts` returns a `Verdict` whose `findings` holds those kinds with each list sorted; each of these lines is reported unparseable against its batch: a `findings` with an unregistered kind, one with a kind missing, one whose value is not a list of strings, a line with a key other than `id`, `findings` and `reason`, and an A4 line with top-level `missing` and `extra` and no `findings`. Run them and see them fail
-- [ ] In `claude/skills/auditme/checks/auditme/phaseb/batches.py`, give `parse_result` the question's kinds (from the plan the caller already reads) and validate the line as the spec says; keep its `ValueError` for every malformed line, so `check_batch` reports it as today
-- [ ] In `read_run_verdicts`, build `Verdict.findings` from the line's `findings`, each list sorted, in place of the hard-coded `missing` and `extra`
-- [ ] Move each existing test that writes a result line in A4's old top-level shape (in `test_batches.py`, `test_cli.py` and `test_briefs.py`) to the `findings` shape, keeping what it asserts; stop as `blocked` if any other existing test fails
-- [ ] Update the module docstring of `batches.py`, which describes the result line as `id`, `missing`, `extra`, `reason`
+- [x] Tests first in `claude/skills/auditme/tests/phaseb/test_batches.py`: for every question in `REGISTRY`, a run whose result line has `findings` with exactly that question's kinds (one kind non-empty) passes `check_run` with no problem and no retry, and `read_run_verdicts` returns a `Verdict` whose `findings` holds those kinds with each list sorted; each of these lines is reported unparseable against its batch: a `findings` with an unregistered kind, one with a kind missing, one whose value is not a list of strings, a line with a key other than `id`, `findings` and `reason`, and an A4 line with top-level `missing` and `extra` and no `findings`. Run them and see them fail
+- [x] In `claude/skills/auditme/checks/auditme/phaseb/batches.py`, give `parse_result` the question's kinds (from the plan the caller already reads) and validate the line as the spec says; keep its `ValueError` for every malformed line, so `check_batch` reports it as today
+- [x] In `read_run_verdicts`, build `Verdict.findings` from the line's `findings`, each list sorted, in place of the hard-coded `missing` and `extra`
+- [x] Move each existing test that writes a result line in A4's old top-level shape (in `test_batches.py`, `test_cli.py` and `test_briefs.py`) to the `findings` shape, keeping what it asserts; stop as `blocked` if any other existing test fails
+- [x] Update the module docstring of `batches.py`, which describes the result line as `id`, `missing`, `extra`, `reason`
 
 **Acceptance Criteria:**
 
-- [ ] A line in every registered question's shape passes `check_run`, and `merge` writes it to the ledger
-- [ ] A4's old top-level shape is reported unparseable
+- [x] A line in every registered question's shape passes `check_run`, and `merge` writes it to the ledger
+- [x] A4's old top-level shape is reported unparseable
 
 **Definition of Done:**
 
-- [ ] The task's commit passes its pre-commit hooks (never `--no-verify`)
-- [ ] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_batches.py claude/skills/auditme/tests/phaseb/test_cli.py claude/skills/auditme/tests/phaseb/test_ledger.py claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes
+- [x] The task's commit passes its pre-commit hooks (never `--no-verify`)
+- [x] `uv run --no-project --with pytest --with pyyaml pytest claude/skills/auditme/tests/phaseb/test_batches.py claude/skills/auditme/tests/phaseb/test_cli.py claude/skills/auditme/tests/phaseb/test_ledger.py claude/skills/auditme/tests/phaseb/test_briefs.py -q -p no:cacheprovider` passes
 
 **Notes:**
 
