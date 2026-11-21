@@ -3,8 +3,9 @@
 Shared rules and skills for Claude Code, the status line, and the
 `no-project-names` hook.
 
-`bin/install-claude.py` links `claude/` into `~/.claude/`. The auditme
-checker, its pre-commit hooks, the Stop hook and `/project-setup` are in the
+`bin/install-claude.sh` links `claude/` into `~/.claude/`, with the shared
+installer `install-in-claude`. The auditme checker, its pre-commit hooks, the
+Stop hook and `/auditme-project-setup` are in the
 auditor repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 
 ## Working on this repository

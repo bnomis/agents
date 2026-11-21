@@ -4,47 +4,60 @@ Reference for the scripts in this repository and the hook it publishes. The
 auditme checker, its hooks and the Stop hook are documented in the auditor
 repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/reference/cli/>).
 
-## `bin/install-claude.py`
+## `bin/install-claude.sh`
 
 ```text
-install-claude [-h]
+bin/install-claude.sh [--dry-run] [any other install-in-claude option]
 ```
 
-Links the contents of `claude/` into `~/.claude/`, and registers the status
-line. It takes no options.
+Links the contents of `claude/` into `~/.claude/`, and sets the status line,
+by running the shared installer
+[install-in-claude](https://github.com/bnomis/install-in-claude) at the commit
+pinned in the script's `INSTALL_IN_CLAUDE_REV`:
 
-On disk:
+```shell
+uvx --from "git+ssh://git@github.com/bnomis/install-in-claude.git@$INSTALL_IN_CLAUDE_REV" \
+    install-in-claude --source "$REPO/claude" \
+    --set-if-absent 'statusLine={"command":"~/.claude/statusline.py","type":"command"}'
+```
 
-- Creates `~/.claude/` if it is missing.
-- For each top-level entry of `claude/` (dotfiles skipped):
-    - a file (`CLAUDE.md`, `statusline.py`) becomes a symlink in `~/.claude/`;
-    - a directory (`rules/`, `skills/`) becomes a real directory in
-      `~/.claude/`, and each entry inside it becomes a symlink, so
-      `~/.claude/skills/ship` links to `claude/skills/ship/`.
-- Symlinks are relative. An existing symlink at the target is replaced; an
-  existing file or directory is renamed with a `.orig` suffix (numbered when
-  that name is taken).
-- Prints any dangling symlinks found in `~/.claude/` and its immediate
-  subdirectories, with an `rm` command to remove them. It does not remove
-  them.
+Its own arguments pass through: `bin/install-claude.sh --dry-run` prints what
+would change and changes nothing. It needs `uv`, and SSH access to
+`bnomis/install-in-claude` for the first run of a pinned commit; `uvx` caches
+it after that.
+
+What the installer does, in short (its README has the detail):
+
+- Checks every option and reads `~/.claude/settings.json` first; a settings
+  file that is not a valid JSON object stops it, exit `1`, before anything is
+  linked or written.
+- For each top-level entry of `claude/` (dotfiles skipped): a file
+  (`CLAUDE.md`, `statusline.py`) becomes a symlink in `~/.claude/`; a
+  directory (`rules/`, `skills/`) becomes a real directory in `~/.claude/`
+  whose entries are symlinks, so `~/.claude/skills/ship` links to
+  `claude/skills/ship/`. Links are relative. An existing symlink is replaced;
+  an existing file is renamed with a `.orig` suffix (numbered when that name
+  is taken).
+- Prints any dangling symlinks in `~/.claude/` and its immediate
+  subdirectories, with a quoted `rm` command to remove them. It does not
+  remove them.
 - Sets `statusLine` to `{"type": "command", "command": "~/.claude/statusline.py"}`
   in `~/.claude/settings.json`, unless a `statusLine` is already set, in which
-  case it is left as it is. Every other key is kept. Before the first change
-  to an existing file it copies it to `settings.json.orig`, once; it writes
-  through a temporary file and keeps the file's mode. A missing file is
-  created.
-
-The settings file is read after the symlinks are made. If it is not valid
-JSON, or not a JSON object, the installer leaves it unchanged and exits; the
-symlinks are already in place.
+  case it is left as it is. Every other key is kept; the first original is
+  copied to `settings.json.orig`; the file is written atomically and keeps its
+  mode.
 
 | Exit | Meaning |
 |---|---|
-| `0` | Installed, or `--help` |
-| `1` | `settings.json` is not valid JSON or not a JSON object; the message names the file |
-| `2` | Unknown argument |
+| `0` | Installed, or nothing to do |
+| `1` | `settings.json` is not valid JSON or not a JSON object; nothing changed |
+| `2` | A bad argument; nothing changed |
 
-Environment: `HOME` (through `pathlib.Path.home()`).
+Environment: `HOME`.
+
+To upgrade the installer, set `INSTALL_IN_CLAUDE_REV` to a newer commit
+(`git ls-remote git@github.com:bnomis/install-in-claude.git refs/heads/main`,
+first field) and run `bin/install-claude.sh --dry-run` to see what it changes.
 
 ## `bin/check-foreign-names.sh`
 

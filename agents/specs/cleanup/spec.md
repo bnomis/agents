@@ -20,7 +20,7 @@ never forces.
 ## Module location
 
 `claude/skills/cleanup/SKILL.md` - a skill file, no code. It is installed into
-`~/.claude/skills/cleanup` by `bin/install-claude.py`, which symlinks each
+`~/.claude/skills/cleanup` by `bin/install-claude.sh`, which symlinks each
 directory under `claude/skills/`.
 
 ## API

@@ -7,7 +7,7 @@ status line, and the `no-project-names` hook.
 
 ```shell
 git clone git@github.com:bnomis/agents.git ~/src/agents
-~/src/agents/bin/install-claude.py
+~/src/agents/bin/install-claude.sh
 ```
 
 The installer links the contents of `claude/` into `~/.claude/`, so the rules load in every Claude
@@ -15,7 +15,7 @@ Code session and each skill becomes a slash command in every project. It also se
 `claude/statusline.py` as the status line unless one is already set; see
 [Command line and hooks](reference/cli.md).
 
-The auditme checker, its pre-commit hooks, the Stop hook and `/project-setup` are in the auditor
+The auditme checker, its pre-commit hooks, the Stop hook and `/auditme-project-setup` are in the auditor
 repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 
 ## What is in the repository

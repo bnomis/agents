@@ -8,12 +8,12 @@ the auditor repository (`bnomis/auditor`, <https://bnomis.github.io/auditor/>).
 flowchart LR
     repo["agents repository"]
     home["~/.claude/<br>rules, skills, status line"]
-    repo -- "bin/install-claude.py<br>(symlinks)" --> home
+    repo -- "bin/install-claude.sh<br>(symlinks)" --> home
 ```
 
 ## Rules and skills in `~/.claude/`
 
-`bin/install-claude.py` links `claude/` into `~/.claude/` one level down: a file such as
+`bin/install-claude.sh` links `claude/` into `~/.claude/` one level down: a file such as
 `claude/CLAUDE.md` becomes a symlink, and a directory such as `claude/skills/` becomes a real directory
 whose entries are symlinks, so skills and rules of your own in `~/.claude/` sit beside the shared ones.
 A file already at a link's place is renamed with an `.orig` suffix, never overwritten. Because the

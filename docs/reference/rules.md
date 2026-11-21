@@ -6,9 +6,9 @@ session's context. The shared rules live in `claude/rules/` and
 
 ## How rules reach a session
 
-`bin/install-claude.py` links `claude/rules/` into `~/.claude/rules/`: each
+`bin/install-claude.sh` links `claude/rules/` into `~/.claude/rules/`: each
 entry of `claude/rules/` becomes a symlink there, so `~/.claude/rules/python`
-is a link to `claude/rules/python/`. See [Command line and hooks](cli.md#bininstall-claudepy)
+is a link to `claude/rules/python/`. See [Command line and hooks](cli.md#bininstall-claudesh)
 for the installer.
 
 Claude Code reads `~/.claude/rules/` as user-level rules for every project.

@@ -1,7 +1,7 @@
 # Skills
 
 Each skill is a directory under `claude/skills/<name>/` holding a `SKILL.md`
-and any scripts or templates it uses. `bin/install-claude.py` links `claude/`
+and any scripts or templates it uses. `bin/install-claude.sh` links `claude/`
 into `~/.claude/`, so every skill is available in every project as
 `~/.claude/skills/<name>/`.
 
@@ -9,7 +9,7 @@ Invoke a skill in Claude Code as `/<name> [args]`, or by asking for what it
 does: the `when_to_use` list in each skill's frontmatter names the phrases
 that trigger it ("ship it", "add a todo").
 
-The `/auditme` and `/project-setup` skills are in the auditor repository
+The `/auditme` and `/auditme-project-setup` skills are in the auditor repository
 (`bnomis/auditor`, <https://bnomis.github.io/auditor/reference/skills/>).
 
 Common behaviour:
