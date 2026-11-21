@@ -6,8 +6,8 @@
 **Last script run hit count:** 0 (0 accepted)
 **Script version:** e924b332c5c6809821c1635aa7a1d3714064120de0317c733f7f09dfa6b50537
 
-The sweep runs as `audit.py . --extra-root claude --extra-root tests`: the
-repository has no `src/`, and `bin/` holds no Python.
+The sweep reads the roots `claude` and `tests`, declared under `[tool.auditme]`
+in `pyproject.toml`: the repository has no `src/`, and `bin/` holds no Python.
 
 ## Unresolved findings
 

@@ -58,6 +58,14 @@ ignore = ["E501", "E722", 'ICN001', 'SIM108', 'SIM102', 'S110', 'S311']
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
+[tool.auditme]
+# The sweep's roots: this repository has no src/ and no Python in bin/, so
+# without them the audit hooks read none of its Python.
+roots = [
+    { path = "claude" },
+    { path = "tests" },
+]
+
 [tool.uv]
 exclude-newer = "14 days"
 prerelease = "disallow"
