@@ -19,7 +19,7 @@ repos:
   # docs/setup.md). Upgrade with:
   # pre-commit autoupdate --repo git@github.com:bnomis/auditor.git
   - repo: git@github.com:bnomis/auditor.git
-    rev: e56535512e8d7f3069b4ca148bed704ffd1715fe
+    rev: 717d4af03e5d50448406cf828e6616442705eb64
     hooks:
       - id: auditme-changed
       - id: auditme-all
