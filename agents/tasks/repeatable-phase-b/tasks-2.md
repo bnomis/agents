@@ -108,7 +108,7 @@ passes and A4's old top-level shape does not.
 
 ## Task 3: Move the A4 and Doc briefs to the `findings` shape
 
-**Status:** todo
+**Status:** in-progress
 **Priority:** high
 **Complexity:** small
 **Spec Reference:** Implementation, The result line (1.2), the Brief version column
