@@ -263,7 +263,7 @@ skill file.
 
 ## Task 7: Whole-tree checks and the audit summary
 
-**Status:** todo
+**Status:** done
 **Priority:** high
 **Complexity:** small
 **Source Reference:** all findings; the auditme skill's step 8b (refresh the summary after the task list ships)
@@ -273,21 +273,21 @@ record in the audit summary which findings this list resolved.
 
 **Subtasks:**
 
-- [ ] Run the sweep (header) over the whole tree and fix or accept, with a scoped marker giving the reason, any unaccepted hit left
-- [ ] Move each finding resolved by Tasks 1-6 from `agents/audit-reviews/summary.md`'s Unresolved findings to Recently resolved, as `review-1` raised, resolved by this task list; leave any not resolved where it is, with a dated note saying why
-- [ ] Update the summary's `**Last script run hit count:**` from this run
+- [x] Run the sweep (header) over the whole tree and fix or accept, with a scoped marker giving the reason, any unaccepted hit left
+- [x] Move each finding resolved by Tasks 1-6 from `agents/audit-reviews/summary.md`'s Unresolved findings to Recently resolved, as `review-1` raised, resolved by this task list; leave any not resolved where it is, with a dated note saying why
+- [x] Update the summary's `**Last script run hit count:**` from this run
 
 **Acceptance Criteria:**
 
-- [ ] The sweep lists no unaccepted hit
-- [ ] `agents/audit-reviews/summary.md` lists no finding as unresolved that the sweep or a test shows fixed
+- [x] The sweep lists no unaccepted hit
+- [x] `agents/audit-reviews/summary.md` lists no finding as unresolved that the sweep or a test shows fixed
 
 **Definition of Done:**
 
-- [ ] `pre-commit run --all-files` exits 0
-- [ ] `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests claude/skills/todo-review/tests tests -q -p no:cacheprovider` exits 0
-- [ ] `uv run --group docs mkdocs build --strict` exits 0
-- [ ] The sweep (header) lists no unaccepted hit
+- [x] `pre-commit run --all-files` exits 0
+- [x] `uv run pytest claude/skills/survey/tests claude/skills/test-log-review/tests claude/skills/todo-review/tests tests -q -p no:cacheprovider` exits 0
+- [x] `uv run --group docs mkdocs build --strict` exits 0
+- [x] The sweep (header) lists no unaccepted hit
 
 **Notes:**
 
