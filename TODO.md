@@ -32,6 +32,8 @@ and `merge` on a line in its brief's shape. It changes the verdict contract
 of the repeatable-phase-b spec, which names A4's keys, so it goes through
 that spec, or the three listed-question specs, first.
 
+Spec: `agents/specs/repeatable-phase-b/spec.md`, amendment 1.2 (one `findings` object for every question, chosen by the operator on 2026-11-21); tasks: none yet.
+
 ## Pilot the documentation listers' batch sizes on a real audit
 
 Found on 2026-11-20 in a review of this file:

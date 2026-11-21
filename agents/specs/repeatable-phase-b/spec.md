@@ -1,7 +1,7 @@
 # Repeatable Phase B
 
-**Version:** 1.1
-**Status:** implemented
+**Version:** 1.2
+**Status:** proposed
 **Date:** 2026-11-20
 **Review page:** https://claude.ai/artifact/2L2gApX1M8DNzL5ivQF3D7
 
@@ -62,6 +62,20 @@ resolution, so this spec changes no rule's output and leaves no catch-up
 surface in any project; giving the rule the same resolution is the separate
 open request in `claude/skills/auditme/requests.md`.
 
+Amendment 1.2 (operator, 2026-11-21): one result shape for every listed
+question. Found on 2026-11-21 in the Doc batch-size pilot (two runs of 13
+batches on one project): `phaseb.py check` exits 1 on every Doc1, Doc2,
+Doc4 and Doc5 run, reporting every line `unparseable ... extra must be a
+list of strings` and every batch for retry, though every reviewer returned a
+well-formed line in its brief's shape. `parse_result` and
+`read_run_verdicts` in `phaseb/batches.py` read A4's `missing` and `extra`
+keys from every line, while the briefs that shipped after version 1 ask for
+`drift` (Doc4, Doc5), `stale` and `missing` (Doc1, Doc2), or a `findings`
+object (T1, T2, A1, A11, A17, A19). So only A4 could reach a ledger. The
+operator chose one wire shape for every question - `id`, a `findings` object
+mapping each of the question's kinds to a list, and `reason` - over reading
+two shapes; no project had a ledger yet, so no stored verdict is re-judged.
+
 ## Module location
 
 The checker is not under `src/`; this repository keeps it with its skill.
@@ -110,7 +124,7 @@ class Verdict:
     id: str
     hash: str  # the candidate hash it was judged against
     brief_version: int
-    findings: dict[str, list[str]]  # A4: {'missing': [...], 'extra': [...]}
+    findings: dict[str, list[str]]  # one list per registered kind; A4: {'missing': [...], 'extra': [...]}
     reason: str
     judged: str  # ISO date
     dismissed: str | None = None  # 'YYYY-MM-DD: <reason>' once the operator dismisses it
@@ -120,8 +134,21 @@ class Verdict:
         """True when any findings list is non-empty and the verdict is not dismissed."""
 
 
-def register_question(question: str, brief: pathlib.Path) -> typing.Callable[[Lister], Lister]:
-    """Register a candidate lister for a Phase B question, with its brief."""
+def register_question(question: str, brief: pathlib.Path, kinds: tuple[str, ...], batch_size: int = DEFAULT_BATCH_SIZE) -> typing.Callable[[Lister], Lister]:
+    """Register a candidate lister for a Phase B question, with its brief, the
+    finding kinds its reviewers report (1.2) and its default batch size.
+
+    Raises:
+        PhaseBError: kinds is empty or repeats a kind.
+    """
+
+
+def question_kinds(question: str) -> tuple[str, ...]:
+    """The finding kinds registered for question (1.2).
+
+    Raises:
+        PhaseBError: question has no registered lister.
+    """
 
 
 def list_candidates(question: str, root: pathlib.Path) -> list[Candidate]:
@@ -244,6 +271,34 @@ A threshold a reviewer raises in its reply that the brief does not settle is
 reported to the operator, never settled by the orchestrator mid-run, and the
 answer lands as a brief version bump.
 
+### The result line (1.2)
+
+Every brief's Output section asks for one JSON line per candidate with
+exactly the keys `id` (a string), `findings` (an object mapping each of the
+question's registered kinds to a list of strings, empty when nothing is
+wrong) and `reason` (a string). `parse_result` checks a line against
+`question_kinds(plan.question)`: a key outside the three, a missing or extra
+kind, or a value that is not a list of strings makes the line unparseable,
+which `check_run` reports against its batch, as today. `read_run_verdicts`
+stores `findings` as the line gives it, each list sorted. The kinds each
+question registers:
+
+| Question | Kinds | Brief version |
+|---|---|---|
+| A4 | `missing`, `extra` | 3 (output moves under `findings`) |
+| Doc4, Doc5 | `drift` | 2 (the same) |
+| Doc1, Doc2 | `stale`, `missing` | 2 (the same) |
+| T1, T2 | `missing` | unchanged |
+| A1 | `call` | unchanged |
+| A11 | `unexhausted` | unchanged |
+| A17 | `surface` | unchanged |
+| A19 | `handler` | unchanged |
+
+Only the Output sections of the A4 and Doc briefs change, but a version bump
+is how a brief change re-plans its candidates, so each still moves up one.
+`Verdict`, the ledger format and `flagged` are unchanged: the ledger already
+holds `findings` as a map of lists.
+
 ### A review's findings
 
 For a listed question, the review's findings are the flagged verdicts in the
@@ -274,6 +329,12 @@ changing a callee changes the hash; `plan_batches` skips a current verdict
 and re-plans a changed hash and a bumped brief version; `check_run` reports
 each problem kind; `merge_verdicts` drops vanished ids, keeps an unchanged
 dismissal and drops a changed one; a malformed ledger raises `PhaseBError`.
+For 1.2: for every registered question, a line in its brief's shape passes
+`check_run` and `read_run_verdicts` stores its kinds; a line with an
+unregistered kind, a missing kind, or A4's old top-level `missing` and
+`extra` is reported unparseable; every brief's Output section names exactly
+its question's registered kinds; and `register_question` rejects empty or
+repeated kinds.
 
 ## Settings
 
