@@ -61,4 +61,5 @@ checked. If nothing checks it, that is a finding, not a note.
 ## Related
 
 - [reviews.md](reviews.md) - how such findings reach the user
-- [python/dependencies.md](python/dependencies.md) - declaring dependencies
+- [auditme/dependencies.md](auditme/dependencies.md) - declaring dependencies
+  (from the auditor repository)
