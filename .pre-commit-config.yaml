@@ -26,5 +26,5 @@ repos:
         stages: [manual, pre-push]
       # This repository is shared, so no file or commit message names a
       # project (claude/rules/rule-scope.md). The names are listed outside
-      # the repository, at ~/.config/agents/foreign-names.
+      # the repository, at ~/.config/auditor/foreign-names.
       - id: no-project-names

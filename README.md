@@ -17,7 +17,8 @@ pre-commit install --hook-type pre-commit --hook-type pre-push --hook-type commi
 
 Everything here is shared by every project, so no file or commit message names
 one (`claude/rules/rule-scope.md`). The `no-project-names` hook, pinned from
-the auditor repository, enforces that against a list kept outside the repository, one name per line, at
-`~/.config/agents/foreign-names` (or the file `$AGENTS_FOREIGN_NAMES` names).
+the auditor repository, enforces that against a list kept outside the
+repository, one name per line, at `~/.config/auditor/foreign-names` (or the
+file `$AUDITOR_FOREIGN_NAMES` names).
 Without the list the hook checks nothing and says so, which is also what
 happens in CI.
