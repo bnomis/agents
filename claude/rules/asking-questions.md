@@ -40,6 +40,23 @@ message.
   first, not from memory. A bare "needs X" reads as an arbitrary demand, and
   the user has to ask why before they can judge whether to provide it.
 
+## Steps the user has to take
+
+When something needs the user to act - a setting on a website, a test in
+another session, a command on their machine - end with numbered steps, not
+prose describing what could be done.
+
+- One action per step, in the order they are done, each a plain instruction
+  ("Open X", "Click Y", "Paste this").
+- Name where each action happens: the site and the page, the app, the
+  terminal and the directory.
+- Put anything to type or paste in a code block.
+- Say what the user should see when a step works, and what to do if it does
+  not.
+- End with what to send back, if anything.
+
+Say the steps every time the user has to act, not only when asked.
+
 ## Related
 
 - [reviews.md](reviews.md) - decisions that need background and consequences
