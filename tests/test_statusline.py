@@ -21,7 +21,7 @@ RESET = '\033[0m'
 YELLOW = '\033[33m'
 
 
-def make_stub_git(tmp_path: pathlib.Path, stdout: str = '', exit_code: int = 0) -> pathlib.Path:
+def write_stub_git(tmp_path: pathlib.Path, stdout: str = '', exit_code: int = 0) -> pathlib.Path:
     """A `git` that records each call's arguments and prints `stdout`."""
     stub_dir = tmp_path / 'stub'
     stub_dir.mkdir()
@@ -104,23 +104,23 @@ def test_git_status_with_staged_and_modified_files(tmp_path, monkeypatch):
         '2 R. N... 100644 100644 100644 a b R100 new.py\told.py\n'
         '? untracked.py\n'
     )
-    with_path(monkeypatch, make_stub_git(tmp_path, porcelain))
+    with_path(monkeypatch, write_stub_git(tmp_path, porcelain))
     assert statusline.git_status() == f'git: main{GREEN}+2{RESET}{YELLOW}~1{RESET}'
     assert (tmp_path / 'calls.txt').read_text().splitlines() == ['status --porcelain=v2 --branch']
 
 
 def test_git_status_clean_tree(tmp_path, monkeypatch):
-    with_path(monkeypatch, make_stub_git(tmp_path, '# branch.oid abc\n# branch.head feat/x\n'))
+    with_path(monkeypatch, write_stub_git(tmp_path, '# branch.oid abc\n# branch.head feat/x\n'))
     assert statusline.git_status() == 'git: feat/x'
 
 
 def test_git_status_detached_head_clean(tmp_path, monkeypatch):
-    with_path(monkeypatch, make_stub_git(tmp_path, '# branch.head (detached)\n'))
+    with_path(monkeypatch, write_stub_git(tmp_path, '# branch.head (detached)\n'))
     assert statusline.git_status() == ''
 
 
 def test_git_status_not_a_repository(tmp_path, monkeypatch):
-    with_path(monkeypatch, make_stub_git(tmp_path, exit_code=128))
+    with_path(monkeypatch, write_stub_git(tmp_path, exit_code=128))
     assert statusline.git_status() == ''
 
 
@@ -147,7 +147,7 @@ def test_git_status_in_a_real_repository(tmp_path, monkeypatch):
 
 
 def run_script(stdin: str, tmp_path: pathlib.Path) -> subprocess.CompletedProcess[str]:
-    stub_dir = make_stub_git(tmp_path, exit_code=128)
+    stub_dir = write_stub_git(tmp_path, exit_code=128)
     env = {**os.environ, 'PATH': f'{stub_dir}{os.pathsep}{os.environ["PATH"]}'}
     return subprocess.run([sys.executable, str(SCRIPT)], input=stdin, capture_output=True, text=True, env=env, check=False)
 

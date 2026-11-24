@@ -46,7 +46,7 @@ collecting ... collected 0 items
 """
 
 
-def make_repo(root: pathlib.Path, name: str, logs: dict[str, str]) -> pathlib.Path:
+def create_repo(root: pathlib.Path, name: str, logs: dict[str, str]) -> pathlib.Path:
     repo = root / name
     (repo / '.git').mkdir(parents=True)
     for i, (log_name, text) in enumerate(logs.items()):
@@ -62,7 +62,7 @@ def test_log_kind_strips_the_timestamp():
 
 
 def test_passing_log_counts_come_from_the_summary_not_from_log_lines(tmp_path):
-    repo = make_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
+    repo = create_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
     [report] = scan.scan(tmp_path, 'pytest*.log', 1)
     assert report.repository == 'alpha'
     assert report.counts == {'passed': 10, 'skipped': 2, 'warning': 3}
@@ -71,7 +71,7 @@ def test_passing_log_counts_come_from_the_summary_not_from_log_lines(tmp_path):
 
 
 def test_warnings_are_grouped_by_category_and_message(tmp_path):
-    make_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
+    create_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
     [report] = scan.scan(tmp_path, 'pytest*.log', 1)
     assert dict((w, n) for n, w in report.warnings) == {
         'FutureWarning: `thing` is deprecated, use `other`': 1,
@@ -81,7 +81,7 @@ def test_warnings_are_grouped_by_category_and_message(tmp_path):
 
 
 def test_failures_and_errors_are_reported(tmp_path):
-    make_repo(tmp_path, 'beta', {'pytest-2026-01-02@10.00.00.log': FAILING})
+    create_repo(tmp_path, 'beta', {'pytest-2026-01-02@10.00.00.log': FAILING})
     [report] = scan.scan(tmp_path, 'pytest*.log', 1)
     assert report.counts['failed'] == 1
     assert report.counts['error'] == 1
@@ -90,7 +90,7 @@ def test_failures_and_errors_are_reported(tmp_path):
 
 
 def test_only_the_newest_log_of_each_kind_is_read(tmp_path):
-    make_repo(
+    create_repo(
         tmp_path,
         'gamma',
         {
@@ -107,7 +107,7 @@ def test_only_the_newest_log_of_each_kind_is_read(tmp_path):
 
 
 def test_a_log_with_no_tests_needs_no_investigation(tmp_path, capsys):
-    make_repo(tmp_path, 'delta', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
+    create_repo(tmp_path, 'delta', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
     [report] = scan.scan(tmp_path, 'pytest*.log', 1)
     assert report.no_tests
     assert not report.needs_investigation
@@ -116,8 +116,8 @@ def test_a_log_with_no_tests_needs_no_investigation(tmp_path, capsys):
 
 
 def test_repositories_are_found_at_each_depth_and_others_ignored(tmp_path):
-    make_repo(tmp_path, 'top', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
-    make_repo(tmp_path / 'projects', 'nested', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
+    create_repo(tmp_path, 'top', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
+    create_repo(tmp_path / 'projects', 'nested', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
     (tmp_path / 'not-a-repo').mkdir()
     (tmp_path / 'not-a-repo' / 'pytest-2026-01-01@10.00.00.log').write_text(FAILING)
     assert [r.repository for r in scan.scan(tmp_path, 'pytest*.log', 2)] == ['nested', 'top']
@@ -125,7 +125,7 @@ def test_repositories_are_found_at_each_depth_and_others_ignored(tmp_path):
 
 
 def test_json_output_flags_logs_to_investigate(tmp_path, capsys):
-    make_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
+    create_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': PASSING_WITH_WARNINGS})
     assert scan.main([str(tmp_path), '--depth', '1', '--json']) == 0
     [entry] = json.loads(capsys.readouterr().out)
     assert entry['needs_investigation'] is True
@@ -133,14 +133,14 @@ def test_json_output_flags_logs_to_investigate(tmp_path, capsys):
 
 
 def test_a_glob_with_dotdot_reaches_no_file_outside_the_repository(tmp_path):
-    make_repo(tmp_path, 'inside', {})
+    create_repo(tmp_path, 'inside', {})
     (tmp_path / 'outside.log').write_text(FAILING)
     assert scan.scan(tmp_path, '../outside.log', 1) == []
     assert scan.newest_per_kind(tmp_path / 'inside', '../outside.log') == []
 
 
 def test_an_unreadable_log_gives_exit_1_and_its_path(tmp_path, capsys):
-    repo = make_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
+    repo = create_repo(tmp_path, 'alpha', {'pytest-2026-01-01@10.00.00.log': NO_TESTS})
     log = repo / 'pytest-2026-01-01@10.00.00.log'
     log.chmod(0)
     try:
