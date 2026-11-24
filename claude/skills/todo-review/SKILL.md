@@ -148,3 +148,7 @@ because nothing else is open.
 - File a missing item from memory of the session: name the record that promises
   the work, and check it is still outstanding.
 - Touch the operator's own notes files.
+- File the next audit or review cycle as a missing item because a review's
+  summary or convergence note says when it would run. An audit runs only when
+  the operator asks for one; a note about the next cycle is not a promise of
+  work.
