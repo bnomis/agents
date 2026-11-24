@@ -1,0 +1,1416 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Shared Claude Code rules and skills, and the status line">
+      
+      
+      
+        <link rel="canonical" href="https://bnomis.github.io/agents/reference/skills/">
+      
+      
+        <link rel="prev" href="../../concepts/">
+      
+      
+        <link rel="next" href="../rules/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Skills - agents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mona+Sans:300,300i,400,400i,700,700i%7CSource+Code+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Mona Sans";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/theme.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#skills" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agents" class="md-header__button md-logo" aria-label="agents" data-md-component="logo">
+      
+  <img src="../../assets/agents-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agents
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Skills
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agents" class="md-nav__button md-logo" aria-label="agents" data-md-component="logo">
+      
+  <img src="../../assets/agents-mark.svg" alt="logo">
+
+    </a>
+    agents
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How it works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#todo-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TODO workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /specdev
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taskdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /taskdev
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /testplan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-run-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-run-order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#survey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /survey
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-log-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /test-log-review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /note-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shipit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /shipit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /cleanup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paper-pdf-hunter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /paper-pdf-hunter
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command line and hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#todo-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TODO workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /specdev
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taskdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /taskdev
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /testplan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todo-run-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /todo-run-order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#survey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /survey
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-log-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /test-log-review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /note-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shipit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /shipit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /cleanup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paper-pdf-hunter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /paper-pdf-hunter
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="skills">Skills<a class="headerlink" href="#skills" title="Permanent link">&para;</a></h1>
+<p>Each skill is a directory under <code>claude/skills/&lt;name&gt;/</code> holding a <code>SKILL.md</code>
+and any scripts or templates it uses. <code>bin/install-claude.sh</code> links <code>claude/</code>
+into <code>~/.claude/</code>, so every skill is available in every project as
+<code>~/.claude/skills/&lt;name&gt;/</code>.</p>
+<p>Invoke a skill in Claude Code as <code>/&lt;name&gt; [args]</code>, or by asking for what it
+does: the <code>when_to_use</code> list in each skill's frontmatter names the phrases
+that trigger it ("ship it", "add a todo").</p>
+<p>The <code>/auditme</code> and <code>/auditme-project-setup</code> skills are in the auditor repository
+(<code>bnomis/auditor</code>, <a href="https://bnomis.github.io/auditor/reference/skills/">https://bnomis.github.io/auditor/reference/skills/</a>).</p>
+<p>Common behaviour:</p>
+<ul>
+<li>The planning and TODO skills check <code>git status</code> first and ask
+  whether to commit uncommitted changes before touching a file they own.</li>
+<li>They ask before committing, and do not push unless asked. The exception
+  is <code>/shipit</code>, whose job is to commit, merge and push.</li>
+<li>Steps that change something outside the working tree (deleting branches,
+  for example) are confirmed with the user first.</li>
+<li>Questions to the user go through Claude Code's <code>AskUserQuestion</code> tool
+  where the skill names it.</li>
+</ul>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<h3 id="planning">Planning<a class="headerlink" href="#planning" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Invocation</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#specdev">specdev</a></td>
+<td><code>/specdev &lt;spec-name&gt;</code></td>
+<td>Write, review or update a spec; detect drift from the code</td>
+</tr>
+<tr>
+<td><a href="#taskdev">taskdev</a></td>
+<td><code>/taskdev &lt;spec-name-or-path&gt;</code></td>
+<td>Turn a spec or review into an ordered task list</td>
+</tr>
+<tr>
+<td><a href="#testplan">testplan</a></td>
+<td><code>/testplan [scope]</code></td>
+<td>Find testing gaps and write a test plan</td>
+</tr>
+</tbody>
+</table>
+<h3 id="todo-workflow">TODO workflow<a class="headerlink" href="#todo-workflow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Invocation</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#todo-add">todo-add</a></td>
+<td><code>/todo-add [description]</code></td>
+<td>File one verified, dated finding in <code>TODO.md</code>, in order</td>
+</tr>
+<tr>
+<td><a href="#todo-review">todo-review</a></td>
+<td><code>/todo-review</code></td>
+<td>Re-check, consolidate and reorder the whole of <code>TODO.md</code></td>
+</tr>
+<tr>
+<td><a href="#todo-do">todo-do</a></td>
+<td><code>/todo-do [item title]</code></td>
+<td>Do the first (or named) item, or start a spec for it</td>
+</tr>
+<tr>
+<td><a href="#todo-run-order">todo-run-order</a></td>
+<td><code>/todo-run-order &lt;items&gt; [run order name]</code></td>
+<td>Turn chosen items into specs, task lists and an order file for <code>/rro</code></td>
+</tr>
+<tr>
+<td><a href="#survey">survey</a></td>
+<td><code>/survey [root]</code></td>
+<td>Survey every repository for unfinished plans, fixable failures, doable items and stale branches; file the findings</td>
+</tr>
+<tr>
+<td><a href="#test-log-review">test-log-review</a></td>
+<td><code>/test-log-review [root] [--glob PATTERN]</code></td>
+<td>Trace the failures and warnings in every repository's newest pytest logs; review page; file the approved fixes</td>
+</tr>
+<tr>
+<td><a href="#note-add">note-add</a></td>
+<td><code>/note-add [note]</code></td>
+<td>Append a dated, self-explanatory note to <code>NOTES.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="git">Git<a class="headerlink" href="#git" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Invocation</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#shipit">shipit</a></td>
+<td><code>/shipit [message hint]</code></td>
+<td>Commit, merge the branch into <code>main</code>, push <code>main</code></td>
+</tr>
+<tr>
+<td><a href="#cleanup">cleanup</a></td>
+<td><code>/cleanup [repo-path]</code></td>
+<td>Delete local branches and worktrees already merged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Invocation</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#paper-pdf-hunter">paper-pdf-hunter</a></td>
+<td><code>/paper-pdf-hunter &lt;list&gt; &lt;folder&gt;</code></td>
+<td>Find and download paper PDFs by driving a browser</td>
+</tr>
+</tbody>
+</table>
+<h2 id="specdev">/specdev<a class="headerlink" href="#specdev" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/specdev &lt;SPEC-NAME&gt;
+</code></pre></div>
+<p>With no argument, lists specs from <code>agents/specs/index.md</code> and asks which.
+The name is slugified (lowercase ASCII alphanumerics, spaces to hyphens,
+repeated hyphens collapsed): <code>"C++ Parser v2.0"</code> becomes <code>c-parser-v20</code>.</p>
+<ul>
+<li><strong>Reads:</strong> <code>AGENTS.md</code>, <code>README.md</code>, <code>agents/specs/index.md</code>, the spec, and
+  the implementation at the spec's module location.</li>
+<li><strong>New spec:</strong> interviews the user, writes a draft from the template
+  (<code>Version</code>, <code>Status: proposed</code>, <code>Date</code>, then Module location, API, Error
+  handling, Implementation, Settings, External dependencies), and adds it to
+  the index.</li>
+<li><strong>Existing spec:</strong> runs drift detection against the code when it exists,
+  checks the spec against the template and validation criteria, and suggests
+  changes. Drift findings are never resolved without the user choosing a
+  direction for each one.</li>
+<li><strong>Stops for:</strong> interview answers; each drift item (update spec, update
+  code, or skip); commit.</li>
+<li><strong>Writes:</strong> <code>agents/specs/&lt;slug&gt;/spec.md</code>, <code>agents/specs/index.md</code>.
+  Commits only the spec file, with a message such as
+  <code>docs(specs): add error handling to &lt;SLUG&gt; spec</code>.</li>
+</ul>
+<p>One spec covers one repository and is self-contained; cross-repository work
+is one spec per repository.</p>
+<h2 id="taskdev">/taskdev<a class="headerlink" href="#taskdev" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/taskdev &lt;SPEC-NAME&gt;
+/taskdev &lt;SPEC-PATH&gt;
+</code></pre></div>
+<p>An argument containing <code>/</code> is a path. A path that is not
+<code>agents/specs/&lt;slug&gt;/spec.md</code> (an audit review or test plan, for example) is
+non-spec input: the slug is the parent directory's name, and tasks cite
+<strong>Source</strong> instead of <strong>Spec</strong>.</p>
+<ul>
+<li><strong>Reads:</strong> the spec and its sibling documents, <code>agents/tasks/index.md</code>,
+  earlier <code>agents/tasks/&lt;slug&gt;/tasks-*.md</code>, and the code under <code>src/</code> to mark
+  work already done.</li>
+<li><strong>Writes:</strong> <code>agents/tasks/&lt;slug&gt;/tasks-N.md</code> (never overwrites; N
+  increments) and <code>agents/tasks/index.md</code>.</li>
+<li><strong>Stops for:</strong> an ambiguous spec (offers <code>/specdev</code> first, or proceeds with
+  caveats); tasks that need a user decision; review of the list; commit.</li>
+</ul>
+<p>Each task carries status, priority, complexity, spec reference, subtasks,
+acceptance criteria, notes, and a <strong>Definition of Done</strong> naming the
+project's own check commands literally. Per-task checks are scoped to the
+changed files; the last task runs the whole-tree lint and the full
+affected-tests run, and sets the spec's status to <code>implemented</code>. No task
+edits another repository.</p>
+<h2 id="testplan">/testplan<a class="headerlink" href="#testplan" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/testplan                 # every module under src/
+/testplan &lt;module-path&gt;   # one module and its tests
+/testplan &lt;spec-name&gt;     # a spec's implementation
+</code></pre></div>
+<ul>
+<li><strong>Reads:</strong> <code>AGENTS.md</code>, the modules in scope and their tests (<code>src/tests/</code>),
+  earlier plans in <code>agents/test-plans/</code>, and <code>uv run pytest --co -q</code>.</li>
+<li><strong>Writes:</strong> <code>agents/test-plans/plan-N.md</code> (never overwrites), capped at 20
+  recommendations, favouring branching logic, error paths and edge cases.</li>
+<li><strong>Then:</strong> if there are recommendations, runs
+  <code>/taskdev agents/test-plans/plan-N.md</code>.</li>
+<li><strong>Stops for:</strong> commit (<code>docs(tests): add plan-N</code>).</li>
+</ul>
+<h2 id="todo-add">/todo-add<a class="headerlink" href="#todo-add" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/todo-add &lt;description&gt;
+/todo-add                 # files the finding just established in the conversation
+</code></pre></div>
+<ul>
+<li><strong>Reads:</strong> the project's <code>TODO.md</code> convention section (in <code>AGENTS.md</code> or
+  <code>CLAUDE.md</code>), <code>TODO.md</code> in full, the tail of <code>DONE.md</code>, and the code needed
+  to confirm the cause.</li>
+<li><strong>Writes:</strong> one item in <code>TODO.md</code>: a specific <code>##</code> title, the dated
+  finding (inside the project's accept markers), the cause with <code>path:line</code>,
+  and a Fix direction. It is inserted in implementation order, never
+  appended. A finding that shares a root cause with an open item joins it as
+  a <code>###</code> finding; one that touches several items is proposed as a
+  consolidation first.</li>
+<li><strong>Stops for:</strong> uncommitted <code>TODO.md</code> changes; a proposed consolidation;
+  commit (<code>docs(todo): ...</code>).</li>
+</ul>
+<p>A fix that belongs to another repository is filed in that repository's
+<code>TODO.md</code>. Conventions shared by the TODO skills are in
+<code>claude/skills/todo-review/conventions.md</code>; a project's own <code>TODO.md</code>
+section overrides them.</p>
+<h2 id="todo-review">/todo-review<a class="headerlink" href="#todo-review" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/todo-review
+</code></pre></div>
+<ul>
+<li><strong>Reads:</strong> <code>TODO.md</code>, <code>DONE.md</code>, and the project's specs, task lists,
+  reviews, code markers (<code>TODO</code>, <code>FIXME</code>, expected failures) and recent
+  commit bodies, looking for promised work no item records.</li>
+<li><strong>Proposes</strong>, before any edit: items to move to <code>DONE.md</code> with evidence,
+  stale premises, missing items, groups sharing a root cause, and the new
+  order, shown as a table.</li>
+<li><strong>Writes</strong>, once confirmed: <code>TODO.md</code> reordered and consolidated (original
+  bodies kept verbatim under <code>###</code>), finished items appended to <code>DONE.md</code>
+  with a <code>Done:</code> line, missing items added, stale premises corrected with a
+  dated note.</li>
+<li><strong>Verifies:</strong> saves <code>HEAD:TODO.md</code> to a scratch file first, then runs
+  <code>python3 ~/.claude/skills/todo-review/verify_bodies.py &lt;before&gt; TODO.md
+  DONE.md</code>, which exits non-zero if any original item body is lost or
+  altered.</li>
+<li><strong>Stops for:</strong> uncommitted <code>TODO.md</code> changes; the proposal; commit
+  (<code>docs(todo): ...</code>).</li>
+</ul>
+<p>Order, highest first: work-losing defects, blockers, waste, features (each
+before what it makes cheaper or safer), then deferred items.</p>
+<h2 id="todo-do">/todo-do<a class="headerlink" href="#todo-do" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/todo-do
+/todo-do &lt;item title&gt;
+</code></pre></div>
+<p>Re-checks the item is still open, still true, and not one symptom of a
+shared cause (if it is, proposes <code>/todo-review</code> and stops). Then sizes it:</p>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Small</td>
+<td>One logical change; no artefact, contract or public API change; no spec section rewrite; no paid run or real-data change</td>
+<td>Fix on a branch, test first for defects, run the project's checks, move the item to <code>DONE.md</code> with a <code>Done:</code> line, add dated notes to other items whose <code>path:line</code> moved</td>
+</tr>
+<tr>
+<td>Large</td>
+<td>Anything else, or the item says it goes through a spec</td>
+<td>Run <code>/specdev</code>, stop for spec review, offer <code>/taskdev</code>, add a <code>Spec: ...; tasks: ...</code> line to the item; it moves to <code>DONE.md</code> when the task list finishes</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Stops for:</strong> a done or stale item; a shared cause; spec review; a paid
+  LLM run (asks for provider and a cost estimate); commit.</li>
+<li>Backs up real project artefacts before a run that rewrites them; a new
+  defect found mid-run is filed with <code>/todo-add</code>, not fixed in place.</li>
+</ul>
+<h2 id="todo-run-order">/todo-run-order<a class="headerlink" href="#todo-run-order" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/todo-run-order &lt;items&gt; [run order name]
+</code></pre></div>
+<p><code>&lt;items&gt;</code> picks <code>TODO.md</code> items by position, counting <code>##</code> headings from 1,
+as numbers and ranges: <code>1-3,5,8</code>. Starts from the main checkout on a clean
+default branch level with its remote.</p>
+<ul>
+<li>Re-checks each item as <code>/todo-do</code> does, sizes it, and plans a task list per
+  small item and one or more specs per large one, each in this repository.</li>
+<li>Writes the specs with <code>/specdev</code>, then one review of all of them,
+  <code>agents/reviews/order-&lt;slug&gt;-specs.md</code>, with its page, naming every
+  prerequisite the operator must provide; stops until it is answered.</li>
+<li>Writes a task list per spec with <code>/taskdev</code>. Each list's last task saves
+  its final test output where <code>/rro</code>'s merge gate reads it, and each item
+  gets its <code>Spec: ...; tasks: ...</code> line.</li>
+<li>Writes <code>agents/tasks/order-&lt;slug&gt;.md</code>, taking the settings from the newest
+  order file or the project's rules, and checks it with <code>/rro</code>'s parser.</li>
+<li><strong>Stops for:</strong> a done, stale or shared-cause item; the specs' review; a
+  required setting nothing gives; commit. It never starts the order.</li>
+</ul>
+<h2 id="survey">/survey<a class="headerlink" href="#survey" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/survey [root]
+</code></pre></div>
+<p>Answers, for every repository at and below the root: which specs and task
+lists are not implemented, which expected failures and known bugs could be
+fixed, which <code>TODO.md</code> items can be done now, and which branches and
+worktrees are stale.</p>
+<ul>
+<li><strong>Runs:</strong> <code>python3 ~/.claude/skills/survey/inventory.py &lt;root&gt;</code>, which
+  prints each repository's status, worktrees, branches (merged or not), task
+  lists with open tasks and specs not marked implemented. Then one read-only
+  subagent per large repository, or per group of small ones, reads
+  <code>TODO.md</code>, test markers, reviews and specs.</li>
+<li><strong>Reports</strong> under the five questions, after checking in the code every
+  finding it recommends acting on. Repository state is given with the time
+  it was checked.</li>
+<li><strong>Files, on request:</strong> each finding in the <code>TODO.md</code> of the repository
+  where its fix is made, by the <code>todo-add</code> conventions. A finding blocked on
+  an upstream release, people (labelling, native readers), data or a
+  deferred decision is filed as deferred; an item already fixed moves to
+  <code>DONE.md</code>.</li>
+<li><strong>Hands over:</strong> the changed files, a table of what was filed, and an
+  implementation order saying what can run in parallel.</li>
+<li><strong>Stops for:</strong> the request to file; commit (<code>docs(todo): ...</code>, one per
+  repository). It never deletes branches (that is <code>/cleanup</code>) or pushes.</li>
+</ul>
+<h2 id="test-log-review">/test-log-review<a class="headerlink" href="#test-log-review" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/test-log-review [root] [--glob PATTERN]
+</code></pre></div>
+<p>Reads the newest pytest log of each kind (a full run, a correctness run) in
+every repository at and below the root, and turns its failures and warnings
+into reviewed, filed work.</p>
+<ul>
+<li><strong>Runs:</strong> <code>python3 ~/.claude/skills/test-log-review/scan.py &lt;root&gt;</code>, which
+  prints each log's summary line, its <code>FAILED</code> and <code>ERROR</code> lines and its
+  warnings grouped by message, counting from pytest's own summary line. Then
+  read-only subagents trace each warning to its source: one for third-party
+  warnings shared across repositories, one per repository or group for the
+  rest.</li>
+<li><strong>Reviews:</strong> a review document and an interactive page built from
+  <code>page-template.html</code> and checked with <code>check-page.js</code>: real defects,
+  test-side fixes and third-party warnings to approve or flag, and decisions
+  for fixes that change output or upgrade a recorded dependency.</li>
+<li><strong>Files, after the answers:</strong> each approved fix in the <code>TODO.md</code> of the
+  repository where it is made, by the <code>todo-add</code> conventions, with any
+  correction a filing agent finds recorded in the review.</li>
+<li><strong>Hands over:</strong> an implementation order in waves, a shared-environment
+  change first and alone.</li>
+<li><strong>Stops for:</strong> the review's answers; commit (<code>docs(todo): ...</code>, one per
+  repository). It never runs the test suite or pushes.</li>
+</ul>
+<h2 id="note-add">/note-add<a class="headerlink" href="#note-add" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/note-add &lt;the note&gt;
+/note-add                 # asks what to note
+</code></pre></div>
+<ul>
+<li><strong>Reads:</strong> <code>NOTES.md</code> in the repository root (offers to create it), and the
+  repository to fill in missing context.</li>
+<li><strong>Writes:</strong> appends one note to <code>NOTES.md</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">## &lt;short title&gt;</span>
+
+Added YYYY-MM-DD. &lt;the note&gt;
+</code></pre></div>
+<p>Adds to an existing note on the same subject instead of duplicating it.
+  Never edits other notes.
+- <strong>Stops for:</strong> up to a few clarifying questions on what a later reader
+  would miss (what, why, where, when, who); a preview with
+  add / change / cancel; commit (<code>docs(notes): &lt;subject&gt;</code>).</p>
+<p>Open work with a cause belongs in <code>TODO.md</code>; the skill redirects to
+<code>/todo-add</code>.</p>
+<h2 id="shipit">/shipit<a class="headerlink" href="#shipit" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/shipit [commit message hint]
+</code></pre></div>
+<p>It is not called <code>/ship</code>: Claude Code has a built-in <code>/ship</code> (commit, open a
+pull request and watch it), and a skill of the same name is hidden behind it.</p>
+<ol>
+<li>Inspects <code>git status</code>, diffs, branch, worktrees and recent log; stops if
+   it sees secrets, build output, large binaries or unrelated changes.</li>
+<li>Commits by logical change, staging files by name, with conventional
+   commit messages; fixes hook failures rather than bypassing them.</li>
+<li>On a feature branch: fetches, rebases onto <code>origin/main</code>, and
+   fast-forwards <code>main</code> (in the worktree that holds <code>main</code>, if another one
+   does).</li>
+<li>Pushes <code>main</code>, after <code>git pull --rebase</code> if <code>origin/main</code> moved. Never
+   force-pushes; stops on rejection.</li>
+<li>Reports the commits, the merge and the push, with repository state stated
+   only from a fresh <code>git fetch</code> and <code>git status -sb</code>.</li>
+</ol>
+<p>Feature branches and worktrees are left in place; use <code>/cleanup</code>.</p>
+<h2 id="cleanup">/cleanup<a class="headerlink" href="#cleanup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/cleanup [repo-path]
+</code></pre></div>
+<p>Works on one repository (default: the current one) and all its worktrees;
+never changes the remote. It reads only until the plan is approved.</p>
+<ul>
+<li><strong>Merged</strong> means, against the local default branch or <code>origin/&lt;default&gt;</code>:
+  ancestry, a rebase merge (<code>git cherry</code> shows no <code>+</code>), or a squash merge
+  (a probe commit of the branch's tree shows no <code>+</code>).</li>
+<li><strong>Removes:</strong> prunable worktrees; clean worktrees whose branch or detached
+  <code>HEAD</code> is merged; merged local branches. Skips the main worktree, the
+  current one, locked or dirty worktrees, and worktrees holding a submodule
+  (for which it prints the commands to run by hand).</li>
+<li><strong>Stops for:</strong> one approval of the plan - all, a named subset, or cancel.
+  The plan lists ignored files each worktree removal will delete.</li>
+<li>Never <code>--force</code> on worktrees. Uses <code>git branch -D</code> only for a branch it
+  proved merged by the rebase or squash test.</li>
+</ul>
+<h2 id="paper-pdf-hunter">/paper-pdf-hunter<a class="headerlink" href="#paper-pdf-hunter" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>/paper-pdf-hunter &lt;PAPER-LIST&gt; &lt;OUTPUT-FOLDER&gt;
+</code></pre></div>
+<p>Drives a real browser (Claude in Chrome preferred, else Playwright MCP; stops
+if neither is connected) to find a PDF for each paper in a Markdown list. It
+does not use scholarly APIs.</p>
+<ul>
+<li><strong>Reads:</strong> the Markdown list in any citation shape, extracting title,
+  authors, year, DOI, arXiv ID and URLs.</li>
+<li><strong>Searches</strong>, stopping at the first verified PDF: arXiv or DOI landing
+  page, Google Scholar (including all versions), preprint and repository
+  sites, general web search, then public ResearchGate or Academia.edu
+  copies. Shadow libraries and paywall bypasses are out of scope.</li>
+<li><strong>Verifies</strong> each file: <code>%PDF</code> header, size, and title on the first pages
+  via <code>pdftotext</code>.</li>
+<li><strong>Writes:</strong> <code>&lt;FirstAuthor&gt;_&lt;Year&gt;_&lt;first-five-title-words&gt;.pdf</code> (with
+  <code>_preprint</code> or <code>_accepted</code> suffixes, never overwriting) and
+  <code>download_report.md</code> in the output folder. Output defaults to <code>./papers/</code>
+  beside the list.</li>
+<li><strong>Stops for:</strong> a missing list or folder, Chrome's PDF download setting,
+  CAPTCHAs (the user solves them), and any login it would have to perform on
+  the user's behalf.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
