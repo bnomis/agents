@@ -17,7 +17,7 @@ Common behaviour:
 - The planning and TODO skills check `git status` first and ask
   whether to commit uncommitted changes before touching a file they own.
 - They ask before committing, and do not push unless asked. The exception
-  is `/ship`, whose job is to commit, merge and push.
+  is `/shipit`, whose job is to commit, merge and push.
 - Steps that change something outside the working tree (deleting branches,
   for example) are confirmed with the user first.
 - Questions to the user go through Claude Code's `AskUserQuestion` tool
@@ -49,7 +49,7 @@ Common behaviour:
 
 | Skill | Invocation | Purpose |
 |---|---|---|
-| [ship](#ship) | `/ship [message hint]` | Commit, merge the branch into `main`, push `main` |
+| [shipit](#shipit) | `/shipit [message hint]` | Commit, merge the branch into `main`, push `main` |
 | [cleanup](#cleanup) | `/cleanup [repo-path]` | Delete local branches and worktrees already merged |
 
 ### Other
@@ -306,11 +306,14 @@ into reviewed, filed work.
 Open work with a cause belongs in `TODO.md`; the skill redirects to
 `/todo-add`.
 
-## /ship {#ship}
+## /shipit {#shipit}
 
 ```text
-/ship [commit message hint]
+/shipit [commit message hint]
 ```
+
+It is not called `/ship`: Claude Code has a built-in `/ship` (commit, open a
+pull request and watch it), and a skill of the same name is hidden behind it.
 
 1. Inspects `git status`, diffs, branch, worktrees and recent log; stops if
    it sees secrets, build output, large binaries or unrelated changes.

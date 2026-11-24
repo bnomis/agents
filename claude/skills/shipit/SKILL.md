@@ -1,5 +1,5 @@
 ---
-name: ship
+name: shipit
 description: Commit the work in progress, merge it to main and push main
 when_to_use: |
     Use this skill whenever the user mentions:
@@ -13,7 +13,7 @@ allowed_tools: [Read, Bash, Glob, Grep, AskUserQuestion]
 # Ship
 
 Invoke as:
-    /ship [commit message hint]
+    /shipit [commit message hint]
 
 Commits the uncommitted work, merges the current branch into `main` and
 pushes `main`. Follow [git-conventions.md](../../rules/git-conventions.md)

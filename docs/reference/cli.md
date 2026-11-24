@@ -34,8 +34,8 @@ What the installer does, in short (its README has the detail):
 - For each top-level entry of `claude/` (dotfiles skipped): a file
   (`CLAUDE.md`, `statusline.py`) becomes a symlink in `~/.claude/`; a
   directory (`rules/`, `skills/`) becomes a real directory in `~/.claude/`
-  whose entries are symlinks, so `~/.claude/skills/ship` links to
-  `claude/skills/ship/`. Links are relative. An existing symlink is replaced;
+  whose entries are symlinks, so `~/.claude/skills/shipit` links to
+  `claude/skills/shipit/`. Links are relative. An existing symlink is replaced;
   an existing file is renamed with a `.orig` suffix (numbered when that name
   is taken).
 - Prints any dangling symlinks in `~/.claude/` and its immediate

@@ -6,7 +6,7 @@
 
 `/cleanup` deletes local branches and worktrees that no longer hold anything
 that is not already in the default branch. It exists because feature
-branches and worktrees accumulate after `/ship` (which leaves them in place
+branches and worktrees accumulate after `/shipit` (which leaves them in place
 unless asked) and after squash or rebase merges on the remote, and deleting
 them by hand means checking each one for unmerged commits and uncommitted
 files first.
