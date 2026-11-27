@@ -18,3 +18,11 @@ paths:
 - Property based testing: hypothesis <https://hypothesis.works/>
 - Network http[s] requests: `aiohttp` <https://docs.aiohttp.org/en/stable/>
 - Type checking: `mypy` <https://github.com/python/mypy>
+
+## Editor diagnostics are not the project's type checker
+
+The harness may show diagnostics after an edit from its own language server
+(Pyright, for example), run without the project's virtual environment. They
+are not the project's checks: do not relay or comment on them. Judge types
+with the project's own configured checker (`mypy`, run in the project's
+environment), and report only what it says.
